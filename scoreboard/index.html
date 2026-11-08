@@ -617,7 +617,7 @@ $('msg').innerHTML=`<div class="sm">GAME ${String(m[1]+1).padStart(2,'0')} / 09<
 <div class="guideSteps">${a.steps.map((s,i)=>`<div class="guideStep"><b>STEP ${i+1}</b>${esc(s)}</div>`).join('')}</div>
 <div class="guideFacts"><div class="guideFact"><b>PLAY</b>${esc(a.turn)}</div><div class="guideFact"><b>WIN BY</b>${esc(a.win)}</div><div class="guideFact"><b>POINTS</b>${esc(a.points)}</div></div>
 ${x.u?`<div class="sm">${x.t=='p'?'PAIR LINEUP':'TEAMS'}</div><div class="gr">${x.u.map((u,k)=>`<div class="gb">${x.t=='t'?'TEAM '+'AB'[k]+'<br>':''}${u.map(p=>nm(p-1)).join(x.t=='t'?' · ':' &amp; ')}</div>`).join('')}</div>`:''}`}
-else $('msg').innerHTML=`${festiveIcons('<div class="bob">'+spr('screen',8)+'</div>')}<h1>JIALAT CHRISTMAS 2026</h1><div class="tag">18 YEARS · 10 FRIENDS · 9 GAMES</div>`;return}
+else $('msg').innerHTML=`${festiveIcons('<div class="bob">'+spr('screen',8)+'</div>')}<h1>JIALAT CHRISTMAS 2026</h1><div class="tag">18 YEARS · 11 FRIENDS · 9 GAMES</div>`;return}
 const rev=m[0]=='rev',k=rev?m[1]:10,n=rev?9:m[1],fin=rev||(n>=9&&allDone()&&S.finalShown),st=stand(n),top=Math.max(1,st[0].t);
 $('th').textContent=rev?'THE FINAL VERDICT':n>=9?(fin?'FINAL STANDINGS':'LIVE STANDINGS'):'AFTER GAME '+n;
 $('ban').textContent=!rev||!k?'':rank===10?'THE JIALAT TROPHY GOES TO '+rn(st[9].i).toUpperCase():rank===1?'CHAMPION: '+rn(st[0].i).toUpperCase():rank>=7?'NEXT YEAR’S ORGANISER: '+rn(st[rank-1].i).toUpperCase():'#'+rank+' SAFE: '+rn(st[rank-1].i).toUpperCase();
@@ -640,3 +640,4 @@ if(ROLE=='tv'){mkRows();setInterval(tickTvCountdown,100);$('T').ondblclick=()=>d
 render();if(ROLE)conn();
 if(ROLE==='host')try{queued=localStorage.getItem(pendingKey);if(queued){status('','Sending saved update…');sendLatest()}}catch(e){}
 </script></body></html>
+
