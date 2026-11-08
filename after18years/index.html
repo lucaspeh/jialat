@@ -10,6 +10,10 @@
 @media(max-width:760px){.host .wheel-wrap{width:min(100%,34vh)}}
 @media(max-width:359px){.shell{padding-left:12px;padding-right:12px}.masthead h1{font-size:24px}.landing .masthead h1{font-size:25px}.room-code{font-size:10px}.pairing{padding:9px}.spin-button{font-size:15px}}
 @media(max-height:740px) and (min-width:900px){.tv .shell{padding-top:8px}.tv .topbar a{min-height:30px}.tv .masthead h1{font-size:30px}.tv .masthead .eyebrow{font-size:9px}.tv .wheel-wrap{width:59vh}.tv .result{min-height:85px;margin-top:6px}.tv .result h2{font-size:38px}.tv .order-list li{min-height:29px;font-size:16px}.tv .sync{min-height:20px;font-size:10px}}
+.result{min-height:142px}.result.has-winner h2{font-size:clamp(35px,6.4vw,66px);color:#fff5d8;text-shadow:3px 3px 0 #000,0 0 22px #f3d77a26;transform-origin:center}.name-pop{animation:name-arrive .65s cubic-bezier(.18,.89,.32,1.2) both}@keyframes name-arrive{0%{opacity:.3;transform:translateY(7px) scale(.82)}65%{opacity:1;transform:translateY(-2px) scale(1.04)}100%{opacity:1;transform:none}}
+.tv .result{min-height:160px}.tv .result.has-winner h2{font-size:clamp(48px,7.6vh,82px)}.tv .wheel-wrap{width:min(58vh,64vw,calc(100vh - 420px))}
+@media(max-width:760px){.result,.tv .result{min-height:135px}.result.has-winner h2,.tv .result.has-winner h2{font-size:clamp(36px,10vw,44px)}.host .wheel-wrap{width:min(100%,31vh)}.tv .wheel-wrap{width:min(80vw,47vh)}}
+@media(max-height:740px) and (min-width:900px){.tv .wheel-wrap{width:min(50vh,calc(100vh - 350px))}.tv .result{min-height:140px}.tv .result.has-winner h2{font-size:clamp(40px,7vh,56px)}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style></head><body><div class="shell" id="app"></div>
 <script>
@@ -21,6 +25,8 @@ const app=document.getElementById('app');
 let mode='',room='',owner='',S=null,pending=null,stream=null,streamOpen=false,pollOK=false,cursor='',polling=false,sending=false;
 let retryTimer=0,retryAt=0,pollTimer=0,probe=null,peer=null,waitingDisplay='',fastUntil=0,errorText='',storageOK=true,blocked=false;
 let raf=0,wheelKey='',viewKey='',displayId=uid(),seen=new Set(),helloTimer=0;
+let readyViewSeen=false,lastReadyDraw='',revealArmed='',revealedDraw='';
+let helloChallenge=uid(),answeredChallenges=new Set();
 const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 function $(id){return document.getElementById(id)}
 function read(key){try{return JSON.parse(localStorage.getItem(NS+key)||'null')}catch(e){return null}}
@@ -54,7 +60,7 @@ function calibrated(){return mode!=='tv'||!!(S&&finite(S.clocks[displayId]))}
 function spinning(){return !!(S&&S.draw&&now()<S.draw.endAt)}
 function emptyState(){return {v:1,room,owner,id:uid(),rev:1,order:[],draw:null,clocks:{}}}
 function snapshot(changes){return Object.assign({},S,{id:uid(),rev:S.rev+1},changes)}
-function wheelIcon(){return '<svg viewBox="0 0 60 60" aria-hidden="true"><g class="icon-disc"><circle cx="30" cy="30" r="25" fill="#2a2108" stroke="#d4af37" stroke-width="3"/><path d="M30 5v50M5 30h50M12 12l36 36M12 48l36-36" stroke="#f3d77a" stroke-width="3"/><circle cx="30" cy="30" r="6" fill="#f3d77a"/></g><path d="M25 0h10l-5 12z" fill="#f3d77a"/></svg>'}
+function wheelIcon(){return '<svg viewBox="0 0 60 60" aria-hidden="true"><g class="icon-disc"><circle cx="30" cy="30" r="25" fill="#111" stroke="#d4af37" stroke-width="3"/><g stroke="#111" stroke-width="2"><path d="M30 30V7A23 23 0 0 1 53 30Z" fill="#ca5364"/><path d="M30 30H53A23 23 0 0 1 30 53Z" fill="#f0d47a"/><path d="M30 30V53A23 23 0 0 1 7 30Z" fill="#68ad83"/><path d="M30 30H7A23 23 0 0 1 30 7Z" fill="#f6f0de"/></g><circle cx="30" cy="30" r="6" fill="#d4af37" stroke="#111" stroke-width="2"/></g><path d="M25 0h10l-5 12z" fill="#ff8b78"/></svg>'}
 function landing(){
  document.body.className='';const last=read('last');
  app.innerHTML='<div class="topbar"><a href="../">← MAIN MENU</a><span>JIALAT 2026</span></div><div class="landing"><div class="landing-mark">'+wheelIcon()+'</div><header class="masthead"><p class="eyebrow">18 YEARS · 11 FRIENDS</p><h1>AFTER 18 YEARS…</h1><p>PRESENTATION NIGHT</p></header><p class="intro-text">One wheel. Everyone gets a turn.<br>Draw the presentation order together.</p><button class="button primary" id="host-start">'+(last?'Resume host draw':'Host the draw')+'</button>'+(last?'<button class="button small" id="host-new">Create a new draw</button>':'')+'<form class="join-card" id="tv-join"><label for="room-input">ON THE TV / MACBOOK</label><input id="room-input" placeholder="ROOM CODE" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" required aria-describedby="join-error"><button class="button primary" type="submit">Open TV display</button><p class="join-error" id="join-error" role="status"></p></form></div>';
@@ -73,15 +79,16 @@ function svg(tag,attrs,text){const e=document.createElementNS('http://www.w3.org
 function polar(r,a){const t=(a-90)*Math.PI/180;return [500+r*Math.cos(t),500+r*Math.sin(t)]}
 function buildWheel(players,key){
  if(wheelKey===key)return;wheelKey=key;const disc=$('wheel-disc');disc.replaceChildren();
- const fills=['#e2bf58','#ffe39b','#b58b22'],step=360/players.length;
+ const palette=[{fill:'#195b44',text:'#fff8e7'},{fill:'#f0d47a',text:'#171204'},{fill:'#a12b43',text:'#fff8e7'},{fill:'#f6f0de',text:'#171204'}],step=360/players.length;
  players.forEach((person,i)=>{const a=polar(467,i*step),b=polar(467,(i+1)*step),mid=(i+.5)*step,p=polar(320,mid),g=svg('g',{'data-person':person});
- g.append(svg('path',{d:'M500 500L'+a.join(' ')+'A467 467 0 '+(step>180?1:0)+' 1 '+b.join(' ')+'Z',fill:fills[i%fills.length],stroke:'#0a0a0a','stroke-width':5}));
- const angle=mid+(mid>180?90:-90);g.append(svg('text',{x:p[0],y:p[1],'text-anchor':'middle','dominant-baseline':'middle',fill:'#171204','font-family':'Courier New,monospace','font-weight':700,'font-size':players.length>8?34:40,transform:'rotate('+angle+' '+p.join(' ')+')'},NAMES[person]));disc.append(g)});
+ g.append(svg('path',{d:'M500 500L'+a.join(' ')+'A467 467 0 '+(step>180?1:0)+' 1 '+b.join(' ')+'Z',fill:palette[i%palette.length].fill,stroke:'#0a0a0a','stroke-width':5}));
+ const angle=mid+(mid>180?90:-90);g.append(svg('text',{x:p[0],y:p[1],'text-anchor':'middle','dominant-baseline':'middle',fill:palette[i%palette.length].text,'font-family':'Courier New,monospace','font-weight':700,'font-size':players.length>8?34:40,transform:'rotate('+angle+' '+p.join(' ')+')'},NAMES[person]));disc.append(g)});
  $('wheel-svg').setAttribute('aria-label','Presentation wheel with '+players.length+' names');
 }
 function paint(){
  if(!mode||!$('wheel-disc'))return;if(raf)cancelAnimationFrame(raf);raf=0;
  const ready=calibrated(),d=S&&S.draw,active=!!(d&&(!ready||now()<d.endAt));
+ if(ready){const id=d?d.id:'';if(readyViewSeen&&id&&id!==lastReadyDraw)revealArmed=id;if(d&&active)revealArmed=id;if(!d)revealArmed='';readyViewSeen=true;lastReadyDraw=id;}
  const players=d?d.players:NAMES.map((_,i)=>i);buildWheel(players,d?d.id:'idle');
  let progress=d&&ready?Math.max(0,Math.min(1,(now()-d.startAt)/(d.endAt-d.startAt))):0;
  const angle=d?(reduced?(progress===1?d.to:0):d.to*(1-Math.pow(1-progress,4))):0;
@@ -107,6 +114,10 @@ function paint(){
   document.querySelectorAll('#wheel-disc g').forEach(g=>{const path=g.querySelector('path'),hit=!!(d&&!active&&Number(g.dataset.person)===d.winner);path.setAttribute('stroke',hit?'#fff4be':'#0a0a0a');path.setAttribute('stroke-width',hit?12:5)});
   $('wheel-disc').dataset.winner=d&&!active?String(d.winner):'';
  }
+ const winnerReady=!!(ready&&d&&!active),result=$('picked-name').closest('.result'),name=$('picked-name');
+ result.classList.toggle('has-winner',winnerReady);
+ if(!winnerReady&&name.classList.contains('name-pop'))name.classList.remove('name-pop');
+ if(winnerReady&&revealArmed===d.id&&revealedDraw!==d.id){revealedDraw=d.id;if(!reduced){name.classList.remove('name-pop');void name.offsetWidth;name.classList.add('name-pop');}}
  status();if(d&&ready&&progress<1)raf=requestAnimationFrame(paint);
 }
 function discWinner(){return $('wheel-disc').dataset.winner||''}
@@ -167,7 +178,7 @@ function onMessage(envelope){
   return;
  }
  if(mode==='tv'){
-  if(m.t==='host-online'){announce();return}
+  if(m.t==='host-online'&&(!m.target||m.target===displayId)&&(/^[a-f0-9]{16}$/).test(m.challenge)){fastUntil=Date.now()+16000;schedulePoll();announce(m.challenge);return}
   if(m.t==='probe'&&(m.target==='*'||m.target===displayId)&&typeof m.probe==='string'&&finite(m.hostAt)){
    fastUntil=Date.now()+16000;schedulePoll();control('ready',{display:displayId,probe:m.probe,hostAt:m.hostAt,tvAt:Date.now(),visible:!document.hidden,rev:S?S.rev:0}).catch(()=>{});
   }
@@ -175,7 +186,9 @@ function onMessage(envelope){
  }
  if(m.t==='hello'&&(/^[a-f0-9]{16}$/).test(m.display)&&Math.abs(Date.now()-(envelope.time*1000||m.at))<25000){
   if(probe&&probe.target===m.display||peer&&peer.id===m.display&&Date.now()-peer.seen<10000)return;
-  if(pending||probe)waitingDisplay=m.display;else beginProbe('sync',m.display);return;
+  if(m.challenge!==helloChallenge){fastUntil=Date.now()+16000;schedulePoll();control('host-online',{challenge:helloChallenge,target:m.display}).catch(()=>{});return}
+  if(pending){waitingDisplay=m.display;return}
+  if(probe){const purpose=probe.purpose;cancelProbe();beginProbe(purpose,m.display)}else beginProbe('sync',m.display);return;
  }
  if(m.t==='ready'&&probe&&m.probe===probe.id&&(probe.target==='*'||probe.target===m.display)&&(/^[a-f0-9]{16}$/).test(m.display)&&finite(m.tvAt)){
   const p=probe;clearTimeout(p.timer);probe=null;
@@ -189,7 +202,7 @@ function onMessage(envelope){
  }
  if(m.t==='ack'&&typeof m.display==='string'&&S&&m.stateId===S.id){if(peer&&peer.id===m.display)peer.seen=Date.now();status()}
 }
-function announce(){if(mode==='tv'&&!document.hidden)control('hello',{display:displayId}).catch(()=>{})}
+function announce(challenge=''){if(mode!=='tv'||document.hidden||challenge&&answeredChallenges.has(challenge))return;if(challenge){answeredChallenges.add(challenge);if(answeredChallenges.size>40)answeredChallenges.delete(answeredChallenges.values().next().value)}control('hello',{display:displayId,challenge}).catch(()=>{})}
 function schedulePoll(){clearTimeout(pollTimer);pollTimer=0;if(!mode||streamOpen)return;pollTimer=setTimeout(async()=>{await poll();schedulePoll()},Date.now()<fastUntil?1000:12000)}
 async function poll(){
  if(polling||!mode||document.hidden)return;polling=true;const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
@@ -197,16 +210,16 @@ async function poll(){
  catch(e){pollOK=false}finally{clearTimeout(timer);polling=false;status()}
 }
 function connect(){
- if(stream)stream.close();streamOpen=false;
+ if(stream)stream.close();streamOpen=false;if(mode==='host')helloChallenge=uid();
  try{stream=new EventSource(BASE+PREFIX+room+'/sse?since='+encodeURIComponent(cursor||'all'));
-  stream.onopen=()=>{streamOpen=true;pollOK=true;clearTimeout(pollTimer);pollTimer=0;status();if(mode==='host'){flush();control('host-online',{}).catch(()=>{})}else{announce();clearTimeout(helloTimer);helloTimer=setTimeout(announce,2000)}};
+  stream.onopen=()=>{streamOpen=true;pollOK=true;clearTimeout(pollTimer);pollTimer=0;status();if(mode==='host'){helloChallenge=uid();flush();control('host-online',{challenge:helloChallenge}).catch(()=>{})}else{announce();clearTimeout(helloTimer);helloTimer=setTimeout(announce,2000)}};
   stream.onerror=()=>{streamOpen=false;status();poll();schedulePoll()};
   stream.addEventListener('message',e=>{try{onMessage(JSON.parse(e.data))}catch(err){}});
  }catch(e){streamOpen=false;poll();schedulePoll()}
 }
 function resume(){if(!mode||document.hidden)return;errorText='';connect();poll();if(mode==='host')flush();else announce();paint()}
 async function copyTV(){try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error('Clipboard unavailable');await navigator.clipboard.writeText(tvLink());$('copy-note').textContent='TV link copied. Open it on the MacBook or TV.'}catch(e){$('tv-link').focus();$('tv-link').select();$('copy-note').textContent='Select and copy the TV link above.'}}
-function cleanup(){if(stream)stream.close();stream=null;clearTimeout(pollTimer);clearTimeout(retryTimer);clearTimeout(helloTimer);if(probe)clearTimeout(probe.timer);if(raf)cancelAnimationFrame(raf);raf=0;probe=null;peer=null;waitingDisplay='';seen=new Set();cursor='';streamOpen=false;pollOK=false;wheelKey='';viewKey='';sending=false;polling=false;blocked=false;errorText=''}
+function cleanup(){if(stream)stream.close();stream=null;clearTimeout(pollTimer);clearTimeout(retryTimer);clearTimeout(helloTimer);if(probe)clearTimeout(probe.timer);if(raf)cancelAnimationFrame(raf);raf=0;probe=null;peer=null;waitingDisplay='';seen=new Set();cursor='';streamOpen=false;pollOK=false;wheelKey='';viewKey='';sending=false;polling=false;blocked=false;errorText='';readyViewSeen=false;lastReadyDraw='';revealArmed='';revealedDraw='';helloChallenge=uid();answeredChallenges=new Set()}
 function route(){
  cleanup();mode='';room='';owner='';S=null;pending=null;
  const m=/^#(host|tv)=([a-z2-9]{8})(?:\.([a-f0-9]{16}))?$/.exec(location.hash);
