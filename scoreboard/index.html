@@ -51,6 +51,14 @@ body.landing .dot{display:none}
 .soundbar{display:flex;align-items:center;gap:8px;margin:7px 0 12px}
 .soundbar button{padding:7px 10px;font-size:12px}
 .soundbar button.sound-on{border-color:var(--teal);color:var(--teal)}
+.champion-prize{border:1px solid var(--d);background:#211b0c;padding:8px 10px;color:var(--l);font-size:13px}
+.champion-prize small{display:block;color:var(--muted);font-size:12px;font-weight:400;margin-top:2px}
+.prize-label{color:var(--l)}
+.chooser .prize-label{font-size:14px;margin:-8px 0 20px}
+#T .prize-label{font-size:2.6vh}
+.spot-prize .cash-prize{gap:1.2vw}
+.spot-prize .cash-prize svg{width:clamp(54px,10vh,110px)}
+.spot-prize .cash-prize .cash-amount{font-size:clamp(28px,5vh,65px);color:var(--l)}
 /* host */
 #H{max-width:860px;margin:auto;padding:14px}
 .hd{display:flex;justify-content:space-between;color:var(--g);font-size:17px;margin-bottom:10px}
@@ -214,11 +222,20 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--g)}
 .bar{flex:1;height:100%;border:.5vh solid var(--d);background:#111;position:relative;display:flex;align-items:center}
 .bar i{position:absolute;left:0;top:0;bottom:0;background:var(--c);transition:width .9s steps(12)}
 .nm{position:relative;z-index:1;padding-left:2vw;font-size:3.6vh;text-shadow:.4vh .4vh 0 #000;display:flex;gap:1.2vw;align-items:center}
+.cash-prize{display:inline-flex;flex:0 0 auto;align-items:center;gap:.5vw;line-height:1;filter:drop-shadow(2px 2px 0 #082b20)}
+.cash-prize svg{width:clamp(36px,5.5vh,62px);height:auto;overflow:visible}
+.cash-amount{font-size:clamp(13px,2.2vh,25px);color:#fff8df;text-shadow:2px 2px 0 #082b20;white-space:nowrap}
+.cash-note{transform-box:fill-box;transform-origin:center}
+.cash-note.back{animation:cash-back 2.4s steps(4) infinite}
+.cash-note.front{animation:cash-front 2.4s steps(4) infinite}
+@keyframes cash-back{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translate(1px,-2px) rotate(1deg)}}
+@keyframes cash-front{0%,100%{transform:translateY(0)}50%{transform:translateY(1px) rotate(3deg)}}
+@media(prefers-reduced-motion:reduce){.cash-note.back,.cash-note.front{animation:none}}
 .pt{width:11vh;font-size:4.4vh;color:var(--l);text-align:right}
 .z0{--c:#d4af37}.z1{--c:#355b6c}.z2{--c:#865047}.z3{--c:#a8262c}
 .hid .bar i{width:0!important}.hid .nm{color:#555}
 .hop .in{animation:hop .5s steps(4)}
-#lg{font-size:2vh;color:var(--muted);margin-top:1vh}
+#lg{display:flex;flex-wrap:wrap;justify-content:center;gap:.3vh 1.5vw;font-size:1.8vh;color:var(--muted);margin-top:1vh}
 .bob{animation:bob 1s steps(2) infinite}.wob{animation:wob .6s steps(2) infinite}
 @keyframes hop{50%{transform:translateY(-1.4vh)}}@keyframes bob{50%{transform:translateY(-1.2vh)}}@keyframes wob{50%{transform:rotate(-8deg)}}
 .cf{position:fixed;top:-3vh;width:1.4vh;height:1.4vh;z-index:9;animation:fall linear forwards}
@@ -228,7 +245,7 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--g)}
 <span id="sync" role="status" aria-live="polite"></span>
 <div id="tvAudio"><button id="tvAudioToggle" aria-pressed="false" onclick="toggleTvSound()">Enable TV sound</button><details id="tvAudioTests"><summary>Test tones</summary><div class="tone-tests"><small>Audio plays from this screen.</small><button onclick="previewTvCue('end')">Timer · Time’s up</button><button onclick="previewTvCue('happy')">2–6 · Happy</button><button onclick="previewTvCue('organiser')">7–9 · Oh no!</button><button onclick="previewTvCue('champion')">1st · Champion</button><button onclick="previewTvCue('cheeky')">10th · Cheeky</button></div></details></div>
 <div id="H"></div>
-<div id="T"><div id="msg"></div><div id="bd"><h1 id="th"></h1><div id="ban"></div><div id="rows"></div><div id="lg">1-6 SAFE · 7-9 NEXT YEAR'S ORGANISERS · 10 THE JIALAT TROPHY</div></div></div>
+<div id="T"><div id="msg"></div><div id="bd"><h1 id="th"></h1><div id="ban"></div><div id="rows"></div><div id="lg"><span style="color:var(--l)">1ST · S$18 CASH PRIZE</span><span>2–6 SAFE</span><span>7–9 NEXT YEAR’S ORGANISERS</span><span>10TH · THE JIALAT TROPHY</span></div></div></div>
 <script>
 // ---- CONFIG: change the topic to anything long and random (host and TV share this file) ----
 const TOPIC='jialat26-k7q2m9x4vz', URL_='https://ntfy.sh/'+TOPIC;
@@ -244,7 +261,8 @@ const G=[
 {n:'Ribbon Relay',t:'p',r:'Transfer the loosely wrapped ribbon from Partner A to Partner B by spinning. Fastest complete transfer wins.',u:[[1,8],[9,7],[10,6],[2,5],[3,4]]},
 {n:'Reindeer Droppings',t:'t',r:'Carry one ornament between your knees and drop it in the basket. Most successful drops in 90 seconds wins.',u:[[1,3,5,7,9],[2,4,6,8,10]]},
 {n:'Christmas Tree Stack',t:'t',r:'Stack cups on one teammate. Most cups still balanced after 60 seconds wins.',u:[[1,4,6,8,9],[2,3,5,7,10]]}];
-const REVEAL_ORDER=[4,5,6,9,3,8,7,2,10,1];
+const REVEAL_ORDER=[4,5,6,7,3,8,2,9,10,1];
+const CHAMPION_PRIZE='S$18',PRIZE_TAG='OVERALL CHAMPION · '+CHAMPION_PRIZE;
 const ordinal=n=>n+(n===1?'st':n===2?'nd':n===3?'rd':'th');
 // The TV guide also serves as the host's agreed judging standard.
 const GUIDE=[
@@ -293,6 +311,7 @@ medal:['...YYY...','..YYYYY..','.YYYYYYY.','.YYY.YYY.','..YYYYY..','...YYY...','
 trophy:['.BYYYYYYYYB.','B.YYYYYYYY.B','B.YYYYYYYY.B','B..YYYYYY..B','.B.YYYYYY.B.','..B.YYYY.B..','...BYYYYB...','.....YY.....','....BBBB....','...BBBBBB...']};
 const C={Y:'#f3d77a',T:'#65d9cb',I:'#86baff',B:'#8a5a2b'};
 function spr(k,px){const a=SP[k];let s='';a.forEach((r,y)=>[...r].forEach((c,x)=>{if(C[c])s+=`<rect x="${x}" y="${y}" width="1" height="1" fill="${C[c]}"/>`}));return `<svg viewBox="0 0 ${a[0].length} ${a.length}" width="${a[0].length*px}" height="${a.length*px}" shape-rendering="crispEdges">${s}</svg>`}
+function cashPrizeIcon(){return `<span class="cash-prize" role="img" aria-label="Champion’s ${CHAMPION_PRIZE} cash prize"><svg viewBox="0 0 30 23" aria-hidden="true" shape-rendering="crispEdges"><g class="cash-note back"><path d="M7 3h22v12H7z" fill="#176b48" stroke="#082b20"/><path d="M9 5h18v8H9z" fill="none" stroke="#8de0a5"/><path d="M16 6h4v6h-4z" fill="#f3d77a"/></g><g class="cash-note front"><path d="M2 10h23v11H2z" fill="#8de0a5" stroke="#082b20"/><path d="M4 12h19v7H4z" fill="none" stroke="#176b48"/><path d="M12 11h3v9h-3z" fill="#f3d77a"/><text x="13.5" y="18.5" text-anchor="middle" font-family="monospace" font-size="9" font-weight="bold" fill="#082b20">$</text></g></svg><b class="cash-amount">${CHAMPION_PRIZE}</b></span>`}
 function holidayIcon(kind){
  const tree=['.......Y.......','......GGG......','.....GGGGG.....','....GGIGGGG....','...GGGGGGGGG...','.....GGGGG.....','....GGGGGGG....','...GGGGGYGGG...','..GGGGGGGGGGG..','....GGGGGGG....','...GGGGGGGGG...','..GGIGGGGGGGG..','.GGGGGGGGGRGGG.','GGGGGGGGGGGGGGG','......BBB......','......BBB......','.....BBBBB.....'];
  const santa=['.....RRRR......','....RRRRRR.....','...RRRRRRRR....','..WWWWWWWWWW...','..WSSSSSSSSW...','...SKSSSSKS....','...SSSSSSSS....','..WWWWSSWWWW...','...WWWWWWWW....','....WWWWWW.....','...RRWWWWRRR...','..RRRRWWRRRRR..','.WRRRRRRRRRRW..','..RRRBBBBRRR...','...RRRYYRRR....','...RRRRRRRR....','....RR..RR.....','...BBB..BBB....'];
@@ -572,7 +591,7 @@ function resultPanel(g){
 }
 function host(){const g=S.g,x=G[g],done=G.map((_,i)=>S.sc.every(r=>r[i]!=null)),m=S.m,ready=allDone()&&!unresolvedTie();
 const btn=[['Title',['idle']],['Rules',['rules',g]],['After G3',['board',3]],['After G6',['board',6]],['Live',['board',9]],['Final reveal',['rev',0]]];
-let h=`<div class="hd"><b><span class="host-icon" aria-hidden="true">${spr('tally',3)}</span>JIALAT 2026 · HOST</b></div><div class="soundbar"><button class="${soundOn?'sound-on':''}" aria-pressed="${soundOn}" onclick="toggleSound()">${soundOn?'Host sound on':'Enable host sound'}</button>${soundOn?'<button onclick="testSound()">Test chime</button>':''}<span class="hint">Enable TV sound once on the MacBook for Games 8–9’s finish chime and reveal sounds.</span></div><div class="lb">TV SHOWS</div><div class="rw">${btn.map(([l,mm])=>`<button class="${m[0]==mm[0]&&(m[0]!='board'||m[1]==mm[1])?'on':''}" onclick='${l==='Final reveal'?'tryReveal()':'tvm('+JSON.stringify(mm)+')'}'>${l}</button>`).join('')}</div>`;
+let h=`<div class="hd"><b><span class="host-icon" aria-hidden="true">${spr('tally',3)}</span>JIALAT 2026 · HOST</b></div><div class="champion-prize"><b>${PRIZE_TAG}</b><small>Highest total after all nine games.</small></div><div class="soundbar"><button class="${soundOn?'sound-on':''}" aria-pressed="${soundOn}" onclick="toggleSound()">${soundOn?'Host sound on':'Enable host sound'}</button>${soundOn?'<button onclick="testSound()">Test chime</button>':''}<span class="hint">Enable TV sound once on the MacBook for Games 8–9’s finish chime and reveal sounds.</span></div><div class="lb">TV SHOWS</div><div class="rw">${btn.map(([l,mm])=>`<button class="${m[0]==mm[0]&&(m[0]!='board'||m[1]==mm[1])?'on':''}" onclick='${l==='Final reveal'?'tryReveal()':'tvm('+JSON.stringify(mm)+')'}'>${l}</button>`).join('')}</div>`;
 if(!ready)h+=`<div class="sm" style="margin-top:8px">Tap Final reveal to check what is still needed.</div>`;
 if(revealCheck&&!ready){
  const missing=G.map((_,i)=>i).filter(i=>!done[i]),st=stand(9),groups=[];
@@ -606,7 +625,7 @@ let lastRev=-1;
 function activeCountdown(){return validCountdown(S.timer)&&S.m[0]==='rules'&&S.m[1]===S.timer.g?S.timer:null}
 function drawTvCountdown(c){
  const x=G[c.g];$('msg').className='timer-view';
- $('msg').innerHTML=`<div class="sm">GAME ${String(c.g+1).padStart(2,'0')} / 09 · ${LIMIT[c.g]} SECONDS</div><h1>${esc(x.n)}</h1><div class="timer-team">TEAM ${'AB'[c.slot]}</div><div class="timer-names">${x.u[c.slot].map(p=>nm(p-1)).join(' · ')}</div><div id="tvClockPhase" role="status" aria-live="polite"></div><div id="tvClock" aria-label="Time remaining"></div><div class="tv-clock-track" role="progressbar" aria-label="Round time remaining" aria-valuemin="0" aria-valuemax="${LIMIT[c.g]}"><div id="tvClockBar"></div></div><div id="tvClockHint"></div>`;
+ $('msg').innerHTML=`<div class="sm">GAME ${String(c.g+1).padStart(2,'0')} / 09 · ${LIMIT[c.g]} SECONDS · ${PRIZE_TAG}</div><h1>${esc(x.n)}</h1><div class="timer-team">TEAM ${'AB'[c.slot]}</div><div class="timer-names">${x.u[c.slot].map(p=>nm(p-1)).join(' · ')}</div><div id="tvClockPhase" role="status" aria-live="polite"></div><div id="tvClock" aria-label="Time remaining"></div><div class="tv-clock-track" role="progressbar" aria-label="Round time remaining" aria-valuemin="0" aria-valuemax="${LIMIT[c.g]}"><div id="tvClockBar"></div></div><div id="tvClockHint"></div>`;
  tickTvCountdown()
 }
 function tickTvCountdown(){
@@ -621,22 +640,22 @@ function tickTvCountdown(){
 }
 function tv(){const m=S.m,rank=m[0]=='rev'&&m[1]>0?REVEAL_ORDER[m[1]-1]:null,spot=m[0]=='rev'&&S.spotlight&&(rank===1||rank===10),sealed=m[0]=='board'&&m[1]>=9&&allDone()&&!S.finalShown,b=!sealed&&!spot&&(m[0]=='board'||m[0]=='rev');$('bd').style.display=b?'flex':'none';$('msg').style.display=b?'none':'flex';
 $('msg').className=spot?'spotlight '+(rank===10?'trophy':'champion'):m[0]=='rules'?'rules':'';
-if(!b){lastRev=-1;if(spot){const st=stand(9),who=st[rank-1];$('msg').innerHTML=`<div class="spot-icon">${spr(rank===10?'trophy':'medal',14)}</div><div class="spot-rank">${rank===10?'10TH PLACE · THE JIALAT TROPHY':'1ST PLACE · CHAMPION'}</div><h1>${rank===10?'THE JIALAT TROPHY':'THE CHAMPION'}</h1><div class="spot-name">${nm(who.i)}</div>`}
-else if(sealed){$('msg').innerHTML=`<div class="bob">${spr('screen',8)}</div><h1>ALL NINE GAMES COMPLETE</h1><div class="tag">THE FINAL REVEAL IS COMING</div>`}
+if(!b){lastRev=-1;if(spot){const st=stand(9),who=st[rank-1];$('msg').innerHTML=`<div class="spot-icon">${spr(rank===10?'trophy':'medal',14)}</div><div class="spot-rank">${rank===10?'10TH PLACE · THE JIALAT TROPHY':'1ST PLACE · CHAMPION'}</div><h1>${rank===10?'THE JIALAT TROPHY':'THE CHAMPION'}</h1><div class="spot-name">${nm(who.i)}</div>${rank===1?`<div class="spot-prize">${cashPrizeIcon()}<div class="sm">OVERALL CHAMPION’S CASH PRIZE</div></div>`:''}`}
+else if(sealed){$('msg').innerHTML=`<div class="bob">${spr('screen',8)}</div><h1>ALL NINE GAMES COMPLETE</h1><div class="tag">THE FINAL REVEAL IS COMING</div><div class="prize-label">${PRIZE_TAG}</div>`}
 else if(activeCountdown()){drawTvCountdown(S.timer)}
 else if(m[0]=='rules'){const x=G[m[1]],a=GUIDE[m[1]],kind={s:'SOLO',p:'PAIRS',t:'TEAMS OF FIVE'}[x.t];
-$('msg').innerHTML=`<div class="sm">GAME ${String(m[1]+1).padStart(2,'0')} / 09</div><h1>${esc(x.n)}</h1><div class="tag">${kind}</div><div class="guideGoal">${esc(a.goal)}</div>${scene(m[1])}
+$('msg').innerHTML=`<div class="sm">GAME ${String(m[1]+1).padStart(2,'0')} / 09 · ${PRIZE_TAG}</div><h1>${esc(x.n)}</h1><div class="tag">${kind}</div><div class="guideGoal">${esc(a.goal)}</div>${scene(m[1])}
 <div class="guideSteps">${a.steps.map((s,i)=>`<div class="guideStep"><b>STEP ${i+1}</b>${esc(s)}</div>`).join('')}</div>
 <div class="guideFacts"><div class="guideFact"><b>PLAY</b>${esc(a.turn)}</div><div class="guideFact"><b>WIN BY</b>${esc(a.win)}</div><div class="guideFact"><b>POINTS</b>${esc(a.points)}</div></div>
 ${x.u?`<div class="sm">${x.t=='p'?'PAIR LINEUP':'TEAMS'}</div><div class="gr">${x.u.map((u,k)=>`<div class="gb">${x.t=='t'?'TEAM '+'AB'[k]+'<br>':''}${u.map(p=>nm(p-1)).join(x.t=='t'?' · ':' &amp; ')}</div>`).join('')}</div>`:''}`}
-else $('msg').innerHTML=`${festiveIcons('<div class="bob">'+spr('screen',8)+'</div>')}<h1>JIALAT CHRISTMAS 2026</h1><div class="tag">18 YEARS · 11 FRIENDS · 9 GAMES</div>`;return}
+else $('msg').innerHTML=`${festiveIcons('<div class="bob">'+spr('screen',8)+'</div>')}<h1>JIALAT CHRISTMAS 2026</h1><div class="tag">18 YEARS · 11 FRIENDS · 9 GAMES</div><div class="prize-label">${PRIZE_TAG}</div>`;return}
 const rev=m[0]=='rev',k=rev?m[1]:10,n=rev?9:m[1],fin=rev||(n>=9&&allDone()&&S.finalShown),st=stand(n),top=Math.max(1,st[0].t);
 $('th').textContent=rev?'THE FINAL VERDICT':n>=9?(fin?'FINAL STANDINGS':'LIVE STANDINGS'):'AFTER GAME '+n;
-$('ban').textContent=!rev||!k?'':rank===10?'THE JIALAT TROPHY GOES TO '+rn(st[9].i).toUpperCase():rank===1?'CHAMPION: '+rn(st[0].i).toUpperCase():rank>=7?'NEXT YEAR’S ORGANISER: '+rn(st[rank-1].i).toUpperCase():'#'+rank+' SAFE: '+rn(st[rank-1].i).toUpperCase();
+$('ban').textContent=!rev||!k?'':rank===10?'THE JIALAT TROPHY GOES TO '+rn(st[9].i).toUpperCase():rank===1?'CHAMPION: '+rn(st[0].i).toUpperCase()+' · '+CHAMPION_PRIZE:rank>=7?'NEXT YEAR’S ORGANISER: '+rn(st[rank-1].i).toUpperCase():'#'+rank+' SAFE: '+rn(st[rank-1].i).toUpperCase();
 st.forEach(o=>{const d=rows[o.i],hide=rev&&!REVEAL_ORDER.slice(0,k).includes(o.r),z=o.r==10?3:o.r>=7?2:o.r==1?0:1,old=d.dataset.r;
 d.style.transform=`translateY(${(o.r-1)*100}%)`;d.className='row z'+z+(hide?' hid':'');
 if(old&&old!=o.r&&!hide){d.classList.add('hop')}d.dataset.r=o.r;
-d.querySelector('.rk').textContent=o.r;d.querySelector('.nm').innerHTML=hide?'???':esc(rn(o.i))+(fin&&o.r==10?`<span class="wob">${spr('medal',3)}</span>`:fin&&o.r>=7&&o.r<10?'<small>ORGANISER</small>':'');
+d.querySelector('.rk').textContent=o.r;d.querySelector('.nm').innerHTML=hide?'???':esc(rn(o.i))+(fin&&o.r==1?cashPrizeIcon():fin&&o.r==10?`<span class="wob">${spr('medal',3)}</span>`:fin&&o.r>=7&&o.r<10?'<small>ORGANISER</small>':'');
 d.querySelector('i').style.width=hide?'0':(o.t/top*100)+'%';d.querySelector('.pt').textContent=hide?'':o.t});
 if(rev&&k==10&&lastRev!=10)confetti();lastRev=rev?k:-1}
 // ---- boot ----
@@ -646,7 +665,7 @@ function render(){document.body.className=ROLE||'landing';if(ROLE=='host')host()
 <g class="bead-one"><path fill="#65d9cb" d="M4 3h2v3H4z"/></g>
 <g class="bead-two"><path fill="#86baff" d="M5 6h2v3H5z"/></g>
 <g class="bead-three"><path fill="#ff8b78" d="M7 9h2v3H7z"/></g>
-</svg></div>${holidayIcon('santa')}</div><h1>SCOREBOARD</h1><div class="rw"><button class="go" onclick="location.hash='host';location.reload()">iPad · Host</button><button class="go" onclick="location.hash='tv';location.reload()">MacBook · TV</button></div></div>`}
+</svg></div>${holidayIcon('santa')}</div><h1>SCOREBOARD</h1><div class="prize-label">${PRIZE_TAG}</div><div class="rw"><button class="go" onclick="location.hash='host';location.reload()">iPad · Host</button><button class="go" onclick="location.hash='tv';location.reload()">MacBook · TV</button></div></div>`}
 restoreCountdown();
 if(ROLE=='tv'){mkRows();setInterval(tickTvCountdown,100);$('T').ondblclick=()=>document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}
 render();if(ROLE)conn();
