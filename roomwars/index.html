@@ -2,14 +2,30 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a">
+<meta name="description" content="Three mini-games. Five pairs. One room-picking order. Hosts set up the game; players join with the shared invite.">
 <title>Room Wars</title>
 
+
+<!-- JIALAT identity and share preview. -->
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" sizes="180x180">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="JIALAT 2026">
+<meta property="og:title" content="JIALAT 2026 · Room Wars">
+<meta property="og:description" content="Three mini-games. Five pairs. One room-picking order. Hosts set up the game; players join with the shared invite.">
+<meta property="og:url" content="https://lucaspeh.github.io/jialat/roomwars/">
+<meta property="og:image" content="https://lucaspeh.github.io/jialat/assets/jialat-share.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="JIALAT 2026. 18 years, 11 friends. 10–13 December 2026.">
+<meta name="twitter:card" content="summary_large_image">
 <style>
-:root{--bg:#0a0a0a;--g:#d4af37;--l:#f3d77a;--d:#6b5a22;--m:#b9b6a8;--t:#f2ead3;--ice:#86baff;--teal:#65d9cb;--coral:#ff8b78;--card:#111;--tx:#f2ead3;--mu:#b9b6a8;--g1:#f3d77a;--g2:#d4af37;--g3:#6b5a22;--bd:#6b5a22;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--bg:#0a0a0a;--g:#d4af37;--l:#f3d77a;--d:#6b5a22;--m:#b9b6a8;--t:#f2ead3;--ice:#86baff;--teal:#65d9cb;--coral:#ff8b78;--card:#111;--tx:#f2ead3;--mu:#b9b6a8;--g1:#f3d77a;--g2:#d4af37;--g3:#6b5a22;--bd:#6b5a22;color-scheme:dark;box-sizing:border-box}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0}
 body{background:var(--bg);color:var(--t);font:700 15px/1.45 "Courier New",ui-monospace,monospace;letter-spacing:.04em;padding:16px 14px 28px;max-width:520px;margin:0 auto;min-height:100vh}
 h1,h2{margin:0;font:inherit;text-transform:uppercase}
-h1{font-size:22px;color:var(--l);text-shadow:3px 3px 0 #000;letter-spacing:.06em}
+h1{font-size:22px;color:var(--l);text-shadow:2px 2px 0 var(--d);letter-spacing:.06em}
 h2{font-size:13px;color:var(--g);margin:24px 0 10px;padding:8px 10px;border:3px solid var(--d);border-left:10px solid var(--g);background:#111;letter-spacing:.1em}
 .brand{display:flex;flex-direction:column;align-items:center;gap:6px;margin:2px 0 10px;text-align:center}.brand img{width:min(240px,68%);height:auto;display:block}
 .sub{color:var(--m);font-weight:400;font-size:13px;margin:0 0 12px}
@@ -68,9 +84,21 @@ details.backup{margin:18px 0 8px;padding-top:12px;border-top:1px solid var(--d);
 .relay-actions{display:flex;flex-wrap:wrap;gap:8px}.relay-actions button{min-height:44px;padding:9px 11px;font-size:12px;letter-spacing:0;box-shadow:none;margin:0;flex:1 1 150px;border:2px solid #6b5a22;background:#161616;color:#f2ead3}
 .relay-details textarea{display:block;width:100%;min-height:130px;margin-top:10px;font:12px/1.4 monospace;color:#f2ead3;background:#080808;border:2px solid #6b5a22}
 
+
+/* Shared page chrome: readable navigation and safe edges. */
+html { -webkit-text-size-adjust: 100%; color-scheme: dark; }
+body { min-height: 100vh; min-height: 100svh; }
+a[href="../"] { display: inline-flex; align-items: center; min-height: 44px; color: #b9b6a8; font-size: 12px; line-height: 1.4; text-decoration: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+a[href="../"]:focus-visible { outline: 3px solid #86baff; outline-offset: 4px; }
+a[href="../"]:active { color: #f3d77a; }
+body { padding: calc(16px + env(safe-area-inset-top, 0px)) max(14px, env(safe-area-inset-right, 0px)) calc(28px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
+.site-navigation { margin-bottom: 8px; }
+@supports selector(body:has(.arena)) { body:has(.arena) .site-navigation { display: none; } }
+@media (max-width: 760px) { input, select, textarea { font-size: 16px; } }
 </style></head><body>
 <i id="dot" class="dot"></i>
-<div id="app"></div>
+<nav class="site-navigation" aria-label="Site navigation"><a href="../">← MAIN MENU</a></nav>
+<main id="app"></main>
 <script>
 
 // Connection state is shared by the three apps on this browser. No game data is stored here.
@@ -252,7 +280,7 @@ function render(){clearTimeout(tm);clearInterval(tm);
  home()}
 function wait(){view="wait";A.innerHTML='<p class="live" id="stat"></p>'+brand("ROOM WARS","trophy")+'<div class="card">Waiting for the host’s names. Ask the host to share the invite link again if this takes more than a few seconds.<button id="retry" class="alt">Retry connection</button></div>';stat();document.getElementById("retry").onclick=resume}
 function setup(){view="setup";
- var h=(code?'':'<p class="live"><a href="../">← MAIN MENU</a></p>')+brand("ROOM WARS","trophy")+'<p class="sub">'+(code?'Edit the names.':'Host: enter the 5 pairs. Then share the invite link with everyone.')+'</p>';
+ var h=brand("ROOM WARS","trophy")+'<p class="sub">'+(code?'Edit the names.':'Host: enter the 5 pairs. Then share the invite link with everyone.')+'</p>';
  for(var c=0;c<5;c++)h+='<div class="card"><b>Pair '+(c+1)+'</b><div class="row"><input id="p'+(c*2)+'" aria-label="Pair '+(c+1)+', first player" placeholder="Person A" maxlength="14" value="'+(S.names?esc(S.names[c*2]):"")+'"><input id="p'+(c*2+1)+'" aria-label="Pair '+(c+1)+', second player" placeholder="Person B" maxlength="14" value="'+(S.names?esc(S.names[c*2+1]):"")+'"></div></div>';
  h+='<button id="go">'+(code?'Save names':'Create game')+'</button>'+(code?'<button class="alt" id="bk">Cancel</button>':'');
  A.innerHTML=h;var b=document.getElementById("bk");if(b)b.onclick=render;
