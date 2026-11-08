@@ -1,6 +1,23 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="description" content="Nine Christmas games. One overall champion. S$18 for the winner. Choose the host controls or the TV display.">
 <title>Scoreboard</title>
+
+<!-- JIALAT identity and share preview. -->
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" sizes="180x180">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="JIALAT 2026">
+<meta property="og:title" content="JIALAT 2026 · Christmas Scoreboard">
+<meta property="og:description" content="Nine Christmas games. One overall champion. S$18 for the winner. Choose the host controls or the TV display.">
+<meta property="og:url" content="https://lucaspeh.github.io/jialat/scoreboard/">
+<meta property="og:image" content="https://lucaspeh.github.io/jialat/assets/jialat-share.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="JIALAT 2026. 18 years, 11 friends. 10–13 December 2026.">
+<meta name="twitter:card" content="summary_large_image">
 <style>
 :root{--bg:#0a0a0a;--g:#d4af37;--l:#f3d77a;--d:#6b5a22;--t:#f2ead3;--muted:#b9b6a8;--ice:#86baff;--teal:#65d9cb;--coral:#ff8b78}
 *{box-sizing:border-box;margin:0}
@@ -25,7 +42,7 @@ body:not(.tv) #tvAudio{display:none}
 body.landing #H{max-width:none;min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:24px}
 body.landing .dot{display:none}
 .chooser{text-align:center;width:min(100%,520px)}
-.chooser h1{color:var(--l);font-size:clamp(25px,5vw,42px);margin:15px 0 20px;text-shadow:3px 3px 0 #000}
+.chooser h1{color:var(--l);font-size:clamp(25px,5vw,42px);margin:15px 0 20px;text-shadow:2px 2px 0 var(--d)}
 .chooser .rw{justify-content:center;gap:12px}
 .chooser button{min-width:166px;padding:15px 18px}
 .chooser .back-menu{display:inline-block;color:var(--muted);font-size:12px;margin-bottom:20px;text-decoration:none;min-height:32px}
@@ -250,11 +267,28 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--g)}
 .relay-actions{display:flex;flex-wrap:wrap;gap:8px}.relay-actions button{min-height:44px;padding:9px 11px;font-size:12px;letter-spacing:0;box-shadow:none;margin:0;flex:1 1 150px;border:2px solid #6b5a22;background:#161616;color:#f2ead3}
 .relay-details textarea{display:block;width:100%;min-height:130px;margin-top:10px;font:12px/1.4 monospace;color:#f2ead3;background:#080808;border:2px solid #6b5a22}
 
+
+/* Shared page chrome: readable navigation and safe edges. */
+html { -webkit-text-size-adjust: 100%; color-scheme: dark; }
+body { min-height: 100vh; min-height: 100svh; }
+a[href="../"] { display: inline-flex; align-items: center; min-height: 44px; color: #b9b6a8; font-size: 12px; line-height: 1.4; text-decoration: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+a[href="../"]:focus-visible { outline: 3px solid #86baff; outline-offset: 4px; }
+a[href="../"]:active { color: #f3d77a; }
+button, summary { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+body.host #H { padding: 14px max(14px, env(safe-area-inset-right, 0px)) calc(28px + env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); }
+body.host #sync { padding-top: calc(4px + env(safe-area-inset-top, 0px)); padding-right: calc(30px + env(safe-area-inset-right, 0px)); }
+.dot { top: calc(10px + env(safe-area-inset-top, 0px)); right: calc(10px + env(safe-area-inset-right, 0px)); }
+body.landing #H { min-height: 100vh; min-height: 100svh; padding: calc(24px + env(safe-area-inset-top, 0px)) max(24px, env(safe-area-inset-right, 0px)) calc(24px + env(safe-area-inset-bottom, 0px)) max(24px, env(safe-area-inset-left, 0px)); }
+.chooser .back-menu { display: inline-flex; min-height: 44px; }
+.chooser .chooser-intro { font-size: 14px; }
+.hd { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.hd .menu-return { font-weight: 400; }
+@media (max-width: 760px) { input, select, textarea { font-size: 16px; } }
 </style></head><body>
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
 <div id="tvAudio"><button id="tvAudioToggle" aria-pressed="false" onclick="toggleTvSound()">Enable TV sound</button><details id="tvAudioTests"><summary>Test tones</summary><div class="tone-tests"><small>Audio plays from this screen.</small><button onclick="previewTvCue('end')">Timer · Time’s up</button><button onclick="previewTvCue('happy')">2–6 · Happy</button><button onclick="previewTvCue('organiser')">7–9 · Oh no!</button><button onclick="previewTvCue('champion')">1st · Champion</button><button onclick="previewTvCue('cheeky')">10th · Cheeky</button></div></details></div>
-<div id="H"></div>
+<main id="H"></main>
 <div id="T"><div id="msg"></div><div id="bd"><h1 id="th"></h1><div id="ban"></div><div id="rows"></div><div id="lg"><span style="color:var(--l)">1ST · S$18 CASH PRIZE</span><span>2–6 SAFE</span><span>7–9 NEXT YEAR’S ORGANISERS</span><span>10TH · THE JIALAT TROPHY</span></div></div></div>
 <script>
 
@@ -677,7 +711,7 @@ function resultPanel(g){
 }
 function host(){const g=S.g,x=G[g],done=G.map((_,i)=>S.sc.every(r=>r[i]!=null)),m=S.m,ready=allDone()&&!unresolvedTie();
 const btn=[['Title',['idle']],['Rules',['rules',g]],['After G3',['board',3]],['After G6',['board',6]],['Live',['board',9]],['Final reveal',['rev',0]]];
-let h=`<div class="hd"><b><span class="host-icon" aria-hidden="true">${spr('tally',3)}</span>JIALAT 2026 · HOST</b></div><div class="champion-prize"><b>${PRIZE_TAG}</b><small>Highest total after all nine games.</small></div><div class="soundbar"><button class="${soundOn?'sound-on':''}" aria-pressed="${soundOn}" onclick="toggleSound()">${soundOn?'Host sound on':'Enable host sound'}</button>${soundOn?'<button onclick="testSound()">Test chime</button>':''}<span class="hint">Enable TV sound once on the MacBook for Games 8–9’s finish chime and reveal sounds.</span></div><div class="lb">TV SHOWS</div><div class="rw">${btn.map(([l,mm])=>`<button class="${m[0]==mm[0]&&(m[0]!='board'||m[1]==mm[1])?'on':''}" onclick='${l==='Final reveal'?'tryReveal()':'tvm('+JSON.stringify(mm)+')'}'>${l}</button>`).join('')}</div>`;
+let h=`<div class="hd"><b><span class="host-icon" aria-hidden="true">${spr('tally',3)}</span>JIALAT 2026 · HOST</b>${Q?'':'<a class="menu-return" href="../">← MAIN MENU</a>'}</div><div class="champion-prize"><b>${PRIZE_TAG}</b><small>Highest total after all nine games.</small></div><div class="soundbar"><button class="${soundOn?'sound-on':''}" aria-pressed="${soundOn}" onclick="toggleSound()">${soundOn?'Host sound on':'Enable host sound'}</button>${soundOn?'<button onclick="testSound()">Test chime</button>':''}<span class="hint">Enable TV sound once on the MacBook for Games 8–9’s finish chime and reveal sounds.</span></div><div class="lb">TV SHOWS</div><div class="rw">${btn.map(([l,mm])=>`<button class="${m[0]==mm[0]&&(m[0]!='board'||m[1]==mm[1])?'on':''}" onclick='${l==='Final reveal'?'tryReveal()':'tvm('+JSON.stringify(mm)+')'}'>${l}</button>`).join('')}</div>`;
 if(!ready)h+=`<div class="sm" style="margin-top:8px">Tap Final reveal to check what is still needed.</div>`;
 if(revealCheck&&!ready){
  const missing=G.map((_,i)=>i).filter(i=>!done[i]),st=stand(9),groups=[];
