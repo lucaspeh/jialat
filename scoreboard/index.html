@@ -244,6 +244,12 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--g)}
 @keyframes hop{50%{transform:translateY(-1.4vh)}}@keyframes bob{50%{transform:translateY(-1.2vh)}}@keyframes wob{50%{transform:rotate(-8deg)}}
 .cf{position:fixed;top:-3vh;width:1.4vh;height:1.4vh;z-index:9;animation:fall linear forwards}
 @keyframes fall{to{transform:translateY(106vh)}}
+.relay-details{margin-top:18px;padding:10px 12px;border:1px solid #6b5a22;background:#111;color:#b9b6a8;text-align:left}
+.relay-details summary{min-height:44px;display:list-item;list-style-position:inside;padding:12px 0;cursor:pointer;color:#f3d77a;font-size:12px}
+.relay-details p{white-space:pre-line;font-size:12px;line-height:1.6;font-weight:400;margin:8px 0}
+.relay-actions{display:flex;flex-wrap:wrap;gap:8px}.relay-actions button{min-height:44px;padding:9px 11px;font-size:12px;letter-spacing:0;box-shadow:none;margin:0;flex:1 1 150px;border:2px solid #6b5a22;background:#161616;color:#f2ead3}
+.relay-details textarea{display:block;width:100%;min-height:130px;margin-top:10px;font:12px/1.4 monospace;color:#f2ead3;background:#080808;border:2px solid #6b5a22}
+
 </style></head><body>
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
@@ -252,23 +258,76 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--g)}
 <div id="T"><div id="msg"></div><div id="bd"><h1 id="th"></h1><div id="ban"></div><div id="rows"></div><div id="lg"><span style="color:var(--l)">1ST · S$18 CASH PRIZE</span><span>2–6 SAFE</span><span>7–9 NEXT YEAR’S ORGANISERS</span><span>10TH · THE JIALAT TROPHY</span></div></div></div>
 <script>
 
-// All three apps share the server's cooldown in this browser, including after refresh.
-var relayMemory={until:0,reason:'Relay busy (429)'};
-function relayInfo(){try{var x=JSON.parse(localStorage.getItem('jialat-relay-hold')||'null');if(x&&typeof x.until==='number'&&isFinite(x.until)&&x.until>relayMemory.until)relayMemory=x}catch(e){}return relayMemory}
+// Connection state is shared by the three apps on this browser. No game data is stored here.
+var relayMemory={until:0,reason:'Relay busy (429)'},relayQuotaPromise=null,relayDetailsOpen=false;
+function relayRead(key){try{return JSON.parse(localStorage.getItem(key)||'null')}catch(e){return null}}
+function relayWrite(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch(e){}}
+function relayInfo(){var x=relayRead('jialat-relay-hold');if(x&&typeof x.until==='number'&&isFinite(x.until)&&x.until>relayMemory.until)relayMemory=x;return relayMemory}
 function relayWait(){return Math.max(0,relayInfo().until-Date.now())}
-function relayWaitLabel(){return (relayInfo().reason||'Relay busy (429)')+' · retry in '+Math.ceil(relayWait()/1000)+'s'}
+function relayLocalTime(at){try{return new Date(at).toLocaleString([],{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}catch(e){return new Date(at).toLocaleString()}}
+function relayWaitLabel(){var x=relayInfo(),wait=Math.ceil(relayWait()/1000);return (x.reason||'Relay busy (429)')+(x.resetKnown&&x.code===42908?' · resets '+relayLocalTime(x.until):' · next check in '+wait+'s')}
 function relayLater(fn,ms){return setTimeout(fn,Math.min(2147483000,Math.max(0,ms)))}
-function relayWaitingError(){var e=Error('HTTP 429');e.status=429;e.retryAfterMs=relayWait();return e}
+function relayWaitingError(){var e=Error('HTTP 429');e.status=429;e.retryAfterMs=relayWait();e.ntfyCode=relayInfo().code||0;return e}
+function relayReason(code,detail){return {42901:'Too many requests (42901)',42903:'Too many open game tabs (42903)',42905:'Daily data allowance reached (42905)',42908:'Daily relay allowance reached (42908)',42911:'Too many new games (42911)'}[code]||(/daily/i.test(detail)?'Daily relay allowance reached (429)':'Relay busy (429)')}
+function relayQuota(){var q=relayRead('jialat-relay-quota');return q&&Number.isFinite(q.limit)&&q.limit>0&&Number.isFinite(q.remaining)&&q.remaining>=0&&Number.isFinite(q.checkedAt)&&Number.isFinite(q.resetAt)?q:null}
+function relayUseQuota(q){
+ if(q&&q.remaining===0&&q.resetAt>Date.now()&&q.resetAt>relayInfo().until){relayMemory={until:q.resetAt,reason:'Daily relay allowance used up',code:42908,resetKnown:true,source:'quota-status'};relayWrite('jialat-relay-hold',relayMemory)}
+}
+async function relayQuotaCheck(){
+ var cached=relayQuota();if(cached&&Date.now()-cached.checkedAt<60000){relayUseQuota(cached);return cached}
+ if(relayQuotaPromise)return relayQuotaPromise;
+ relayQuotaPromise=(async function(){var c=new AbortController(),timer=setTimeout(function(){c.abort()},8000);try{
+  var r=await fetch('https://ntfy.sh/v1/account',{cache:'no-store',credentials:'omit',signal:c.signal});if(!r.ok)return null;
+  var x=await r.json(),l=x&&x.limits,s=x&&x.stats;if(!l||!s||l.basis!=='ip'||!Number.isFinite(l.messages)||l.messages<=0||!Number.isFinite(s.messages_remaining)||s.messages_remaining<0||!Number.isFinite(s.reset_at))return null;
+  var q={limit:l.messages,remaining:Math.min(l.messages,s.messages_remaining),used:Number.isFinite(s.messages)?s.messages:l.messages-s.messages_remaining,resetAt:s.reset_at*1000,checkedAt:Date.now(),basis:'ip'};
+  relayWrite('jialat-relay-quota',q);relayUseQuota(q);return q;
+ }catch(e){return null}finally{clearTimeout(timer)}})();
+ try{return await relayQuotaPromise}finally{relayQuotaPromise=null}
+}
 async function relayResponseError(response){
  var e=Error('HTTP '+response.status);e.status=response.status;if(response.status!==429)return e;
  var raw=response.headers.get('Retry-After'),seconds=raw!==null&&String(raw).trim()!==''?Number(raw):NaN;
- var delay=isFinite(seconds)?Math.max(0,seconds*1000):Date.parse(raw)-Date.now();if(!isFinite(delay))delay=30000;
- var detail='';try{var body=await response.json();detail=body&&body.error||''}catch(ignore){}
- var until=Math.max(relayInfo().until,Date.now()+Math.max(5000,delay));
- relayMemory={until:until,reason:/daily/i.test(detail)?'Daily relay allowance reached (429)':'Relay busy (429)'};
- try{localStorage.setItem('jialat-relay-hold',JSON.stringify(relayMemory))}catch(ignore){}
- e.retryAfterMs=relayWait();return e;
+ var delay=isFinite(seconds)?Math.max(0,seconds*1000):Date.parse(raw)-Date.now(),known=Number.isFinite(delay),detail='',code=0;
+ try{var body=await response.json();detail=body&&typeof body.error==='string'?body.error:'';code=body&&Number.isSafeInteger(body.code)?body.code:0}catch(ignore){}
+ // Some cross-origin services do not expose Retry-After. Their JSON usage response exposes the reset time.
+ if(!known&&(code===42908||/daily.*message|message.*daily/i.test(detail))){var q=await relayQuotaCheck();if(q&&q.remaining===0&&q.resetAt>Date.now()){delay=q.resetAt-Date.now();known=true}}
+ if(!known)delay=code===42908?1800000:30000;
+ var at=Date.now(),until=at+Math.max(5000,delay),previous=relayInfo();
+ if(until>=previous.until){relayMemory={until:until,reason:relayReason(code,detail),code:code,resetKnown:known,source:'server-response'};relayWrite('jialat-relay-hold',relayMemory)}
+ relayWrite('jialat-relay-diagnostic',{http:429,code:code,reason:relayReason(code,detail),at:at,retryAt:relayInfo().until,retryHeaderVisible:raw!==null,resetKnown:known});
+ e.ntfyCode=code;e.retryAfterMs=relayWait();relayPanelUpdate();return e;
 }
+function relayPanelHTML(){return '<details class="relay-details"'+(relayDetailsOpen?' open':'')+'><summary>CONNECTION STATUS</summary><p id="relay-allowance" role="status">Check this network’s remaining allowance and reset time.</p><div class="relay-actions"><button type="button" id="relay-check">Check allowance</button><button type="button" id="relay-copy">Copy connection details</button></div><p id="relay-note" role="status"></p></details>'}
+function relayPanelUpdate(){
+ var box=document.getElementById('relay-allowance');if(!box)return;var q=relayQuota(),d=relayRead('jialat-relay-diagnostic'),lines=[];
+ if(q){lines.push(q.remaining+' / '+q.limit+' messages left when checked.');lines.push('Resets '+relayLocalTime(q.resetAt)+' (your device time).');lines.push('Checked '+relayLocalTime(q.checkedAt)+'. Devices on the same network may share this allowance.')}
+ else lines.push('Allowance not checked yet. Checking does not send a game result.');
+ if(relayWait()>0)lines.push(relayWaitLabel());else if(d)lines.push('Last limit: '+d.reason+' · '+relayLocalTime(d.at)+'.');
+ var text=lines.join('\n');if(box.textContent!==text)box.textContent=text;
+}
+function relayPanelBind(){
+ var check=document.getElementById('relay-check'),copy=document.getElementById('relay-copy'),panel=document.querySelector('.relay-details');if(!check)return;
+ panel.ontoggle=function(){relayDetailsOpen=panel.open};
+ check.onclick=async function(){check.disabled=true;var note=document.getElementById('relay-note');if(note)note.textContent='Checking allowance…';var q=await relayQuotaCheck();check.disabled=false;relayPanelUpdate();window.dispatchEvent(new Event('jialat-relay-status'));note=document.getElementById('relay-note');if(note)note.textContent=q?'Allowance checked. It does not reset by refreshing the page.':'Could not check the allowance. Saved game results are kept.';};
+ copy.onclick=async function(){var d=relayRead('jialat-relay-diagnostic'),q=relayQuota(),text=JSON.stringify({app:document.title,checkedAt:new Date().toISOString(),lastLimit:d||null,allowance:q||null},null,2),note=document.getElementById('relay-note');try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error('Clipboard unavailable');await navigator.clipboard.writeText(text);if(note)note.textContent='Connection details copied. No names, room links or results are included.'}catch(e){var old=document.getElementById('relay-manual');if(old)old.remove();var field=document.createElement('textarea');field.id='relay-manual';field.readOnly=true;field.setAttribute('aria-label','Connection details to copy');field.value=text;panel.appendChild(field);field.focus();field.select();if(note)note.textContent='Select and copy the connection details below.'}};
+ relayPanelUpdate();
+}
+// Try a second persistent connection before entering a deliberately slow standby mode.
+function relayStream(url){
+ var api={readyState:0,kind:'',onopen:null,onerror:null,onmessage:null,onconnecting:null},listeners=[],source=null,socket=null,timer=0,closed=false,failed=false,generation=0,lastMessageId='';
+ function emit(e){if(closed||failed)return;try{var packet=JSON.parse(e.data);if(packet.event==='message'&&typeof packet.id==='string')lastMessageId=packet.id}catch(ignore){}if(api.onmessage)api.onmessage(e);listeners.forEach(function(f){f(e)})}
+ function stopCurrent(){generation++;clearTimeout(timer);timer=0;if(source){source.onopen=source.onerror=source.onmessage=null;source.close();source=null}if(socket){socket.onopen=socket.onerror=socket.onclose=socket.onmessage=null;try{socket.close()}catch(e){}socket=null}}
+ function fail(){if(closed||failed)return;failed=true;api.readyState=2;stopCurrent();if(api.onerror)api.onerror({type:'error'})}
+ function opened(kind){if(closed||failed)return;clearTimeout(timer);timer=0;api.kind=kind;api.readyState=1;if(api.onopen)api.onopen({type:'open'})}
+ function webSocket(){if(closed||failed)return;stopCurrent();api.readyState=0;if(api.onconnecting)api.onconnecting({type:'connecting'});if(relayWait()>0){fail();return}try{if(!window.WebSocket)throw Error('WebSocket unavailable');var token=generation,u=new URL(url);u.protocol=u.protocol==='https:'?'wss:':'ws:';u.pathname=u.pathname.replace(/\/sse$/,'/ws');if(lastMessageId)u.searchParams.set('since',lastMessageId);socket=new WebSocket(u.href);socket.onopen=function(){if(token===generation)opened('websocket')};socket.onmessage=function(e){if(token===generation)emit(e)};socket.onerror=socket.onclose=function(){if(token===generation)fail()};timer=setTimeout(fail,8000)}catch(e){fail()}}
+ timer=setTimeout(function(){if(closed)return;try{if(relayWait()>0){fail();return}if(!window.EventSource)throw Error('EventSource unavailable');var token=++generation;source=new EventSource(url);source.onopen=function(){if(token===generation)opened('sse')};source.onerror=function(){if(token===generation)webSocket()};source.addEventListener('message',function(e){if(token===generation)emit(e)});timer=setTimeout(webSocket,8000)}catch(e){webSocket()}},0);
+ api.addEventListener=function(type,fn){if(type==='message')listeners.push(fn)};api.close=function(){closed=true;api.readyState=2;stopCurrent();listeners=[];window.removeEventListener('pagehide',api.close)};window.addEventListener('pagehide',api.close);return api;
+}
+// End shared relay.
+
+
+
+
 
 // ---- CONFIG: change the topic to anything long and random (host and TV share this file) ----
 const TOPIC='jialat26-k7q2m9x4vz', URL_='https://ntfy.sh/'+TOPIC;
@@ -370,6 +429,7 @@ const ROLE=(location.hash.match(/host|tv/)||[''])[0];
 const save=()=>{try{localStorage.setItem('jialat26',JSON.stringify(S))}catch(e){}};
 const status=(kind,label)=>{$('dot').className='dot '+kind;$('sync').textContent=label};
 let pt,retryTimer=null,sending=false,queued=null,stream=null,pollTimer=null,streamOpen=false,polling=false;
+window.addEventListener('jialat-relay-status',()=>{if(relayWait()>0)status('bad',relayWaitLabel()+(queued?' · update saved':''))});
 const pendingKey='jialat26-pending';
 function pending(body){try{if(body)localStorage.setItem(pendingKey,body);else localStorage.removeItem(pendingKey)}catch(e){}}
 function push(){queued=JSON.stringify(S);pending(queued);status('','Sending…');clearTimeout(pt);pt=setTimeout(sendLatest,250)}
@@ -402,15 +462,16 @@ async function poll(){if(polling||document.hidden||relayWait()>0)return;polling=
 function conn(){if(ROLE==='host'){status('','Ready to sync');if(!navigator.onLine)status('bad','Offline · retrying');return}
  if(relayWait()>0){if(stream)stream.close();streamOpen=false;clearInterval(pollTimer);pollTimer=relayLater(()=>{pollTimer=null;conn()},relayWait());status('bad',relayWaitLabel());return}
  status('','Connecting…');
- try{stream=new EventSource(URL_+'/sse?since=latest');
+ try{stream=relayStream(URL_+'/sse?since=latest');
+  stream.onconnecting=()=>{streamOpen=false;status('','Reconnecting to live updates…')};
   stream.onopen=()=>{streamOpen=true;status('ok','Live');clearInterval(pollTimer);pollTimer=null};
-  stream.onerror=()=>{streamOpen=false;status('bad','Reconnecting · checking for updates');if(!pollTimer)pollTimer=setInterval(poll,30000);poll()};
+  stream.onerror=()=>{streamOpen=false;status('bad','Reconnecting · checking for updates');if(!pollTimer)pollTimer=setInterval(poll,60000);poll()};
   stream.onmessage=ev=>{try{receive(JSON.parse(ev.data))}catch(e){}};
- }catch(e){status('bad','Connection unavailable · retrying');if(!pollTimer)pollTimer=setInterval(poll,30000)}
- poll();
+ }catch(e){status('bad','Connection unavailable · retrying');if(!pollTimer)pollTimer=setInterval(poll,60000)}
 }
-window.addEventListener('online',()=>{if(ROLE==='host')sendLatest();else if(ROLE==='tv')poll()});
-document.addEventListener('visibilitychange',()=>{if(document.hidden)return;if(ROLE==='host')sendLatest();else if(ROLE==='tv'){if(stream)stream.close();clearInterval(pollTimer);pollTimer=null;conn()}});
+window.addEventListener('online',()=>{if(ROLE==='host')sendLatest();else if(ROLE==='tv'&&(!stream||stream.readyState===2))conn()});
+window.addEventListener('pageshow',e=>{if(e.persisted){if(ROLE==='host')sendLatest();else if(ROLE==='tv')conn()}});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)return;if(ROLE==='host')sendLatest();else if(ROLE==='tv'){if(!stream||stream.readyState===2){clearInterval(pollTimer);pollTimer=null;conn()}}});
 function stand(n){const t=S.sc.map((r,i)=>({i,t:r.slice(0,n).reduce((a,v)=>a+(v||0),0),b:S.tb[i]||0}));t.sort((a,b)=>b.t-a.t||b.b-a.b||a.i-b.i);t.forEach((o,k)=>o.r=k+1);return t}
 const allDone=()=>S.sc.every(r=>r.every(v=>v!=null));
 const unresolvedTie=()=>{const st=stand(9);return st.some((o,i)=>i>0&&o.t===st[i-1].t&&o.b===st[i-1].b)};
@@ -641,7 +702,7 @@ h+=`<div class="lb">STANDINGS</div><div style="line-height:1.8">${st.map(o=>`${o
 if(ties.length)h+=`<div class="msg">TIE FOR PLACE ${ties.join(', ')}: replay Snow Blower, then give the winner a +1 tie-break below.</div>`;
 h+=`<div class="rw" style="margin-top:10px"><button id="copyResults" onclick="copyRes()">Copy results</button></div>
 <details><summary>NAMES &amp; TIE-BREAK</summary>${S.nm.map((n,i)=>`<div class="nr"><input value="${esc(n)}" maxlength="14" onchange="nn(${i},this.value)"><button onclick="tbb(${i},-1)">−</button><span>${S.tb[i]||0}</span><button onclick="tbb(${i},1)">+</button></div>`).join('')}</details><div class="hint" style="margin-top:20px">Play all nine games again with the same people. Clears every result and tie-break.</div><div class="rw"><button onclick="reset()">Start a new round</button></div>`;
-$('H').innerHTML=h}
+$('H').innerHTML=h+relayPanelHTML();relayPanelBind()}
 // ---- tv ----
 const rows=[];
 function mkRows(){for(let i=0;i<10;i++){const d=document.createElement('div');d.className='row';d.innerHTML='<div class="in"><b class="rk"></b><div class="bar"><i></i><span class="nm"></span></div><b class="pt"></b></div>';$('rows').appendChild(d);rows.push(d)}}
