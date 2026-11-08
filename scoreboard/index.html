@@ -12,6 +12,7 @@ button.go{background:#2a2108}
 input{font:inherit;background:#111;color:var(--t);border:3px solid var(--d);padding:8px;width:100%}
 .dot{position:fixed;top:10px;right:10px;width:12px;height:12px;background:#555;z-index:5}.dot.ok{background:#5ad17a}.dot.bad{background:#e5484d}
 #sync{position:fixed;top:7px;right:27px;z-index:5;font:12px/18px system-ui,sans-serif;color:#ddd;background:#111b;padding:1px 6px;border-radius:3px}
+body.host #sync{position:sticky;top:0;right:auto;display:block;min-height:26px;padding:4px 30px 4px 14px;max-width:100%;text-align:right;overflow-wrap:anywhere;background:var(--bg)}
 body.tv #H,body:not(.tv) #T{display:none}
 body:not(.tv) #tvAudio{display:none}
 #tvAudio{position:fixed;top:7px;left:10px;z-index:6;display:flex;gap:6px;align-items:flex-start;font:12px/1.4 system-ui,sans-serif;text-align:left}
@@ -27,6 +28,8 @@ body.landing .dot{display:none}
 .chooser h1{color:var(--l);font-size:clamp(25px,5vw,42px);margin:15px 0 20px;text-shadow:3px 3px 0 #000}
 .chooser .rw{justify-content:center;gap:12px}
 .chooser button{min-width:166px;padding:15px 18px}
+.chooser .back-menu{display:inline-block;color:var(--muted);font-size:12px;margin-bottom:20px;text-decoration:none;min-height:32px}
+.chooser .chooser-intro{font-size:13px;line-height:1.6;color:var(--muted);font-weight:400;margin:0 auto 18px;max-width:380px}
 .title-icons{display:flex;align-items:center;justify-content:center;gap:30px;margin:0 auto 12px}
 .title-side{width:78px;flex:none}.title-side svg{display:block;width:100%;height:auto;shape-rendering:crispEdges}
 .title-middle{width:144px;display:grid;place-items:center;flex:none}
@@ -64,7 +67,8 @@ body.landing .dot{display:none}
 .hd{display:flex;justify-content:space-between;color:var(--g);font-size:17px;margin-bottom:10px}
 .lb{color:var(--muted);font-size:12px;margin:12px 0 6px}.sm{color:var(--muted);font-size:12px}
 .rw,.gd,.tabs{display:flex;flex-wrap:wrap;gap:8px}
-.gd button{flex:1 1 30%}.tabs button{flex:1;padding:10px 0}
+.gd button{flex:1 1 30%}.tabs{display:grid;grid-template-columns:repeat(9,minmax(44px,1fr))}.tabs button{padding:10px 0;min-height:48px}
+@media(max-width:500px){.tabs{grid-template-columns:repeat(5,minmax(44px,1fr))}}
 .card{border:3px solid var(--g);padding:14px;margin-top:12px;box-shadow:5px 5px 0 #000,5px 5px 0 1px var(--d)}
 .card h2{color:var(--l);margin:4px 0}.card p{color:#cfc6a8;font-weight:400;margin-bottom:6px}
 .msg{color:var(--l);margin-top:8px}
@@ -247,6 +251,25 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--g)}
 <div id="H"></div>
 <div id="T"><div id="msg"></div><div id="bd"><h1 id="th"></h1><div id="ban"></div><div id="rows"></div><div id="lg"><span style="color:var(--l)">1ST · S$18 CASH PRIZE</span><span>2–6 SAFE</span><span>7–9 NEXT YEAR’S ORGANISERS</span><span>10TH · THE JIALAT TROPHY</span></div></div></div>
 <script>
+
+// All three apps share the server's cooldown in this browser, including after refresh.
+var relayMemory={until:0,reason:'Relay busy (429)'};
+function relayInfo(){try{var x=JSON.parse(localStorage.getItem('jialat-relay-hold')||'null');if(x&&typeof x.until==='number'&&isFinite(x.until)&&x.until>relayMemory.until)relayMemory=x}catch(e){}return relayMemory}
+function relayWait(){return Math.max(0,relayInfo().until-Date.now())}
+function relayWaitLabel(){return (relayInfo().reason||'Relay busy (429)')+' · retry in '+Math.ceil(relayWait()/1000)+'s'}
+function relayLater(fn,ms){return setTimeout(fn,Math.min(2147483000,Math.max(0,ms)))}
+function relayWaitingError(){var e=Error('HTTP 429');e.status=429;e.retryAfterMs=relayWait();return e}
+async function relayResponseError(response){
+ var e=Error('HTTP '+response.status);e.status=response.status;if(response.status!==429)return e;
+ var raw=response.headers.get('Retry-After'),seconds=raw!==null&&String(raw).trim()!==''?Number(raw):NaN;
+ var delay=isFinite(seconds)?Math.max(0,seconds*1000):Date.parse(raw)-Date.now();if(!isFinite(delay))delay=30000;
+ var detail='';try{var body=await response.json();detail=body&&body.error||''}catch(ignore){}
+ var until=Math.max(relayInfo().until,Date.now()+Math.max(5000,delay));
+ relayMemory={until:until,reason:/daily/i.test(detail)?'Daily relay allowance reached (429)':'Relay busy (429)'};
+ try{localStorage.setItem('jialat-relay-hold',JSON.stringify(relayMemory))}catch(ignore){}
+ e.retryAfterMs=relayWait();return e;
+}
+
 // ---- CONFIG: change the topic to anything long and random (host and TV share this file) ----
 const TOPIC='jialat26-k7q2m9x4vz', URL_='https://ntfy.sh/'+TOPIC;
 // ---- GAMES (edit rules text here if your PPT differs) ----
@@ -352,30 +375,32 @@ function pending(body){try{if(body)localStorage.setItem(pendingKey,body);else lo
 function push(){queued=JSON.stringify(S);pending(queued);status('','Sending…');clearTimeout(pt);pt=setTimeout(sendLatest,250)}
 async function sendLatest(){
  if(sending||!queued)return;
+ if(relayWait()>0){status('bad',relayWaitLabel()+' · update saved');clearTimeout(retryTimer);retryTimer=relayLater(sendLatest,relayWait());return}
  sending=true;const body=queued;queued=null;
  const ctrl=new AbortController(),limit=setTimeout(()=>ctrl.abort(),8000);
- try{const r=await fetch(URL_,{method:'POST',body,signal:ctrl.signal});if(!r.ok){const e=Error('HTTP '+r.status);e.status=r.status;e.retryAfter=Number(r.headers.get('Retry-After'))||0;throw e}
+ try{const r=await fetch(URL_,{method:'POST',body,signal:ctrl.signal});if(!r.ok)throw await relayResponseError(r);
   clearTimeout(retryTimer);retryTimer=null;
   if(!queued){pending(null);status('ok','Update sent')}
  }catch(e){if(!queued)queued=body;pending(queued);
-  const detail=e.status===429?'Relay limit (429)':e.status?'Relay HTTP '+e.status:'Network request failed';
+  const detail=e.status===429?relayWaitLabel():e.status?'Relay HTTP '+e.status:'Network request failed';
   status('bad',detail+' · retrying');
-  clearTimeout(retryTimer);retryTimer=setTimeout(sendLatest,e.status===429?Math.max(5000,Math.min(1800000,e.retryAfter*1000||30000)):5000);
+  clearTimeout(retryTimer);retryTimer=relayLater(sendLatest,e.status===429?Math.max(1,relayWait()):5000);
  }finally{clearTimeout(limit);sending=false;if(queued&&!retryTimer){clearTimeout(pt);pt=setTimeout(sendLatest,250)}}
 }
 function commit(){S.v=Math.max(Date.now(),S.v+1);save();render();push()}
 function receive(j){try{if(j.event!=='message')return;const x=JSON.parse(j.message);
  if(x&&typeof x.v==='number'&&x.v>S.v){S=Object.assign(D(),x);save();render()}
 }catch(e){}}
-async function poll(){if(polling||document.hidden)return;polling=true;
+async function poll(){if(polling||document.hidden||relayWait()>0)return;polling=true;
  try{const ctrl=new AbortController(),limit=setTimeout(()=>ctrl.abort(),8000);let r;
   try{r=await fetch(URL_+'/json?poll=1&since=latest',{cache:'no-store',signal:ctrl.signal})}finally{clearTimeout(limit)}
-  if(!r.ok)throw Error('HTTP '+r.status);
+  if(!r.ok)throw await relayResponseError(r);
   (await r.text()).trim().split('\n').forEach(line=>{if(line)try{receive(JSON.parse(line))}catch(e){}});
   if(!streamOpen)status('ok','Connected · checking for updates');
- }catch(e){if(!streamOpen)status('bad','Connection unavailable · retrying')}
+ }catch(e){if(e.status===429){if(stream)stream.close();streamOpen=false;conn()}if(!streamOpen)status('bad',relayWait()>0?relayWaitLabel():'Connection unavailable · retrying')}
  finally{polling=false}}
 function conn(){if(ROLE==='host'){status('','Ready to sync');if(!navigator.onLine)status('bad','Offline · retrying');return}
+ if(relayWait()>0){if(stream)stream.close();streamOpen=false;clearInterval(pollTimer);pollTimer=relayLater(()=>{pollTimer=null;conn()},relayWait());status('bad',relayWaitLabel());return}
  status('','Connecting…');
  try{stream=new EventSource(URL_+'/sse?since=latest');
   stream.onopen=()=>{streamOpen=true;status('ok','Live');clearInterval(pollTimer);pollTimer=null};
@@ -630,10 +655,10 @@ function drawTvCountdown(c){
 }
 function tickTvCountdown(){
  const c=activeCountdown(),clock=$('tvClock');if(!c||!clock){tvCountdownFrame=null;return}const f=countdownFrame(c),phase=$('tvClockPhase'),hint=$('tvClockHint'),bar=$('tvClockBar');
- clock.textContent=f.phase==='ready'?String(f.ready):Math.floor(f.seconds/60)+':'+String(f.seconds%60).padStart(2,'0');
- clock.setAttribute('aria-label',f.phase==='ready'?'Starting in '+f.ready+' seconds':f.seconds+' seconds remaining');
+ const display=f.phase==='ready'?String(f.ready):Math.floor(f.seconds/60)+':'+String(f.seconds%60).padStart(2,'0');if(clock.textContent!==display)clock.textContent=display;
+ const clockLabel=f.phase==='ready'?'Starting in '+f.ready+' seconds':f.seconds+' seconds remaining';if(clock.getAttribute('aria-label')!==clockLabel)clock.setAttribute('aria-label',clockLabel);
  const title=f.phase==='ready'?'GET READY':f.phase==='ended'?'TIME! STOP':Date.now()-c.startAt<1000?'GO!':'TIME REMAINING';if(phase.textContent!==title)phase.textContent=title;
- hint.textContent=f.phase==='ready'?'Wait for GO.':f.phase==='ended'?(c.g===7?'Count only ornaments inside the basket.':'Hands away. Count only cups still balanced without help.'):(c.g===7?'Knees only. Drop, return and tag the next teammate.':'Keep stacking. Hands away when time is up.');
+ const instruction=f.phase==='ready'?'Wait for GO.':f.phase==='ended'?(c.g===7?'Count only ornaments inside the basket.':'Hands away. Count only cups still balanced without help.'):(c.g===7?'Knees only. Drop, return and tag the next teammate.':'Keep stacking. Hands away when time is up.');if(hint.textContent!==instruction)hint.textContent=instruction;
  bar.style.width=(f.fraction*100)+'%';bar.parentElement.setAttribute('aria-valuenow',String(f.seconds));
  $('msg').classList.toggle('urgent',f.phase==='ended'||f.phase==='running'&&f.seconds<=10);$('msg').classList.toggle('ended',f.phase==='ended');
  tvCountdownAudio(c,f)
@@ -659,13 +684,13 @@ d.querySelector('.rk').textContent=o.r;d.querySelector('.nm').innerHTML=hide?'??
 d.querySelector('i').style.width=hide?'0':(o.t/top*100)+'%';d.querySelector('.pt').textContent=hide?'':o.t});
 if(rev&&k==10&&lastRev!=10)confetti();lastRev=rev?k:-1}
 // ---- boot ----
-function render(){document.body.className=ROLE||'landing';if(ROLE=='host')host();else if(ROLE=='tv'){tv();tvRevealAudio()}else $('H').innerHTML=`<div class="chooser"><div class="title-icons">${holidayIcon('tree')}<div class="title-middle"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-label="Animated pixel abacus" role="img">
+function render(){document.body.className=ROLE||'landing';if(ROLE=='host')host();else if(ROLE=='tv'){tv();tvRevealAudio()}else $('H').innerHTML=`<div class="chooser"><a class="back-menu" href="../">← MAIN MENU</a><div class="title-icons">${holidayIcon('tree')}<div class="title-middle"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-label="Animated pixel abacus" role="img">
 <path fill="#d4af37" d="M1 1h16v1H1zM1 2h1v10H1zM16 2h1v10h-1zM1 12h16v1H1z"/>
 <path fill="#6b5a22" d="M3 4h12v1H3zM3 7h12v1H3zM3 10h12v1H3z"/>
 <g class="bead-one"><path fill="#65d9cb" d="M4 3h2v3H4z"/></g>
 <g class="bead-two"><path fill="#86baff" d="M5 6h2v3H5z"/></g>
 <g class="bead-three"><path fill="#ff8b78" d="M7 9h2v3H7z"/></g>
-</svg></div>${holidayIcon('santa')}</div><h1>SCOREBOARD</h1><div class="prize-label">${PRIZE_TAG}</div><div class="rw"><button class="go" onclick="location.hash='host';location.reload()">iPad · Host</button><button class="go" onclick="location.hash='tv';location.reload()">MacBook · TV</button></div></div>`}
+</svg></div>${holidayIcon('santa')}</div><h1>SCOREBOARD</h1><div class="prize-label">${PRIZE_TAG}</div><p class="chooser-intro">Control the games on your phone or iPad.<br>Open the TV display on the MacBook.</p><div class="rw"><button class="go" onclick="location.hash='host';location.reload()">Phone / iPad · Host</button><button class="go" onclick="location.hash='tv';location.reload()">MacBook · TV</button></div></div>`}
 restoreCountdown();
 if(ROLE=='tv'){mkRows();setInterval(tickTvCountdown,100);$('T').ondblclick=()=>document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}
 render();if(ROLE)conn();
