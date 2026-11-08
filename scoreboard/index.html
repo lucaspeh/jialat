@@ -226,7 +226,7 @@ details{margin-top:14px}summary{cursor:pointer;color:var(--g)}
 </style></head><body>
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
-<div id="tvAudio"><button id="tvAudioToggle" aria-pressed="false" onclick="toggleTvSound()">Enable reveal sounds</button><details id="tvAudioTests"><summary>Test tones</summary><div class="tone-tests"><small>Audio plays from this screen.</small><button onclick="previewTvCue('happy')">2–6 · Happy</button><button onclick="previewTvCue('organiser')">7–9 · Oh no!</button><button onclick="previewTvCue('champion')">1st · Champion</button><button onclick="previewTvCue('cheeky')">10th · Cheeky</button></div></details></div>
+<div id="tvAudio"><button id="tvAudioToggle" aria-pressed="false" onclick="toggleTvSound()">Enable TV sound</button><details id="tvAudioTests"><summary>Test tones</summary><div class="tone-tests"><small>Audio plays from this screen.</small><button onclick="previewTvCue('end')">Timer · Time’s up</button><button onclick="previewTvCue('happy')">2–6 · Happy</button><button onclick="previewTvCue('organiser')">7–9 · Oh no!</button><button onclick="previewTvCue('champion')">1st · Champion</button><button onclick="previewTvCue('cheeky')">10th · Cheeky</button></div></details></div>
 <div id="H"></div>
 <div id="T"><div id="msg"></div><div id="bd"><h1 id="th"></h1><div id="ban"></div><div id="rows"></div><div id="lg">1-6 SAFE · 7-9 NEXT YEAR'S ORGANISERS · 10 THE JIALAT TROPHY</div></div></div>
 <script>
@@ -375,6 +375,8 @@ const MODE=['time','time','time','count','distance','time','time','count','count
 const LIMIT={7:90,8:60};
 const units={time:'seconds',distance:'cm',count:'successful'};
 let Q=null,audioCtx=null,soundOn=false,revealCheck=false,tvSoundOn=false,tvLastFrame=null,tvAudioFrame=0,cueToken=0;
+let tvCountdownFrame=null;
+const tvFinishedTimers=new Set();
 const voices=new Set();
 try{soundOn=localStorage.getItem('jialat26-sound')==='1'}catch(e){}
 // Frequency, duration, delay, gain, waveform, optional ending frequency.
@@ -411,7 +413,7 @@ function testSound(){cue('test')}
 const rankCue=rank=>rank===1?'champion':rank===10?'cheeky':rank>=7?'organiser':'happy';
 function updateTvAudio(){
  if(ROLE!=='tv')return;const b=$('tvAudioToggle'),ready=tvSoundOn&&audioCtx&&audioCtx.state==='running';
- b.textContent=ready?'Reveal sound on':tvSoundOn?'Resume reveal sounds':'Enable reveal sounds';b.setAttribute('aria-pressed',String(!!ready));
+ b.textContent=ready?'TV sound on':tvSoundOn?'Resume TV sound':'Enable TV sound';b.setAttribute('aria-pressed',String(!!ready));
  $('tvAudioTests').hidden=S.m[0]==='rev'||!!activeCountdown()
 }
 async function toggleTvSound(){
@@ -419,6 +421,15 @@ async function toggleTvSound(){
  tvSoundOn=true;await playCue('test',true);updateTvAudio()
 }
 async function previewTvCue(kind){tvSoundOn=true;await playCue(kind,true);updateTvAudio()}
+function tvCountdownAudio(c,f){
+ const old=tvCountdownFrame;tvCountdownFrame={id:c.id,phase:f.phase};
+ if(f.phase!=='ended'||tvFinishedTimers.has(c.id))return;
+ tvFinishedTimers.add(c.id);
+ // Only a countdown observed before zero can chime. Reloads and late updates stay quiet.
+ if(!old||old.id!==c.id||old.phase==='ended'||Date.now()-c.endAt>=1500||!tvSoundOn||!audioCtx||audioCtx.state!=='running'||document.hidden)return;
+ playCue('end',true)
+}
+document.addEventListener('visibilitychange',()=>{if(ROLE==='tv'){tvCountdownFrame=null;if(document.hidden)stopCue();updateTvAudio()}});
 function tvRevealAudio(){
  const next={mode:S.m[0],step:Number(S.m[1]||0),id:S.revealId||0},old=tvLastFrame,frame=++tvAudioFrame;tvLastFrame=next;updateTvAudio();
  if(old&&(next.mode!=='rev'||next.id!==old.id||next.step<old.step))stopCue();
@@ -561,7 +572,7 @@ function resultPanel(g){
 }
 function host(){const g=S.g,x=G[g],done=G.map((_,i)=>S.sc.every(r=>r[i]!=null)),m=S.m,ready=allDone()&&!unresolvedTie();
 const btn=[['Title',['idle']],['Rules',['rules',g]],['After G3',['board',3]],['After G6',['board',6]],['Live',['board',9]],['Final reveal',['rev',0]]];
-let h=`<div class="hd"><b><span class="host-icon" aria-hidden="true">${spr('tally',3)}</span>JIALAT 2026 · HOST</b></div><div class="soundbar"><button class="${soundOn?'sound-on':''}" aria-pressed="${soundOn}" onclick="toggleSound()">${soundOn?'Host sound on':'Enable host sound'}</button>${soundOn?'<button onclick="testSound()">Test chime</button>':''}<span class="hint">Timers play here. Enable reveal sounds once on the TV screen.</span></div><div class="lb">TV SHOWS</div><div class="rw">${btn.map(([l,mm])=>`<button class="${m[0]==mm[0]&&(m[0]!='board'||m[1]==mm[1])?'on':''}" onclick='${l==='Final reveal'?'tryReveal()':'tvm('+JSON.stringify(mm)+')'}'>${l}</button>`).join('')}</div>`;
+let h=`<div class="hd"><b><span class="host-icon" aria-hidden="true">${spr('tally',3)}</span>JIALAT 2026 · HOST</b></div><div class="soundbar"><button class="${soundOn?'sound-on':''}" aria-pressed="${soundOn}" onclick="toggleSound()">${soundOn?'Host sound on':'Enable host sound'}</button>${soundOn?'<button onclick="testSound()">Test chime</button>':''}<span class="hint">Enable TV sound once on the MacBook for Games 8–9’s finish chime and reveal sounds.</span></div><div class="lb">TV SHOWS</div><div class="rw">${btn.map(([l,mm])=>`<button class="${m[0]==mm[0]&&(m[0]!='board'||m[1]==mm[1])?'on':''}" onclick='${l==='Final reveal'?'tryReveal()':'tvm('+JSON.stringify(mm)+')'}'>${l}</button>`).join('')}</div>`;
 if(!ready)h+=`<div class="sm" style="margin-top:8px">Tap Final reveal to check what is still needed.</div>`;
 if(revealCheck&&!ready){
  const missing=G.map((_,i)=>i).filter(i=>!done[i]),st=stand(9),groups=[];
@@ -599,13 +610,14 @@ function drawTvCountdown(c){
  tickTvCountdown()
 }
 function tickTvCountdown(){
- const c=activeCountdown(),clock=$('tvClock');if(!c||!clock)return;const f=countdownFrame(c),phase=$('tvClockPhase'),hint=$('tvClockHint'),bar=$('tvClockBar');
+ const c=activeCountdown(),clock=$('tvClock');if(!c||!clock){tvCountdownFrame=null;return}const f=countdownFrame(c),phase=$('tvClockPhase'),hint=$('tvClockHint'),bar=$('tvClockBar');
  clock.textContent=f.phase==='ready'?String(f.ready):Math.floor(f.seconds/60)+':'+String(f.seconds%60).padStart(2,'0');
  clock.setAttribute('aria-label',f.phase==='ready'?'Starting in '+f.ready+' seconds':f.seconds+' seconds remaining');
  const title=f.phase==='ready'?'GET READY':f.phase==='ended'?'TIME! STOP':Date.now()-c.startAt<1000?'GO!':'TIME REMAINING';if(phase.textContent!==title)phase.textContent=title;
  hint.textContent=f.phase==='ready'?'Wait for GO.':f.phase==='ended'?(c.g===7?'Count only ornaments inside the basket.':'Hands away. Count only cups still balanced without help.'):(c.g===7?'Knees only. Drop, return and tag the next teammate.':'Keep stacking. Hands away when time is up.');
  bar.style.width=(f.fraction*100)+'%';bar.parentElement.setAttribute('aria-valuenow',String(f.seconds));
- $('msg').classList.toggle('urgent',f.phase==='ended'||f.phase==='running'&&f.seconds<=10);$('msg').classList.toggle('ended',f.phase==='ended')
+ $('msg').classList.toggle('urgent',f.phase==='ended'||f.phase==='running'&&f.seconds<=10);$('msg').classList.toggle('ended',f.phase==='ended');
+ tvCountdownAudio(c,f)
 }
 function tv(){const m=S.m,rank=m[0]=='rev'&&m[1]>0?REVEAL_ORDER[m[1]-1]:null,spot=m[0]=='rev'&&S.spotlight&&(rank===1||rank===10),sealed=m[0]=='board'&&m[1]>=9&&allDone()&&!S.finalShown,b=!sealed&&!spot&&(m[0]=='board'||m[0]=='rev');$('bd').style.display=b?'flex':'none';$('msg').style.display=b?'none':'flex';
 $('msg').className=spot?'spotlight '+(rank===10?'trophy':'champion'):m[0]=='rules'?'rules':'';
