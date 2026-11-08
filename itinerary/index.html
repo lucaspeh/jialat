@@ -6,12 +6,27 @@
 <meta name="theme-color" content="#0a0a0a">
 <meta name="description" content="JIALAT 2026: our four-day Ho Chi Minh City itinerary, 10–13 December. All times are Vietnam local time.">
 <title>Itinerary</title>
+
+<!-- JIALAT identity and share preview. -->
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../assets/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png" sizes="180x180">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="JIALAT 2026">
+<meta property="og:title" content="JIALAT 2026 · Itinerary">
+<meta property="og:description" content="Your four-day Ho Chi Minh City trip guide, 10–13 December 2026. All itinerary times are Vietnam local time.">
+<meta property="og:url" content="https://lucaspeh.github.io/jialat/itinerary/">
+<meta property="og:image" content="https://lucaspeh.github.io/jialat/assets/jialat-share.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="JIALAT 2026. 18 years, 11 friends. 10–13 December 2026.">
+<meta name="twitter:card" content="summary_large_image">
 <style>
 :root{--bg:#0a0a0a;--card:#111;--g:#d4af37;--l:#f3d77a;--d:#6b5a22;--t:#f2ead3;--muted:#b9b6a8;--ice:#86baff;--teal:#65d9cb;--coral:#ff8b78;--accent:var(--teal);color-scheme:dark}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--t);font:700 15px/1.5 "Courier New",ui-monospace,monospace;letter-spacing:.025em;min-height:100vh}
 button,a{-webkit-tap-highlight-color:transparent;touch-action:manipulation}button{font:inherit;cursor:pointer;border-radius:0}a{color:var(--l)}button:focus-visible,a:focus-visible,section:focus-visible{outline:3px solid var(--ice);outline-offset:5px}button:active,.action:active{transform:translate(2px,2px)}[hidden]{display:none!important}
 .shell{max-width:1040px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top,0px)) 22px calc(28px + env(safe-area-inset-bottom,0px))}.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px}.home-link{display:inline-flex;align-items:center;gap:8px;min-height:44px;text-decoration:none;font-size:12px;letter-spacing:.06em}.brand{color:var(--g);font-size:12px;letter-spacing:.1em;text-align:right}
-.intro{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:20px 0 23px}.eyebrow{color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 7px}.intro h1{color:var(--l);font-size:clamp(32px,6vw,46px);line-height:1.1;text-transform:uppercase;letter-spacing:.045em;text-shadow:4px 4px 0 #000;margin:0 0 10px}.intro p{margin:0;color:var(--muted);font-size:14px;font-weight:400}.trip-mark{width:96px;height:72px;flex:none;color:var(--teal)}.trip-mark svg{width:100%;height:100%;shape-rendering:crispEdges}.mark-route{stroke-dasharray:4 4;animation:route-flow 4s linear infinite}.mark-pin{animation:pin-bob 3.8s steps(3) infinite}
+.intro{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:20px 0 23px}.eyebrow{color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 7px}.intro h1{color:var(--l);font-size:clamp(32px,6vw,46px);line-height:1.1;text-transform:uppercase;letter-spacing:.045em;text-shadow:2px 2px 0 var(--d);margin:0 0 10px}.intro p{margin:0;color:var(--muted);font-size:14px;font-weight:400}.trip-mark{width:96px;height:72px;flex:none;color:var(--teal)}.trip-mark svg{width:100%;height:100%;shape-rendering:crispEdges}.mark-route{stroke-dasharray:4 4;animation:route-flow 4s linear infinite}.mark-pin{animation:pin-bob 3.8s steps(3) infinite}
 .time-note{border:2px solid var(--d);border-left:6px solid var(--g);background:#14120d;padding:11px 14px;font-size:12px;color:var(--muted);font-weight:400}.time-note b{color:var(--l);font-weight:700}.time-note span{display:inline-block}
 .day-nav{position:sticky;top:0;z-index:5;background:var(--bg);padding:16px 0 12px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;border-bottom:1px solid #2e2b21}.day-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:66px;padding:8px 5px;text-decoration:none;border:3px solid #514a30;box-shadow:3px 3px 0 #000;background:#111;color:var(--muted);text-align:center}.day-tab .tab-day{font-size:11px;letter-spacing:.1em}.day-tab .tab-date{font-size:15px;white-space:nowrap}.day-tab[aria-selected="true"]{border-color:var(--tab-accent);color:var(--tab-accent);background:#171a18}.day-tab:nth-child(1){--tab-accent:var(--teal)}.day-tab:nth-child(2){--tab-accent:var(--ice)}.day-tab:nth-child(3){--tab-accent:var(--coral)}.day-tab:nth-child(4){--tab-accent:var(--l)}
 .day-panel{padding-top:25px;scroll-margin-top:110px}.day-panel[data-day="1"]{--accent:var(--teal)}.day-panel[data-day="2"]{--accent:var(--ice)}.day-panel[data-day="3"]{--accent:var(--coral)}.day-panel[data-day="4"]{--accent:var(--l)}.day-heading{display:flex;gap:20px;align-items:center;justify-content:space-between;margin-bottom:23px}.day-heading h2{font-size:clamp(24px,4.5vw,32px);line-height:1.15;margin:0 0 9px;color:var(--accent);text-shadow:3px 3px 0 #000;letter-spacing:.015em}.day-heading .summary{font-size:14px;color:var(--muted);font-weight:400;margin:0;max-width:510px}.day-heading .eyebrow{color:var(--accent)}.scene{width:120px;height:86px;flex:none;shape-rendering:crispEdges;overflow:visible}.scene .plane-in{animation:plane-in 6s steps(8) infinite}.scene .beacon{animation:beacon 2.8s steps(2) infinite}.scene .steam{animation:steam 4.4s steps(5) infinite}.scene .steam.second{animation-delay:1.4s}.scene .steam.third{animation-delay:2.7s}.scene .tree-light{animation:tree-light 3.2s steps(2) infinite alternate}.scene .tree-light.second{animation-delay:1.1s}.scene .gift-lid{animation:gift-lid 5s steps(3) infinite}.scene .plane-out{animation:plane-out 7s steps(9) infinite}.scene .case-tag{animation:case-tag 4s steps(3) infinite}
@@ -24,6 +39,18 @@ button,a{-webkit-tap-highlight-color:transparent;touch-action:manipulation}butto
 @media(max-width:359px){.shell{padding-left:12px;padding-right:12px}.day-tab .tab-date{font-size:12px}.day-nav{gap:5px}.scene{width:76px}.day-heading h2{font-size:23px}.event{grid-template-columns:82px minmax(0,1fr)}.event:not(:last-child)::before{left:81px}.event::after{left:77px}.intro h1{font-size:29px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
 @media print{body{background:#fff;color:#111}.shell{max-width:none;padding:0}.topbar,.day-nav,.trip-mark,.scene,.day-pager,.footer,.actions,.map-link,.skip-link{display:none!important}.day-panel[hidden]{display:block!important}.day-panel{break-before:page}.day-panel:first-of-type{break-before:auto}.day-layout{display:block}.intro h1,.day-heading h2,.eyebrow,.when,.note-card h3,.flight h3{color:#111;text-shadow:none}.intro p,.time-note,.summary,.event p,.note-card p,.section-label,.flight p{color:#333!important}.note-card,.flight,.time-note{background:#fff;box-shadow:none;border-color:#bbb}.note-card b,.flight b,.stay-address,.flight .flight-time{color:#111}.timeline{margin-bottom:16px}.event{break-inside:avoid}.status{color:#333!important;border-color:#aaa!important}.flight-strip{grid-template-columns:1fr 1fr}}
+
+/* Shared page chrome: readable navigation and safe edges. */
+html { -webkit-text-size-adjust: 100%; color-scheme: dark; }
+body { min-height: 100vh; min-height: 100svh; }
+a[href="../"] { display: inline-flex; align-items: center; min-height: 44px; color: #b9b6a8; font-size: 12px; line-height: 1.4; text-decoration: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+a[href="../"]:focus-visible { outline: 3px solid #86baff; outline-offset: 4px; }
+a[href="../"]:active { color: #f3d77a; }
+:root { --page-gutter: 22px; }
+.shell { padding-left: max(var(--page-gutter), env(safe-area-inset-left, 0px)); padding-right: max(var(--page-gutter), env(safe-area-inset-right, 0px)); }
+@media (max-width: 759px) { :root { --page-gutter: 17px; } }
+@media (max-width: 359px) { :root { --page-gutter: 12px; } }
+@media (max-width: 760px) { input, select, textarea { font-size: 16px; } }
 </style>
 </head>
 <body>
