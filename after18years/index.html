@@ -3,18 +3,18 @@
 <meta name="theme-color" content="#0a0a0a"><meta name="description" content="AFTER 18 YEARS… Presentation night. One shared draw for 11 friends."><title>AFTER 18 YEARS…</title>
 
 <!-- JIALAT identity and share preview. -->
-<link rel="icon" href="../assets/favicon.svg?v=trophy-1" type="image/svg+xml">
-<link rel="icon" href="../assets/favicon.ico?v=trophy-1" sizes="any">
-<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png?v=trophy-1" sizes="180x180">
+<link rel="icon" href="../assets/favicon.ico?v=brand-1" sizes="16x16 32x32 48x48 64x64">
+<link rel="icon" href="../assets/favicon.svg?v=brand-1" type="image/svg+xml" sizes="any">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png?v=brand-1" sizes="180x180">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="JIALAT 2026">
 <meta property="og:title" content="JIALAT 2026 · AFTER 18 YEARS…">
 <meta property="og:description" content="Presentation night for 11 friends. One shared wheel, one presentation order. Control from the host screen and follow along on TV.">
 <meta property="og:url" content="https://lucaspeh.github.io/jialat/after18years/">
-<meta property="og:image" content="https://lucaspeh.github.io/jialat/assets/jialat-share.png?v=trophy-1">
+<meta property="og:image" content="https://lucaspeh.github.io/jialat/assets/jialat-share.png?v=brand-1">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="JIALAT 2026. 18 years, 11 friends. 10–13 December 2026.">
+<meta property="og:image:alt" content="JIALAT logo with the gold trophy. 18 years, 11 friends. 10–13 December 2026.">
 <meta name="twitter:card" content="summary_large_image">
 <style>
 :root{--bg:#0a0a0a;--card:#111;--gold:#d4af37;--light:#f3d77a;--edge:#6b5a22;--text:#f2ead3;--muted:#b9b6a8;--teal:#65d9cb;--coral:#ff8b78;color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:700 15px/1.45 "Courier New",ui-monospace,monospace;letter-spacing:.035em;min-height:100vh}button,input{font:inherit;border-radius:0}button,a{-webkit-tap-highlight-color:transparent;touch-action:manipulation}button{cursor:pointer}a{color:var(--light)}button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--teal);outline-offset:4px}button:disabled{opacity:.45;cursor:default}button:active:not(:disabled){transform:translate(2px,2px)}[hidden]{display:none!important}.shell{max-width:1300px;margin:auto;padding:calc(14px + env(safe-area-inset-top,0px)) 24px calc(28px + env(safe-area-inset-bottom,0px))}.topbar{display:flex;align-items:center;justify-content:space-between;gap:15px;font-size:11px;color:var(--muted)}.topbar a{min-height:44px;display:inline-flex;align-items:center;text-decoration:none}.mode{border:1px solid var(--edge);padding:3px 7px;white-space:nowrap}.masthead{text-align:center;margin:9px 0 15px}.eyebrow{color:var(--muted);font-size:11px;letter-spacing:.15em;text-transform:uppercase;margin:0 0 5px}.masthead h1{color:var(--light);font-size:clamp(25px,4vw,44px);letter-spacing:.06em;line-height:1.15;margin:0;text-shadow:2px 2px 0 var(--edge)}.masthead p{margin:8px 0 0;color:var(--muted);font-weight:400;font-size:13px}.sync{display:flex;justify-content:center;align-items:center;gap:8px;min-height:26px;color:var(--muted);font-size:11px;text-align:center;margin:7px 0 12px;font-weight:400}.sync::before{content:"";width:7px;height:7px;background:var(--gold);flex:none}.sync.ok::before{background:var(--teal)}.sync.error{color:var(--coral)}.sync.error::before{background:var(--coral)}
@@ -62,6 +62,10 @@ a[href="../"]:active { color: #f3d77a; }
 @media (max-width: 760px) { :root { --page-gutter: 17px; } }
 @media (max-width: 359px) { :root { --page-gutter: 12px; } }
 @media (max-width: 760px) { input, select, textarea { font-size: 16px; } }
+
+/* Original group artwork, kept separate from the game controls. */
+.brand-signature { display: flex; justify-content: center; margin: 26px 0 8px; line-height: 0; }
+.brand-signature img { display: block; width: 120px; max-width: 100%; height: auto; }
 </style></head><body><div class="shell" id="app"></div>
 <script>
 (function(){
@@ -186,7 +190,7 @@ function snapshot(changes){return Object.assign({},S,{id:uid(),rev:S.rev+1},chan
 function wheelIcon(){return '<svg viewBox="0 0 60 60" aria-hidden="true"><g class="icon-disc"><circle cx="30" cy="30" r="25" fill="#111" stroke="#d4af37" stroke-width="3"/><g stroke="#111" stroke-width="2"><path d="M30 30V7A23 23 0 0 1 53 30Z" fill="#ca5364"/><path d="M30 30H53A23 23 0 0 1 30 53Z" fill="#f0d47a"/><path d="M30 30V53A23 23 0 0 1 7 30Z" fill="#68ad83"/><path d="M30 30H7A23 23 0 0 1 30 7Z" fill="#f6f0de"/></g><circle cx="30" cy="30" r="6" fill="#d4af37" stroke="#111" stroke-width="2"/></g><path d="M25 0h10l-5 12z" fill="#ff8b78"/></svg>'}
 function landing(){
  document.body.className='';const last=read('last');
- app.innerHTML='<div class="topbar"><a href="../">← MAIN MENU</a><span>JIALAT 2026</span></div><div class="landing"><div class="landing-mark">'+wheelIcon()+'</div><header class="masthead"><p class="eyebrow">18 YEARS · 11 FRIENDS</p><h1>AFTER 18 YEARS…</h1><p>PRESENTATION NIGHT</p></header><p class="intro-text">One wheel. Everyone gets a turn.<br>Draw the presentation order together.</p><button class="button primary" id="host-start">'+(last?'Resume host draw':'Host the draw')+'</button>'+(last?'<button class="button small" id="host-new">Create a new draw</button>':'')+'<form class="join-card" id="tv-join"><label for="room-input">ON THE TV / MACBOOK</label><input id="room-input" placeholder="ROOM CODE" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" required aria-describedby="join-error"><button class="button primary" type="submit">Open TV display</button><p class="join-error" id="join-error" role="status"></p></form></div>';
+ app.innerHTML='<div class="topbar"><a href="../">← MAIN MENU</a><span>JIALAT 2026</span></div><div class="landing"><div class="landing-mark">'+wheelIcon()+'</div><header class="masthead"><p class="eyebrow">18 YEARS · 11 FRIENDS</p><h1>AFTER 18 YEARS…</h1><p>PRESENTATION NIGHT</p></header><p class="intro-text">One wheel. Everyone gets a turn.<br>Draw the presentation order together.</p><button class="button primary" id="host-start">'+(last?'Resume host draw':'Host the draw')+'</button>'+(last?'<button class="button small" id="host-new">Create a new draw</button>':'')+'<form class="join-card" id="tv-join"><label for="room-input">ON THE TV / MACBOOK</label><input id="room-input" placeholder="ROOM CODE" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" required aria-describedby="join-error"><button class="button primary" type="submit">Open TV display</button><p class="join-error" id="join-error" role="status"></p></form><footer class="brand-signature"><img src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></footer></div>';
  $('host-start').onclick=()=>{if(last&&/^[a-z2-9]{8}$/.test(last.room)&&/^[a-f0-9]{16}$/.test(last.owner))location.hash='host='+last.room+'.'+last.owner;else newHost()};
  if($('host-new'))$('host-new').onclick=newHost;
  $('tv-join').onsubmit=e=>{e.preventDefault();const r=$('room-input').value.toLowerCase().replace(/\s/g,'');if(!/^[a-z2-9]{8}$/.test(r)){$('join-error').textContent='Enter the 8-character code shown on the host.';return}location.hash='tv='+r};
