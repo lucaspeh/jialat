@@ -5,18 +5,18 @@
 <title>Scoreboard</title>
 
 <!-- JIALAT identity and share preview. -->
-<link rel="icon" href="../assets/favicon.svg?v=trophy-1" type="image/svg+xml">
-<link rel="icon" href="../assets/favicon.ico?v=trophy-1" sizes="any">
-<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png?v=trophy-1" sizes="180x180">
+<link rel="icon" href="../assets/favicon.ico?v=brand-1" sizes="16x16 32x32 48x48 64x64">
+<link rel="icon" href="../assets/favicon.svg?v=brand-1" type="image/svg+xml" sizes="any">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png?v=brand-1" sizes="180x180">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="JIALAT 2026">
 <meta property="og:title" content="JIALAT 2026 · Christmas Scoreboard">
 <meta property="og:description" content="Nine Christmas games. One overall champion. S$18 for the winner. Choose the host controls or the TV display.">
 <meta property="og:url" content="https://lucaspeh.github.io/jialat/scoreboard/">
-<meta property="og:image" content="https://lucaspeh.github.io/jialat/assets/jialat-share.png?v=trophy-1">
+<meta property="og:image" content="https://lucaspeh.github.io/jialat/assets/jialat-share.png?v=brand-1">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="JIALAT 2026. 18 years, 11 friends. 10–13 December 2026.">
+<meta property="og:image:alt" content="JIALAT logo with the gold trophy. 18 years, 11 friends. 10–13 December 2026.">
 <meta name="twitter:card" content="summary_large_image">
 <style>
 :root{--bg:#0a0a0a;--g:#d4af37;--l:#f3d77a;--d:#6b5a22;--t:#f2ead3;--muted:#b9b6a8;--ice:#86baff;--teal:#65d9cb;--coral:#ff8b78}
@@ -284,6 +284,10 @@ body.landing #H { min-height: 100vh; min-height: 100svh; padding: calc(24px + en
 .hd { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .hd .menu-return { font-weight: 400; }
 @media (max-width: 760px) { input, select, textarea { font-size: 16px; } }
+
+/* Original group artwork, kept separate from the game controls. */
+.brand-signature { display: flex; justify-content: center; margin: 26px 0 8px; line-height: 0; }
+.brand-signature img { display: block; width: 120px; max-width: 100%; height: auto; }
 </style></head><body>
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
@@ -785,7 +789,7 @@ function render(){document.body.className=ROLE||'landing';if(ROLE=='host')host()
 <g class="bead-one"><path fill="#65d9cb" d="M4 3h2v3H4z"/></g>
 <g class="bead-two"><path fill="#86baff" d="M5 6h2v3H5z"/></g>
 <g class="bead-three"><path fill="#ff8b78" d="M7 9h2v3H7z"/></g>
-</svg></div>${holidayIcon('santa')}</div><h1>SCOREBOARD</h1><div class="prize-label">${PRIZE_TAG}</div><p class="chooser-intro">Control the games on your phone or iPad.<br>Open the TV display on the MacBook.</p><div class="rw"><button class="go" onclick="location.hash='host';location.reload()">Phone / iPad · Host</button><button class="go" onclick="location.hash='tv';location.reload()">MacBook · TV</button></div></div>`}
+</svg></div>${holidayIcon('santa')}</div><h1>SCOREBOARD</h1><div class="prize-label">${PRIZE_TAG}</div><p class="chooser-intro">Control the games on your phone or iPad.<br>Open the TV display on the MacBook.</p><div class="rw"><button class="go" onclick="location.hash='host';location.reload()">Phone / iPad · Host</button><button class="go" onclick="location.hash='tv';location.reload()">MacBook · TV</button></div><footer class="brand-signature"><img src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></footer></div>`}
 restoreCountdown();
 if(ROLE=='tv'){mkRows();setInterval(tickTvCountdown,100);$('T').ondblclick=()=>document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}
 render();if(ROLE)conn();
