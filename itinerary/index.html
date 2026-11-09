@@ -8,18 +8,18 @@
 <title>Itinerary</title>
 
 <!-- JIALAT identity and share preview. -->
-<link rel="icon" href="../assets/favicon.svg?v=trophy-1" type="image/svg+xml">
-<link rel="icon" href="../assets/favicon.ico?v=trophy-1" sizes="any">
-<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png?v=trophy-1" sizes="180x180">
+<link rel="icon" href="../assets/favicon.ico?v=brand-1" sizes="16x16 32x32 48x48 64x64">
+<link rel="icon" href="../assets/favicon.svg?v=brand-1" type="image/svg+xml" sizes="any">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png?v=brand-1" sizes="180x180">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="JIALAT 2026">
 <meta property="og:title" content="JIALAT 2026 · Itinerary">
 <meta property="og:description" content="Your four-day Ho Chi Minh City trip guide, 10–13 December 2026. All itinerary times are Vietnam local time.">
 <meta property="og:url" content="https://lucaspeh.github.io/jialat/itinerary/">
-<meta property="og:image" content="https://lucaspeh.github.io/jialat/assets/jialat-share.png?v=trophy-1">
+<meta property="og:image" content="https://lucaspeh.github.io/jialat/assets/jialat-share.png?v=brand-1">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="JIALAT 2026. 18 years, 11 friends. 10–13 December 2026.">
+<meta property="og:image:alt" content="JIALAT logo with the gold trophy. 18 years, 11 friends. 10–13 December 2026.">
 <meta name="twitter:card" content="summary_large_image">
 <style>
 :root{--bg:#0a0a0a;--card:#111;--g:#d4af37;--l:#f3d77a;--d:#6b5a22;--t:#f2ead3;--muted:#b9b6a8;--ice:#86baff;--teal:#65d9cb;--coral:#ff8b78;--lavender:#c4a7e7;--accent:var(--teal);color-scheme:dark}
@@ -91,6 +91,11 @@ a[href="../"]:active { color: #f3d77a; }
 @media (max-width: 759px) { :root { --page-gutter: 17px; } }
 @media (max-width: 359px) { :root { --page-gutter: 12px; } }
 @media (max-width: 760px) { input, select, textarea { font-size: 16px; } }
+
+/* Original wordmark in the existing footer. */
+.footer-brand { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; }
+.footer-brand .brand-wordmark { display: block; width: 112px; max-width: 100%; height: auto; }
+.footer-brand span { font-size: 10px; line-height: 1.45; letter-spacing: 0; }
 </style>
 </head>
 <body>
@@ -177,7 +182,7 @@ a[href="../"]:active { color: #f3d77a; }
 <div class="day-pager" hidden><button id="previous-day" class="pager-button" type="button">← Previous day</button><span class="page-count" id="page-count">01 / 04</span><button id="next-day" class="pager-button" type="button">Next day →</button></div>
 <p id="day-announcement" class="sr-only" role="status" aria-live="polite"></p>
 </main>
-<footer class="footer"><span>JIALAT 2026 · 18 YEARS, 11 FRIENDS</span><a href="../">MAIN MENU ↗</a></footer>
+<footer class="footer"><span class="footer-brand"><img class="brand-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"><span>2026 · 18 years · 11 friends</span></span><a href="../">MAIN MENU ↗</a></footer>
 </div>
 <script>
 (function(){
