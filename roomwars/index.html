@@ -7,18 +7,18 @@
 
 
 <!-- JIALAT identity and share preview. -->
-<link rel="icon" href="../assets/favicon.svg?v=trophy-1" type="image/svg+xml">
-<link rel="icon" href="../assets/favicon.ico?v=trophy-1" sizes="any">
-<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png?v=trophy-1" sizes="180x180">
+<link rel="icon" href="../assets/favicon.ico?v=brand-1" sizes="16x16 32x32 48x48 64x64">
+<link rel="icon" href="../assets/favicon.svg?v=brand-1" type="image/svg+xml" sizes="any">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png?v=brand-1" sizes="180x180">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="JIALAT 2026">
 <meta property="og:title" content="JIALAT 2026 · Room Wars">
 <meta property="og:description" content="Three mini-games. Five pairs. One room-picking order. Hosts set up the game; players join with the shared invite.">
 <meta property="og:url" content="https://lucaspeh.github.io/jialat/roomwars/">
-<meta property="og:image" content="https://lucaspeh.github.io/jialat/assets/jialat-share.png?v=trophy-1">
+<meta property="og:image" content="https://lucaspeh.github.io/jialat/assets/jialat-share.png?v=brand-1">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="JIALAT 2026. 18 years, 11 friends. 10–13 December 2026.">
+<meta property="og:image:alt" content="JIALAT logo with the gold trophy. 18 years, 11 friends. 10–13 December 2026.">
 <meta name="twitter:card" content="summary_large_image">
 <style>
 :root{--bg:#0a0a0a;--g:#d4af37;--l:#f3d77a;--d:#6b5a22;--m:#b9b6a8;--t:#f2ead3;--ice:#86baff;--teal:#65d9cb;--coral:#ff8b78;--card:#111;--tx:#f2ead3;--mu:#b9b6a8;--g1:#f3d77a;--g2:#d4af37;--g3:#6b5a22;--bd:#6b5a22;color-scheme:dark;box-sizing:border-box}
@@ -95,6 +95,10 @@ body { padding: calc(16px + env(safe-area-inset-top, 0px)) max(14px, env(safe-ar
 .site-navigation { margin-bottom: 8px; }
 @supports selector(body:has(.arena)) { body:has(.arena) .site-navigation { display: none; } }
 @media (max-width: 760px) { input, select, textarea { font-size: 16px; } }
+
+/* Original group artwork, kept separate from the game controls. */
+.brand-signature { display: flex; justify-content: center; margin: 26px 0 8px; line-height: 0; }
+.brand-signature img { display: block; width: 120px; max-width: 100%; height: auto; }
 </style></head><body>
 <i id="dot" class="dot"></i>
 <nav class="site-navigation" aria-label="Site navigation"><a href="../">← MAIN MENU</a></nav>
@@ -282,7 +286,7 @@ function wait(){view="wait";A.innerHTML='<p class="live" id="stat"></p>'+brand("
 function setup(){view="setup";
  var h=brand("ROOM WARS","trophy")+'<p class="sub">'+(code?'Edit the names.':'Host: enter the 5 pairs. Then share the invite link with everyone.')+'</p>';
  for(var c=0;c<5;c++)h+='<div class="card"><b>Pair '+(c+1)+'</b><div class="row"><input id="p'+(c*2)+'" aria-label="Pair '+(c+1)+', first player" placeholder="Person A" maxlength="14" value="'+(S.names?esc(S.names[c*2]):"")+'"><input id="p'+(c*2+1)+'" aria-label="Pair '+(c+1)+', second player" placeholder="Person B" maxlength="14" value="'+(S.names?esc(S.names[c*2+1]):"")+'"></div></div>';
- h+='<button id="go">'+(code?'Save names':'Create game')+'</button>'+(code?'<button class="alt" id="bk">Cancel</button>':'');
+ h+='<button id="go">'+(code?'Save names':'Create game')+'</button>'+(code?'<button class="alt" id="bk">Cancel</button>':'')+(code?'':'<footer class="brand-signature"><img src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></footer>');
  A.innerHTML=h;var b=document.getElementById("bk");if(b)b.onclick=render;
  document.getElementById("go").onclick=function(){
   var nm=[];for(var i=0;i<10;i++){var v=document.getElementById("p"+i).value.trim();nm.push(v||("Player "+(i+1)))}
