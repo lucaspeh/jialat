@@ -120,10 +120,10 @@ body:not(.tv) #tvAudio {
 }
 #tvAudio {
   position:fixed;
-  top:7px;
-  left:10px;
+  bottom:max(12px,env(safe-area-inset-bottom,0px));
+  left:max(16px,env(safe-area-inset-left,0px));
   z-index:6;
-  display:flex;
+  display:block;
   gap:6px;
   align-items:flex-start;
   font:clamp(12px,1.4vh,16px)/1.4 system-ui,sans-serif;
@@ -151,10 +151,8 @@ body:not(.tv) #tvAudio {
   position:relative
 }
 #tvAudio .tone-tests {
-  position:absolute;
-  top:calc(100% + 8px);
-  left:0;
-  width:180px;
+  position:static;
+  width:100%;
   background:#111;
   padding:8px;
   border:1px solid var(--d);
@@ -1628,10 +1626,24 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     transition:none!important
   }
 }
+
+/* Event navigation and display controls. */
+
+.page-wordmark{display:block;width:104px;max-width:32vw;height:auto;flex:none}
+.host-brand{display:flex;align-items:center;gap:8px;min-width:0}.host-brand .page-wordmark{width:88px}.host-brand .host-icon{margin-right:0}.host-role{font-size:12px}
+.chooser-topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:24px}.chooser-topbar .back-menu{margin:0}
+.tv-wordmark{display:none}body.tv .tv-wordmark{display:block;position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(12px,env(safe-area-inset-bottom,0px));width:96px;height:auto;z-index:5;pointer-events:none}
+#tvAudio>summary{display:block;min-height:44px;min-width:96px;padding:10px 14px;border:1px solid var(--d);background:#111;color:var(--muted);cursor:pointer;list-style:none}
+#tvAudio>summary::-webkit-details-marker{display:none}#tvAudio.sound-ready>summary{border-color:var(--teal);color:var(--teal)}
+#tvAudio .display-controls-panel{position:absolute;bottom:calc(100% + 8px);left:0;width:min(290px,calc(100vw - 32px));max-height:70vh;overflow:auto;padding:12px;background:#111;border:2px solid var(--d);box-shadow:4px 4px 0 #000}
+#tvAudio .display-controls-panel>button{width:100%;margin-bottom:8px}#tvAudio .display-controls-panel>a{display:flex;align-items:center;min-height:44px;margin-top:8px;border-top:1px solid var(--d);padding-top:8px}
+#tvAudio .tone-tests{padding:8px 0;border:0}
+
 </style></head><body>
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
-<div id="tvAudio"><button id="tvAudioToggle" aria-pressed="false" onclick="toggleTvSound()">Enable TV sound</button><details id="tvAudioTests"><summary>Test tones</summary><div class="tone-tests"><small>Audio plays from this screen.</small><button onclick="previewTvCue('end')">Timer · Time’s up</button><button onclick="previewTvCue('happy')">2–6 · Happy</button><button onclick="previewTvCue('organiser')">7–9 · Oh no!</button><button onclick="previewTvCue('champion')">1st · Champion</button><button onclick="previewTvCue('cheeky')">10th · Cheeky</button></div></details></div>
+<details id="tvAudio"><summary id="tvControlSummary">Sound off</summary><div class="display-controls-panel"><button id="tvAudioToggle" aria-pressed="false" onclick="toggleTvSound()">Enable TV sound</button><details id="tvAudioTests"><summary>Test tones</summary><div class="tone-tests"><small>Audio plays from this screen.</small><button onclick="previewTvCue('end')">Timer · Time’s up</button><button onclick="previewTvCue('happy')">2–6 · Happy</button><button onclick="previewTvCue('organiser')">7–9 · Oh no!</button><button onclick="previewTvCue('champion')">1st · Champion</button><button onclick="previewTvCue('cheeky')">10th · Cheeky</button></div></details><a href="../">← MAIN MENU</a></div></details>
+<img class="tv-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async">
 <main id="H"></main>
 <div id="T"><div id="msg"></div><div id="bd"><h1 id="th"></h1><div id="ban"></div><div id="rows"></div><div id="lg"><span style="color:var(--l)">1ST · S$18 CASH PRIZE</span><span>2–6 SAFE</span><span>7–9 NEXT YEAR’S ORGANISERS</span><span>10TH · THE JIALAT TROPHY</span></div></div></div>
 <script>
@@ -1859,12 +1871,12 @@ const LIMIT={7:90,8:60};
 const units={time:'seconds',distance:'cm',count:'successful'};
 let Q=null,audioCtx=null,soundOn=false,revealCheck=false,tvSoundOn=false,tvLastFrame=null,tvAudioFrame=0,cueToken=0;
 let tvCountdownFrame=null;
-const tvFinishedTimers=new Set();
+const tvFinishedTimers=new Set(),tvWarningTicks=new Set();
 const voices=new Set();
 try{soundOn=localStorage.getItem('jialat26-sound')==='1'}catch(e){}
 // Frequency, duration, delay, gain, waveform, optional ending frequency.
 const SOUNDS={
- count:[[620,.09,0,.10]],go:[[880,.18,0,.16],[1175,.2,.13,.11]],finish:[[740,.11,0,.08]],
+ warning:[[880,.055,0,.045]],count:[[620,.09,0,.10]],go:[[880,.18,0,.16],[1175,.2,.13,.11]],finish:[[740,.11,0,.08]],
  end:[[660,.22,0,.17],[440,.35,.19,.17]],reveal:[[587,.14,0,.09],[784,.14,.15,.11],[988,.26,.3,.13]],
  test:[[660,.12,0,.10],[880,.18,.14,.12]],
  happy:[[659,.12,0,.10],[784,.12,.13,.10],[1047,.26,.26,.11]],
@@ -1897,15 +1909,23 @@ const rankCue=rank=>rank===1?'champion':rank===10?'cheeky':rank>=7?'organiser':'
 function updateTvAudio(){
  if(ROLE!=='tv')return;const b=$('tvAudioToggle'),ready=tvSoundOn&&audioCtx&&audioCtx.state==='running';
  b.textContent=ready?'TV sound on':tvSoundOn?'Resume TV sound':'Enable TV sound';b.setAttribute('aria-pressed',String(!!ready));
- $('tvAudioTests').hidden=S.m[0]==='rev'||!!activeCountdown()
+ const performing=S.m[0]==='rev'||!!activeCountdown();$('tvAudioTests').hidden=performing;
+ $('tvControlSummary').textContent=ready?'Sound on':tvSoundOn?'Resume sound':'Sound off';$('tvAudio').classList.toggle('sound-ready',!!ready);if(performing)$('tvAudio').open=false
 }
 async function toggleTvSound(){
- if(tvSoundOn&&audioCtx&&audioCtx.state==='running'){tvSoundOn=false;stopCue();updateTvAudio();return}
- tvSoundOn=true;await playCue('test',true);updateTvAudio()
+ if(tvSoundOn&&audioCtx&&audioCtx.state==='running'){tvSoundOn=false;stopCue();updateTvAudio();$('tvAudio').open=false;return}
+ tvSoundOn=true;await playCue('test',true);updateTvAudio();if(audioCtx&&audioCtx.state==='running')$('tvAudio').open=false
 }
 async function previewTvCue(kind){tvSoundOn=true;await playCue(kind,true);updateTvAudio()}
 function tvCountdownAudio(c,f){
- const old=tvCountdownFrame;tvCountdownFrame={id:c.id,phase:f.phase};
+ const old=tvCountdownFrame;tvCountdownFrame={id:c.id,phase:f.phase,seconds:f.seconds};
+ if(f.phase==='running'){
+  const at=c.endAt-f.seconds*1000,key=c.id+':'+f.seconds;
+  if(old&&old.id===c.id&&old.phase==='running'&&old.seconds>f.seconds&&f.seconds>=1&&f.seconds<=5&&Date.now()-at>=0&&Date.now()-at<250&&!tvWarningTicks.has(key)&&tvSoundOn&&audioCtx&&audioCtx.state==='running'&&!document.hidden){
+   tvWarningTicks.add(key);if(tvWarningTicks.size>1000)tvWarningTicks.delete(tvWarningTicks.values().next().value);playCue('warning',true)
+  }
+  return;
+ }
  if(f.phase!=='ended'||tvFinishedTimers.has(c.id))return;
  tvFinishedTimers.add(c.id);
  // Only a countdown observed before zero can chime. Reloads and late updates stay quiet.
@@ -2055,7 +2075,7 @@ function resultPanel(g){
 }
 function host(){const g=S.g,x=G[g],done=G.map((_,i)=>S.sc.every(r=>r[i]!=null)),m=S.m,ready=allDone()&&!unresolvedTie();
 const btn=[['Title',['idle']],['Rules',['rules',g]],['After G3',['board',3]],['After G6',['board',6]],['Live',['board',9]],['Final reveal',['rev',0]]];
-let h=`<div class="hd"><b><span class="host-icon" aria-hidden="true">${spr('tally',3)}</span>JIALAT 2026 · HOST</b>${Q?'':'<a class="menu-return" href="../">← MAIN MENU</a>'}</div><div class="champion-prize"><b>${PRIZE_TAG}</b><small>Highest total after all nine games.</small></div><div class="soundbar"><button class="${soundOn?'sound-on':''}" aria-pressed="${soundOn}" onclick="toggleSound()">${soundOn?'Host sound on':'Enable host sound'}</button>${soundOn?'<button onclick="testSound()">Test chime</button>':''}<span class="hint">Enable TV sound once on the MacBook for Games 8–9’s finish chime and reveal sounds.</span></div><div class="lb">TV SHOWS</div><div class="rw tv-modes">${btn.map(([l,mm])=>`<button class="${m[0]==mm[0]&&(m[0]!='board'||m[1]==mm[1])?'on':''}" onclick='${l==='Final reveal'?'tryReveal()':'tvm('+JSON.stringify(mm)+')'}'>${l}</button>`).join('')}</div>`;
+let h=`<div class="hd"><b class="host-brand"><span class="host-icon" aria-hidden="true">${spr('tally',3)}</span><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"><span class="host-role">HOST</span></b>${Q?'':'<a class="menu-return" href="../">← MAIN MENU</a>'}</div><div class="champion-prize"><b>${PRIZE_TAG}</b><small>Highest total after all nine games.</small></div><div class="soundbar"><button class="${soundOn?'sound-on':''}" aria-pressed="${soundOn}" onclick="toggleSound()">${soundOn?'Host sound on':'Enable host sound'}</button>${soundOn?'<button onclick="testSound()">Test chime</button>':''}<span class="hint">Enable TV sound once on the MacBook for Games 8–9’s finish chime and reveal sounds.</span></div><div class="lb">TV SHOWS</div><div class="rw tv-modes">${btn.map(([l,mm])=>`<button class="${m[0]==mm[0]&&(m[0]!='board'||m[1]==mm[1])?'on':''}" onclick='${l==='Final reveal'?'tryReveal()':'tvm('+JSON.stringify(mm)+')'}'>${l}</button>`).join('')}</div>`;
 if(!ready)h+=`<div class="sm" style="margin-top:8px">Tap Final reveal to check what is still needed.</div>`;
 if(revealCheck&&!ready){
  const missing=G.map((_,i)=>i).filter(i=>!done[i]),st=stand(9),groups=[];
@@ -2123,13 +2143,13 @@ d.querySelector('.rk').textContent=o.r;d.querySelector('.nm').innerHTML=hide?'??
 d.querySelector('i').style.width=hide?'0':(o.t/top*100)+'%';d.querySelector('.pt').textContent=hide?'':o.t});
 if(rev&&k==10&&lastRev!=10)confetti();lastRev=rev?k:-1}
 // ---- boot ----
-function render(){document.body.className=ROLE||'landing';if(ROLE=='host')host();else if(ROLE=='tv'){tv();tvRevealAudio()}else $('H').innerHTML=`<div class="chooser"><a class="back-menu" href="../">← MAIN MENU</a><div class="title-icons">${holidayIcon('tree')}<div class="title-middle"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-label="Animated pixel abacus" role="img">
+function render(){document.body.className=ROLE||'landing';if(ROLE=='host')host();else if(ROLE=='tv'){tv();tvRevealAudio()}else $('H').innerHTML=`<div class="chooser"><div class="chooser-topbar"><a class="back-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="title-icons">${holidayIcon('tree')}<div class="title-middle"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-label="Animated pixel abacus" role="img">
 <path fill="#d4af37" d="M1 1h16v1H1zM1 2h1v10H1zM16 2h1v10h-1zM1 12h16v1H1z"/>
 <path fill="#6b5a22" d="M3 4h12v1H3zM3 7h12v1H3zM3 10h12v1H3z"/>
 <g class="bead-one"><path fill="#65d9cb" d="M4 3h2v3H4z"/></g>
 <g class="bead-two"><path fill="#86baff" d="M5 6h2v3H5z"/></g>
 <g class="bead-three"><path fill="#ff8b78" d="M7 9h2v3H7z"/></g>
-</svg></div>${holidayIcon('santa')}</div><h1>SCOREBOARD</h1><div class="prize-label">${PRIZE_TAG}</div><p class="chooser-intro">Control the games on your phone or iPad.<br>Open the TV display on the MacBook.</p><div class="rw"><button class="go" onclick="location.hash='host';location.reload()">Phone / iPad · Host</button><button class="go" onclick="location.hash='tv';location.reload()">MacBook · TV</button></div><footer class="brand-signature"><img src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></footer></div>`}
+</svg></div>${holidayIcon('santa')}</div><h1>SCOREBOARD</h1><div class="prize-label">${PRIZE_TAG}</div><p class="chooser-intro">Control the games on your phone or iPad.<br>Open the TV display on the MacBook.</p><div class="rw"><button class="go" onclick="location.hash='host';location.reload()">Phone / iPad · Host</button><button class="go" onclick="location.hash='tv';location.reload()">MacBook · TV</button></div></div>`}
 restoreCountdown();
 if(ROLE=='tv'){mkRows();setInterval(tickTvCountdown,100);$('T').ondblclick=()=>document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}
 render();if(ROLE)conn();
