@@ -128,7 +128,7 @@ h1  {
 }
 .card-copy  {
   min-width: 0;
-  min-height: 90px;
+  min-height: 72px;
 }
 .destination-title  {
   margin: 0 0 6px;
@@ -280,24 +280,14 @@ h1  {
 .brand-signature  {
   display: flex;
   justify-content: center;
-  margin-top: 30px;
+  margin-top: 18px;
   line-height: 0;
 }
 .brand-signature img  {
   display: block;
-  width: clamp(140px, 17vw, 160px);
+  width: 112px;
   max-width: 100%;
   height: auto;
-}
-.destination-audience {
-  display:block;
-  margin:9px 0 0;
-  color:var(--gold-light);
-  font-size:12px;
-  font-weight:700;
-  line-height:1.4;
-  letter-spacing:.06em;
-  text-transform:uppercase
 }
 </style>
 </head>
@@ -308,40 +298,41 @@ h1  {
       <h1>JIALAT 2026</h1>
       <p class="friendship">18 years · 11 friends</p>
       <p class="trip-dates">10–13 DECEMBER 2026</p>
+    <div class="brand-signature"><img src="assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div>
     </header>
     <nav aria-label="Trip guide and activities">
       <ul class="menu-grid">
         <li>
           <a class="destination-card" href="itinerary/">
             <span class="card-icon"><svg viewBox="0 0 30 26" shape-rendering="crispEdges" aria-hidden="true"><path d="M1 5l8-3 11 4 8-3v18l-8 3-11-4-8 3z" fill="#111" stroke="#6b5a22" stroke-width="2"/><path class="route-dots" d="M5 15h6V9h8v8h5" fill="none" stroke="#65d9cb" stroke-width="2" stroke-dasharray="3 2"/><path class="route-pin" d="M19 2h7v7h-2v3h-3V9h-2z" fill="#ff8b78"/></svg></span>
-            <div class="card-copy"><h2 class="destination-title">Itinerary</h2><p class="destination-description">Your four-day Ho Chi Minh City trip guide.</p><span class="destination-audience">Everyone</span></div>
+            <div class="card-copy"><h2 class="destination-title">Itinerary</h2><p class="destination-description">Your four-day Ho Chi Minh City trip guide.</p></div>
             <svg class="card-arrow" viewBox="0 0 12 18" fill="currentColor" aria-hidden="true"><path d="M0 1h4v4h4v3h4v2H8v3H4v4H0v-4h4v-3h4V8H4V5H0z"/></svg>
           </a>
         </li>
         <li>
           <a class="destination-card" href="roomwars/">
             <span class="card-icon"><svg viewBox="0 0 30 28" shape-rendering="crispEdges" aria-hidden="true"><path d="M3 2h17v24H3z" fill="#40664b"/><g class="door-panel"><path d="M6 5h11v19H6z" fill="#78c594"/><path d="M13 14h2v3h-2z" fill="#0a0a0a"/></g><g class="door-key" fill="#f3d77a"><path d="M21 13h7v6h-7zM19 18h4v8h-4zM16 23h5v3h-5z"/></g><path d="M1 26h21v2H1z" fill="#d4af37"/></svg></span>
-            <div class="card-copy"><h2 class="destination-title">Room Wars</h2><p class="destination-description">Compete in pairs for first choice of rooms.</p><span class="destination-audience">Host setup</span></div>
+            <div class="card-copy"><h2 class="destination-title">Room Wars</h2><p class="destination-description">Compete in pairs for first choice of rooms.</p></div>
             <svg class="card-arrow" viewBox="0 0 12 18" fill="currentColor" aria-hidden="true"><path d="M0 1h4v4h4v3h4v2H8v3H4v4H0v-4h4v-3h4V8H4V5H0z"/></svg>
           </a>
         </li>
         <li>
           <a class="destination-card" href="after18years/">
             <span class="card-icon"><svg viewBox="0 0 30 30" aria-hidden="true"><g class="wheel-turn"><circle cx="15" cy="15" r="12" fill="#111" stroke="#d4af37" stroke-width="2"/><g stroke="#111" stroke-width="1"><path d="M15 15V4A11 11 0 0 1 26 15Z" fill="#ca5364"/><path d="M15 15H26A11 11 0 0 1 15 26Z" fill="#f0d47a"/><path d="M15 15V26A11 11 0 0 1 4 15Z" fill="#68ad83"/><path d="M15 15H4A11 11 0 0 1 15 4Z" fill="#f6f0de"/></g><circle cx="15" cy="15" r="3" fill="#d4af37" stroke="#111" stroke-width="1"/></g><path d="M12 0h6l-3 6z" fill="#ff8b78"/></svg></span>
-            <div class="card-copy"><h2 class="destination-title">AFTER 18 YEARS…</h2><p class="destination-description">Draw the order for all 11 presentations.</p><span class="destination-audience">Host / TV</span></div>
+            <div class="card-copy"><h2 class="destination-title">AFTER 18 YEARS…</h2><p class="destination-description">Draw the order for all 11 presentations.</p></div>
             <svg class="card-arrow" viewBox="0 0 12 18" fill="currentColor" aria-hidden="true"><path d="M0 1h4v4h4v3h4v2H8v3H4v4H0v-4h4v-3h4V8H4V5H0z"/></svg>
           </a>
         </li>
         <li>
           <a class="destination-card" href="scoreboard/">
             <span class="card-icon"><svg viewBox="0 0 30 28" shape-rendering="crispEdges" aria-hidden="true"><path d="M2 1h26v3H2zM2 24h26v3H2zM2 4h3v20H2zM25 4h3v20h-3zM5 8h20v2H5zM5 16h20v2H5z" fill="#d4af37"/><g class="bead-first" fill="#ff8b78"><path d="M6 6h4v6H6zM11 6h4v6h-4z"/></g><g class="bead-second" fill="#65d9cb"><path d="M16 14h4v6h-4zM21 14h3v6h-3z"/></g></svg></span>
-            <div class="card-copy"><h2 class="destination-title">Scoreboard</h2><p class="destination-description">9 Christmas games. Champion wins S$18.</p><span class="destination-audience">Host / TV</span></div>
+            <div class="card-copy"><h2 class="destination-title">Scoreboard</h2><p class="destination-description">9 Christmas games. Champion wins S$18.</p></div>
             <svg class="card-arrow" viewBox="0 0 12 18" fill="currentColor" aria-hidden="true"><path d="M0 1h4v4h4v3h4v2H8v3H4v4H0v-4h4v-3h4V8H4V5H0z"/></svg>
           </a>
         </li>
       </ul>
     </nav>
-    <footer class="brand-signature"><img src="assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></footer>
+
   </main>
 </body>
 </html>
