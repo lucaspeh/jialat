@@ -615,9 +615,7 @@ a[href="../"]:active  {
   margin-bottom: 8px;
 }
 @supports selector(body:has(.arena))  {
-  body:has(.arena) .site-navigation  {
-    display: none;
-  }
+  body:has(.arena) .site-navigation a{visibility:hidden;pointer-events:none}
 }
 @media (max-width: 760px)  {
   input, select, textarea  {
@@ -666,9 +664,28 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
     display:none
   }
 }
+
+/* Event navigation and display controls. */
+
+[hidden]{display:none!important}
+.site-navigation{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;margin-bottom:12px}
+.page-wordmark{display:block;width:108px;max-width:34vw;height:auto;margin-left:auto;flex:none}
+.room-confirmation{margin:18px 0 24px;padding:18px 16px;border:3px solid var(--teal);background:#101b18;scroll-margin-top:16px}
+.room-confirmation>.sub{font-size:12px;margin:0 0 8px;color:var(--teal)}
+.room-result-title{font-size:24px;line-height:1.25;border:0;background:none;padding:0;margin:0 0 16px;color:var(--l);letter-spacing:.02em}
+.your-room{padding:14px;margin-bottom:16px;background:#0a0a0a;border-left:4px solid var(--teal)}
+.your-room>span{display:block;font-size:12px;color:var(--m);text-transform:uppercase}
+.your-room strong{display:block;font-size:24px;color:var(--teal);line-height:1.3;overflow-wrap:anywhere;margin:5px 0}
+.your-room p{font-size:14px;font-weight:400;margin:0;overflow-wrap:anywhere}
+.room-assignment{display:grid;gap:5px;padding:12px 0;border-top:1px solid #355249;overflow-wrap:anywhere}
+.room-assignment b{font-size:15px}.room-assignment span{font-size:16px;font-weight:400;color:var(--m)}
+.room-assignment.is-yours span{color:var(--teal);font-weight:700}
+.completed-games{margin:18px 0}.completed-games>summary{min-height:48px;line-height:24px;padding:12px 0;cursor:pointer;color:var(--l)}
+#room-copy-fallback{font-size:16px}
+
 </style></head><body>
 <i id="dot" class="dot"></i>
-<nav class="site-navigation" aria-label="Site navigation"><a href="../">← MAIN MENU</a></nav>
+<header class="site-navigation"><a id="site-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></header>
 <main id="app"></main>
 <script>
 
@@ -747,7 +764,7 @@ var LOGO="data:image/webp;base64,UklGRhZnAABXRUJQVlA4WAoAAAAQAAAABwIATwEAQUxQSG0
 var G={tap:{n:"Tap Rush",d:"Tap as many times as you can in 10 seconds. Timer starts on your first tap.",hi:true,f:function(v){return v+" taps"}},
 react:{n:"Quick Draw",d:"Wait for the screen to turn green, then tap as fast as you can. Tapping early restarts the wait.",hi:false,f:function(v){return Math.round(v)+" ms"}},
 stop:{n:"Stop at 10.00",d:"A timer runs and then hides. Tap when you think exactly 10.00 seconds has passed. Closest wins.",hi:false,f:function(v){return v.toFixed(3)+"s off"}}};
-var S={names:null,round:"0",roundNo:1,reveal:false,pick:null,tb:null,tbs:{},tbh:{},rooms:["Room 1","Room 2","Room 3","Room 4","Room 5"],claims:{},sc:{tap:{},react:{},stop:{}}},A=document.getElementById("app"),tm=null,code="",host=false,me=null,on=false,fl=false,es=null,view="",skip=false,pt=null,DUR=[300,240,180,180,0];
+var S={names:null,round:"0",roundNo:1,reveal:false,pick:null,roomResult:null,tb:null,tbs:{},tbh:{},rooms:["Room 1","Room 2","Room 3","Room 4","Room 5"],claims:{},sc:{tap:{},react:{},stop:{}}},A=document.getElementById("app"),tm=null,code="",host=false,me=null,on=false,fl=false,es=null,view="",skip=false,pt=null,DUR=[300,240,180,180,0];
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 var SP={trophy:["YYYYYYYYY","Y.YYYYY.Y","Y.YYYYY.Y",".YYYYYYY.","..YYYYY..","...YYY...","....Y....","...YYY...","..YYYYY.."],
 star:["....Y....","....Y....","...YYY...","YYYYYYYYY",".YYYYYYY.","..YYYYY..","..YY.YY..",".YY...YY."],
@@ -761,7 +778,7 @@ function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorag
 function pn(i){return S.names[i]}
 function cn(c){return pn(c*2)+" & "+pn(c*2+1)}
 function standardNames(){return Array.from({length:10},function(_,i){return "Player "+(i+1)})}
-function link(){var u=new URL(location.href);u.hash="";u.searchParams.set("v","9");
+function link(){var u=new URL(location.href);u.hash="";u.searchParams.set("v","10");
  return u.toString()+"#"+code+(S.names?"~"+(S.names.every(function(n,i){return n==="Player "+(i+1)})?"d":encodeURIComponent(JSON.stringify(S.names))):"")}
 function I(x,a,b){return typeof x=="number"&&x%1===0&&x>=a&&x<=b}
 function F(x){return typeof x=="number"&&isFinite(x)}
@@ -776,9 +793,14 @@ function apply(m){
  if(roundMessage(t)&&(m.round||"0")!==S.round)return;
  if(t=="cfg"){if(strs(m.names,10))S.names=m.names.map(function(x){return x.slice(0,20)})}
  else if(t=="score"){if(I(m.p,0,9)&&validScore(m.g,m.v)){var value=scoreValue(m.g,m.v);if(scoreValue(m.g,S.sc[m.g][m.p])!==value){S.tbs={};S.tbh={};S.reveal=false;if(S.tb){S.tb=null;showSharedPhase()}}S.sc[m.g][m.p]=value;if(!readyToReveal())S.reveal=false}}
- else if(t=="reset"){S.round=m.round||m.mid||"0";S.roundNo=I(m.roundNo,1,100000)?m.roundNo:S.roundNo+1;S.sc={tap:{},react:{},stop:{}};S.reveal=false;S.pick=null;S.claims={};S.tb=null;S.tbs={};S.tbh={};skip=false;practice=false;playingTie=false;["mv","bc"].forEach(function(id){var e=document.getElementById(id);if(e)e.value=""});clearTimeout(tm);clearInterval(tm);tm=null;if(S.names&&me!==null)view="home"}
- else if(t=="pick"){if(m.start===true&&!readyToReveal())return;if(perm(m.order)&&I(m.i,0,4)&&F(m.rem)&&m.rem>=0){if(m.start===true){S.claims={};showSharedPhase()}S.pick={order:m.order.slice(),i:m.i,rem:m.rem,paused:m.paused===true,at:F(m.at)?m.at:Date.now()}}}
- else if(t=="pickend")S.pick=null;
+ else if(t=="reset"){S.round=m.round||m.mid||"0";S.roundNo=I(m.roundNo,1,100000)?m.roundNo:S.roundNo+1;S.sc={tap:{},react:{},stop:{}};S.reveal=false;S.pick=null;S.roomResult=null;clearRoomResult();S.claims={};S.tb=null;S.tbs={};S.tbh={};skip=false;practice=false;playingTie=false;["mv","bc"].forEach(function(id){var e=document.getElementById(id);if(e)e.value=""});clearTimeout(tm);clearInterval(tm);tm=null;if(S.names&&me!==null)view="home"}
+ else if(t=="pick"){if(m.start===true&&!readyToReveal())return;if(perm(m.order)&&I(m.i,0,4)&&F(m.rem)&&m.rem>=0){var entering=!S.pick;S.roomResult=null;clearRoomResult();if(m.start===true){S.claims={};showSharedPhase()}else if(entering)showSharedPhase();S.pick={order:m.order.slice(),i:m.i,rem:m.rem,paused:m.paused===true,at:F(m.at)?m.at:Date.now()}}}
+ else if(t=="pickend"){
+  var finished=m.result||makeRoomResult(S.pick,m.at);if(finished&&!validRoomResult(finished))return;
+  if(finished&&finished.round!==S.round)return;
+  if(finished){S.roomResult=finished;S.claims=Object.assign({},finished.claims);saveRoomResult()}
+  S.pick=null;skip=true;roomResultFocus=!!finished;
+ }
  else if(t=="tb"){
   if(m.pairs==null){
    var k=S.tb;if(!k||m.tieId&&m.tieId!==k.id)return;
@@ -791,6 +813,7 @@ function apply(m){
  else if(t=="rooms"){if(strs(m.names,5))S.rooms=m.names.map(function(x){return x.slice(0,30)})}
  else if(t=="claim"){if(I(m.r,0,4)){if(m.c===null)delete S.claims[m.r];else if(I(m.c,0,4)){for(var old in S.claims)if(S.claims[old]===m.c)delete S.claims[old];S.claims[m.r]=m.c}}}
  else if(t=="reveal"){if(m.on===true&&!readyToReveal())return;S.reveal=m.on===true;skip=false;if(S.reveal)showSharedPhase()}
+ if(S.roomResult&&(t==="cfg"||t==="rooms")){S.roomResult.names=S.names.slice();S.roomResult.rooms=S.rooms.slice();saveRoomResult()}
  if(view=="home"||view=="wait"||view=="who"||view=="final"||view=="picking")rq()}
 var rt=null,RV=["home","wait","who","final","picking"];
 function rq(){if(rt)return;rt=setTimeout(function(){rt=null;if(view=="home"&&host&&document.activeElement&&["mg","mp","mv","bc"].indexOf(document.activeElement.id)>=0)return;if(RV.indexOf(view)>=0)render()},80)}
@@ -840,27 +863,27 @@ function connect(){
 function resume(){if(code&&!document.hidden){if(!es||es.readyState===2)connect();post();if(!es||es.readyState===2)poll()}}
 document.addEventListener("visibilitychange",resume);window.addEventListener("online",resume);window.addEventListener("pageshow",function(e){if(e.persisted)resume()});
 window.addEventListener('jialat-relay-status',function(){stat()});
-function stat(){var d=document.getElementById("dot"),e=document.getElementById("stat"),help=document.getElementById("syncHelp"),result=document.getElementById("resultSync"),label=relayWait()>0?relayWaitLabel():postFailed&&out.length?postError:out.length?"Sending updates…":on?"Live":pollOk?"Connected · checking for updates":fl?"Connection unavailable · retrying":"Connecting";
+function stat(){updatePageChrome();var d=document.getElementById("dot"),e=document.getElementById("stat"),help=document.getElementById("syncHelp"),result=document.getElementById("resultSync"),label=relayWait()>0?relayWaitLabel():postFailed&&out.length?postError:out.length?"Sending updates…":on?"Connected":pollOk?"Connected · checking for updates":fl?"Connection unavailable · retrying":"Connecting";
  if(d)d.className="dot "+((postFailed&&out.length)||fl&&!on&&!pollOk?"bad":on||pollOk?"ok":"");if(e)e.textContent=label;
  if(help){help.textContent=postFailed&&out.length?"Your updates are saved here but may not reach others yet. Wait for the displayed retry time, or use backup sharing below.":"";help.style.display=postFailed&&out.length?"block":"none"}
  if(result&&result.dataset&&result.dataset.mid){var waiting=out.some(function(m){return m.mid===result.dataset.mid});result.className="sub result-sync"+(waiting&&postFailed?" retry":"");result.textContent=waiting?(postFailed?"Saved on this phone. Sync is retrying. Use backup sharing below if needed.":"Saved. Sending automatically… You can return to the main screen."):"Result synced. You can return to the main screen."}}
-function render(){clearTimeout(tm);clearInterval(tm);
+function render(){updatePageChrome();clearTimeout(tm);clearInterval(tm);
  if(!code)return setup();
  if(!S.names)return wait();
  if(me==null)return who();
  home()}
 function wait(){view="wait";A.innerHTML='<p class="live" id="stat"></p>'+brand("ROOM WARS","trophy")+'<div class="card">Waiting for the host’s names. Ask the host to share the invite link again if this takes more than a few seconds.<button id="retry" class="alt">Retry connection</button></div>';stat();document.getElementById("retry").onclick=resume}
-function setup(){view="setup";
+function setup(){updatePageChrome();view="setup";
  var h=brand("ROOM WARS","trophy")+'<p class="sub">'+(code?'Edit the names.':'Hosting? Enter the five pairs below, then share the invite. Playing? Open the invite shared in the group.')+'</p>';
  for(var c=0;c<5;c++)h+='<div class="card"><b>Pair '+(c+1)+'</b><div class="row"><input id="p'+(c*2)+'" aria-label="Pair '+(c+1)+', first player" placeholder="Person A" maxlength="14" value="'+(S.names?esc(S.names[c*2]):"")+'"><input id="p'+(c*2+1)+'" aria-label="Pair '+(c+1)+', second player" placeholder="Person B" maxlength="14" value="'+(S.names?esc(S.names[c*2+1]):"")+'"></div></div>';
- h+='<button id="go">'+(code?'Save names':'Create game')+'</button>'+(code?'<button class="alt" id="bk">Cancel</button>':'')+(code?'':'<footer class="brand-signature"><img src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></footer>');
+ h+='<button id="go">'+(code?'Save names':'Create game')+'</button>'+(code?'<button class="alt" id="bk">Cancel</button>':'');
  A.innerHTML=h;var b=document.getElementById("bk");if(b)b.onclick=render;
  document.getElementById("go").onclick=function(){
   var nm=[];for(var i=0;i<10;i++){var v=document.getElementById("p"+i).value.trim();nm.push(v||("Player "+(i+1)))}
   if(!code){var al="abcdefghjkmnpqrstuvwxyz23456789";for(var i=0;i<8;i++)code+=al[Math.floor(Math.random()*al.length)];
    host=true;ls("rwh-"+code,"1");location.hash=code;connect()}
   send({t:"cfg",names:nm});render()}}
-function who(){view="who";var h='<p class="live" id="stat"></p><p class="sub" id="syncHelp" style="display:none"></p><h1>Who are you?</h1><p class="sub">On iPhone, open this invite in Safari before choosing your name. Keep using the same browser while playing.</p>';
+function who(){view="who";var h='<p class="live" id="stat"></p><p class="sub" id="syncHelp" style="display:none"></p><h1>Who are you?</h1><p class="sub">Tap your name to join your pair.</p>';
  for(var i=0;i<10;i++)h+='<button class="alt" data-i="'+i+'">'+esc(pn(i))+'</button>';A.innerHTML=h;stat();
  Array.prototype.forEach.call(A.querySelectorAll("button"),function(b){b.onclick=function(){me=+b.dataset.i;ls("rwm-"+code,me);render()}})}
 function pts(){var p=[];for(var i=0;i<10;i++)p.push(0);
@@ -872,26 +895,26 @@ function pairStandings(){var p=pts(),cs=[];for(var c=0;c<5;c++)cs.push({c:c,t:p[
 function tieNote(x){return x.h.length?'Tie-break: '+x.h.join(' → ')+' taps':''}
 function home(){
  if(S.pick)return picking();
- if(S.reveal&&!skip)return final();
+ if(S.reveal&&!skip&&!S.roomResult)return final();
  var draft={};if(host)["mg","mp","mv","bc"].forEach(function(id){var e=document.getElementById(id);if(e)draft[id]=e.value});
- view="home";var p=pts(),cs=pairStandings(),ord=["1st","2nd","3rd","4th","5th"],played=0;
+ view="home";var completed=!!(S.roomResult&&S.roomResult.complete),p=pts(),cs=pairStandings(),ord=["1st","2nd","3rd","4th","5th"],played=0;
  for(var g in G)played+=Object.keys(S.sc[g]).length;
- var h='<p class="live"><span id="stat"></span> · You: <b>'+esc(pn(me))+'</b> <a href="#" id="chg">change</a></p><p class="sub" id="syncHelp" style="display:none"></p>'+brand("ROOM WARS","trophy")+(S.roundNo>1?'<p class="sub" style="text-align:center">ROUND '+S.roundNo+'</p>':'')+'<p class="sub">1st place in each game = 10 pts, 2nd = 9, and so on. Equal game results share points. Pair score = both partners added.</p><p class="sub">After all 3 games, equal pair totals use a 5-second tapping tie-break. Both partners’ taps are added. Only pairs still tied replay.</p>';
+ var h='<p class="live"><span id="stat"></span> · You: <b>'+esc(pn(me))+'</b> <a href="#" id="chg">change</a></p><p class="sub" id="syncHelp" style="display:none"></p>'+brand("ROOM WARS","trophy")+(S.roundNo>1?'<p class="sub" style="text-align:center">ROUND '+S.roundNo+'</p>':'')+(completed?'':'<p class="sub">1st place in each game = 10 pts, 2nd = 9, and so on. Equal game results share points. Pair score = both partners added.</p><p class="sub">After all 3 games, equal pair totals use a 5-second tapping tie-break. Both partners’ taps are added. Only pairs still tied replay.</p>')+roomResultHTML();
  var gm='<h2>Play the games</h2><p class="sub" style="text-align:center;margin-top:-4px">Play all 3 games to win points for your pair!</p>',ico={tap:spr("tap",4),react:spr("react",4),stop:spr("stop",4)},num=0;
  for(var g in G){num++;var n=Object.keys(S.sc[g]).length,mine=S.sc[g][me]!==undefined;
-  gm+='<div class="card game'+(mine?' dn':'')+'"><div class="gt"><span class="gi">'+ico[g]+'</span><div><div class="gl">GAME '+num+'</div><b class="gn">'+G[g].n+'</b></div><span class="tag">'+n+'/10 played</span></div><div class="sub" style="margin:8px 0 0">'+G[g].d+'</div><button data-g="'+g+'"'+(mine?' disabled':'')+'>'+(mine?'✓ You played':'▶ PLAY NOW')+'</button><button class="alt" data-pr="'+g+'"'+(U(g)?' disabled':'')+'>'+(U(g)?'Practice used ✓':'Practice (1 try only, not scored)')+'</button></div>'}
+  gm+='<div class="card game'+(mine?' dn':'')+'"><div class="gt"><span class="gi">'+ico[g]+'</span><div><div class="gl">GAME '+num+'</div><b class="gn">'+G[g].n+'</b></div><span class="tag">'+n+'/10 played</span></div><div class="sub" style="margin:8px 0 0">'+G[g].d+'</div><button data-g="'+g+'"'+(mine||completed?' disabled':'')+'>'+(mine?'✓ You played':'▶ PLAY NOW')+'</button><button class="alt" data-pr="'+g+'"'+(U(g)||completed?' disabled':'')+'>'+(U(g)?'Practice used ✓':'Practice (1 try only, not scored)')+'</button></div>'}
  var st='<h2>Pair standings</h2>';
  cs.forEach(function(x){st+='<div class="rank z'+zc(x.r-1)+'" data-pair="'+x.c+'" style="--w:'+Math.round(x.t/Math.max(1,cs[0].t)*100)+'%"><div class="n">'+(x.tied?'=':'')+x.r+'</div><div class="g"><b>'+esc(cn(x.c))+'</b><small>'+esc(pn(x.c*2))+' '+p[x.c*2]+' · '+esc(pn(x.c*2+1))+' '+p[x.c*2+1]+'</small>'+(x.h.length?'<small>'+tieNote(x)+'</small>':'')+'</div><div class="pts">'+x.t+'<small>'+(played<30?'Live position':x.tied?'TIED':ord[x.r-1]+' room pick')+'</small></div></div>'});
  var tie=cs.some(function(x){return x.tied});
  if(played===30&&tie)st+='<p class="sub">Some pairs are tied. The host can start a 5-second tapping tie-breaker for those pairs.</p>';
- h+=tbb()+gm+(host||!any1()?'':'<details class="backup"><summary>Share backup results</summary><p>If the host cannot see your scores, share this backup.</p><button class="alt" id="shh">Share backup</button></details>')+st+'<button class="alt" id="shs">Share standings</button>';
+ h+=(completed?'<details class="completed-games"><summary>Game results</summary>':'')+tbb()+gm+(host||!any1()?'':'<details class="backup"><summary>Share backup results</summary><p>If the host cannot see your scores, share this backup.</p><button class="alt" id="shh">Share backup</button></details>')+st+'<button class="alt" id="shs">Share standings</button>';
  h+='<h2>Individual scores</h2><div class="card">';
  for(var g in G){h+='<b>'+G[g].n+'</b><div class="sub">';
   var ids=Object.keys(S.sc[g]).sort(function(a,b){return G[g].hi?scoreValue(g,S.sc[g][b])-scoreValue(g,S.sc[g][a]):scoreValue(g,S.sc[g][a])-scoreValue(g,S.sc[g][b])});
   h+=ids.length?ids.map(function(i){return esc(pn(i))+" "+G[g].f(S.sc[g][i])}).join(" · "):"No scores yet";h+='</div>'}
- h+='</div>';
- if(host){var ready=readyToReveal();h+='<h2>Host tools</h2><div class="card"><b>Invite link</b><input id="lk" aria-label="Room Wars invite link" readonly value="'+esc(link())+'"><button id="sh">Share invite link</button></div><div class="card"><b>Add or fix a score</b><select id="mg" aria-label="Game">'+Object.keys(G).map(function(g){return'<option value="'+g+'">'+G[g].n+'</option>'}).join("")+'</select><select id="mp" aria-label="Player">'+S.names.map(function(n,i){return'<option value="'+i+'">'+esc(n)+'</option>'}).join("")+'</select><input id="mv" aria-label="Result" type="number" step="any" inputmode="decimal" placeholder="Taps, ms, or seconds off"><button id="ma" class="alt">Save score</button></div><div class="card"><b>Paste backup codes</b><div class="sub" style="margin:2px 0">One per line, like tap|3|62</div><textarea id="bc" aria-label="Backup result codes"></textarea><button id="bb" class="alt">Add codes</button></div><button id="rv"'+(ready?'':' disabled title="Complete all three games and settle ties first"')+'>1. Reveal winners to everyone</button><button id="sp"'+(ready?'':' disabled title="Complete all three games and settle ties first"')+'>2. Start room picking</button>'+(ties().length&&!S.tb?'<button class="alt" id="tbs">Start tie-breaker (tied pairs only)</button>':'')+'<button class="alt" id="er">Edit room names</button><button class="alt" id="en">Edit names</button><p class="sub" style="margin:20px 0 0">Play again with the same people. Clears this round’s results and room picks.</p><button class="alt" id="rs">Start a new round</button>'}
- A.innerHTML=h+(host?relayPanelHTML():'');relayPanelBind();Object.keys(draft).forEach(function(id){var e=document.getElementById(id);if(e)e.value=draft[id]});stat();
+ h+='</div>'+(completed?'</details>':'');
+ if(host){var ready=readyToReveal();h+='<h2>Host tools</h2><div class="card"><b>Invite link</b><input id="lk" aria-label="Room Wars invite link" readonly value="'+esc(link())+'"><button id="sh">Share invite link</button></div><div class="card"><b>Add or fix a score</b><select id="mg" aria-label="Game">'+Object.keys(G).map(function(g){return'<option value="'+g+'">'+G[g].n+'</option>'}).join("")+'</select><select id="mp" aria-label="Player">'+S.names.map(function(n,i){return'<option value="'+i+'">'+esc(n)+'</option>'}).join("")+'</select><input id="mv" aria-label="Result" type="number" step="any" inputmode="decimal" placeholder="Taps, ms, or seconds off"><button id="ma" class="alt">Save score</button></div><div class="card"><b>Paste backup codes</b><div class="sub" style="margin:2px 0">One per line, like tap|3|62</div><textarea id="bc" aria-label="Backup result codes"></textarea><button id="bb" class="alt">Add codes</button></div><button id="rv"'+(ready?'':' disabled title="Complete all three games and settle ties first"')+'>1. Reveal winners to everyone</button><button id="sp"'+(ready&&!completed?'':' disabled')+'>'+(completed?'Rooms confirmed':S.roomResult?'Resume room picking':'2. Start room picking')+'</button>'+(ties().length&&!S.tb?'<button class="alt" id="tbs">Start tie-breaker (tied pairs only)</button>':'')+'<button class="alt" id="er">Edit room names</button><button class="alt" id="en">Edit names</button><p class="sub" style="margin:20px 0 0">Play again with the same people. Clears this round’s results and room picks.</p><button class="alt" id="rs">Start a new round</button>'}
+ A.innerHTML=h+(host?relayPanelHTML():'');relayPanelBind();Object.keys(draft).forEach(function(id){var e=document.getElementById(id);if(e)e.value=draft[id]});stat();var roomCopy=document.getElementById("copy-rooms");if(roomCopy)roomCopy.onclick=copyRooms;var summary=document.querySelector(".room-confirmation");if(roomResultFocus&&summary){roomResultFocus=false;summary.scrollIntoView({block:"start",behavior:"auto"});summary.querySelector("h2").focus({preventScroll:true})}
  Array.prototype.forEach.call(A.querySelectorAll("button[data-g]"),function(b){b.onclick=function(){run(b.dataset.g,false)}});
  Array.prototype.forEach.call(A.querySelectorAll("button[data-pr]"),function(b){b.onclick=function(){run(b.dataset.pr,true)}});
  var q=document.getElementById("shh");if(q)q.onclick=function(){share(mine())};
@@ -901,7 +924,11 @@ function home(){
  document.getElementById("chg").onclick=function(e){e.preventDefault();me=null;render()};
  if(!host)return;
  document.getElementById("sh").onclick=shareInvite;
- document.getElementById("sp").onclick=function(){send({t:"pick",order:order(),i:0,rem:DUR[0]*1000,paused:false,start:true})};
+ document.getElementById("sp").onclick=function(){
+  if(completed)return;var previous=S.roomResult;
+  if(previous){var next=previous.order.findIndex(function(pair){return !Object.keys(S.claims).some(function(r){return S.claims[r]===pair})});if(next<0)return;send({t:"pick",order:previous.order,i:next,rem:DUR[next]*1000,paused:false})}
+  else send({t:"pick",order:order(),i:0,rem:DUR[0]*1000,paused:false,start:true})
+ };
  document.getElementById("rv").onclick=function(){send({t:"reveal",on:true})};
  var t3=document.getElementById("tbs");if(t3)t3.onclick=function(){send({t:"tb",pairs:ties()})};
  document.getElementById("er").onclick=rooms;
@@ -943,14 +970,45 @@ function picking(){view="picking";var k=S.pick,c=k.order[k.i],nx=k.order[k.i+1],
   g("pp",function(){if(S.pick)pk({i:S.pick.i,rem:left(),paused:!S.pick.paused})});
   g("pm",function(){if(S.pick)pk({i:S.pick.i,rem:left()+60000,paused:S.pick.paused})});
   g("pb",function(){if(S.pick&&S.pick.i>0)pk({i:S.pick.i-1,rem:0,paused:true})});
-  g("pe",function(){if(last&&!k.order.slice(0,4).every(function(pair){return Object.keys(S.claims).some(function(r){return S.claims[r]===pair})})){alert("Assign a room to each of the first four pairs before finishing. Use Previous pair to correct an assignment.");return}if(!last&&!confirm("End room picking early? Recorded room choices will be kept."))return;send({t:"pickend"})});
+  g("pe",function(){if(last&&!k.order.slice(0,4).every(function(pair){return Object.keys(S.claims).some(function(r){return S.claims[r]===pair})})){alert("Assign a room to each of the first four pairs before finishing. Use Previous pair to correct an assignment.");return}if(!last&&!confirm("End room picking early? Recorded room choices will be kept."))return;send({t:"pickend",result:makeRoomResult(S.pick,Date.now())})});
   Array.prototype.forEach.call(A.querySelectorAll("button[data-r]"),function(b){b.onclick=function(){send({t:"claim",r:+b.dataset.r,c:c})}});
   Array.prototype.forEach.call(A.querySelectorAll("button[data-f]"),function(b){b.onclick=function(){send({t:"claim",r:+b.dataset.f,c:null})}})}
  clearInterval(pt);if(!last){tick();pt=setInterval(tick,250)}}
 function ani(e,c){if(!e||!e.classList)return;e.classList.remove(c);void e.offsetWidth;e.classList.add(c)}
 async function share(t){if(navigator.share)try{await navigator.share({text:t});return}catch(e){if(e.name==="AbortError")return}try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error("Clipboard unavailable");await navigator.clipboard.writeText(t);alert("Results copied. Paste them into your group chat.")}catch(e){prompt("Copy these results to share:",t)}}
-async function shareInvite(){var l=link();if(navigator.share)try{await navigator.share({title:"Room Wars",text:"On iPhone, open in Safari before joining Room Wars. Keep using the same browser while playing.",url:l});return}catch(e){if(e.name==="AbortError")return}try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error("Clipboard unavailable");await navigator.clipboard.writeText(l);var b=document.getElementById("sh");if(b)b.textContent="Invite link copied"}catch(e){var field=document.getElementById("lk");if(field)field.select();prompt("Copy this invite link:",l)}}
+async function shareInvite(){var l=link();if(navigator.share)try{await navigator.share({title:"Room Wars",url:l});return}catch(e){if(e.name==="AbortError")return}try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error("Clipboard unavailable");await navigator.clipboard.writeText(l);var b=document.getElementById("sh");if(b)b.textContent="Invite link copied"}catch(e){var field=document.getElementById("lk");if(field)field.select();prompt("Copy this invite link:",l)}}
 function mine(){var l="🏆 Room Wars – "+pn(me)+"\n",c="";for(var g in G)if(S.sc[g][me]!==undefined){var value=scoreValue(g,S.sc[g][me]);l+=G[g].n+": "+G[g].f(value)+"\n";c+=g+"|"+me+"|"+value+"\n"}return l+"\n"+c}
+
+var roomResultFocus=false;
+function updatePageChrome(){var menu=document.getElementById("site-menu");if(menu)menu.hidden=!!code&&!host}
+function validRoomResult(x){
+ if(!x||typeof x.round!=="string"||x.round.length>100||!strs(x.names,10)||!strs(x.rooms,5)||!perm(x.order)||!x.claims||typeof x.claims!=="object"||Array.isArray(x.claims))return false;
+ var keys=Object.keys(x.claims),pairs=keys.map(function(r){return x.claims[r]});
+ return keys.length<=5&&keys.every(function(r){return /^(0|1|2|3|4)$/.test(r)})&&pairs.every(function(c,i){return I(c,0,4)&&pairs.indexOf(c)===i})&&typeof x.complete==="boolean"&&x.complete===(keys.length===5);
+}
+function makeRoomResult(pick,at){
+ if(!pick||!S.names)return null;var claims=Object.assign({},S.claims);
+ if(pick.i===4&&Object.keys(claims).length===4&&pick.order.slice(0,4).every(function(c){return Object.keys(claims).some(function(r){return claims[r]===c})})){
+  for(var r=0;r<5;r++)if(claims[r]===undefined){claims[r]=pick.order[4];break}
+ }
+ return {round:S.round,roundNo:S.roundNo,names:S.names.slice(),rooms:S.rooms.slice(),claims:claims,order:pick.order.slice(),complete:Object.keys(claims).length===5,endedAt:at};
+}
+function saveRoomResult(){if(!code||!validRoomResult(S.roomResult))return;try{localStorage.setItem("rw-final-"+code,JSON.stringify(S.roomResult))}catch(e){}}
+function clearRoomResult(){try{localStorage.removeItem("rw-final-"+code)}catch(e){}}
+function restoreRoomResult(){try{var x=JSON.parse(localStorage.getItem("rw-final-"+code)||"null");if(validRoomResult(x)){S.roomResult=x;roomResultFocus=true;S.round=x.round;S.roundNo=I(x.roundNo,1,100000)?x.roundNo:1;S.claims=Object.assign({},x.claims);S.rooms=x.rooms.slice();S.names=x.names.slice()}}catch(e){}}
+function chosenRoom(x,pair){for(var r in x.claims)if(x.claims[r]===pair)return x.rooms[r];return ""}
+function resultPair(x,pair){return x.names[pair*2]+" & "+x.names[pair*2+1]}
+function roomListText(){var x=S.roomResult;if(!x)return "";return "JIALAT | "+(x.complete?"Rooms confirmed":"Room choices so far")+"\n"+x.order.map(function(pair){return resultPair(x,pair)+": "+(chosenRoom(x,pair)||"Not chosen yet")}).join("\n")}
+function roomResultHTML(){
+ var x=S.roomResult;if(!validRoomResult(x))return "";var mine=me===null?"":chosenRoom(x,Math.floor(me/2));
+ var h='<section class="room-confirmation" aria-label="Room assignments"><p class="sub">'+(x.complete?'ROOM PICKING COMPLETE':'ROOM PICKING PAUSED')+'</p><h2 class="room-result-title" tabindex="-1">'+(x.complete?'Rooms confirmed':'Room choices so far')+'</h2>';
+ if(me!==null)h+='<div class="your-room"><span>Your room</span><strong>'+(mine?esc(mine):'Not chosen yet')+'</strong><p>'+esc(resultPair(x,Math.floor(me/2)))+'</p></div>';
+ h+='<div class="room-list">'+x.order.map(function(pair){return '<div class="room-assignment'+(me!==null&&pair===Math.floor(me/2)?' is-yours':'')+'"><b>'+esc(resultPair(x,pair))+'</b><span>'+esc(chosenRoom(x,pair)||'Not chosen yet')+'</span></div>'}).join('')+'</div>';
+ if(host)h+='<button class="alt" id="copy-rooms">Copy room list</button><p class="sub" id="room-copy-status" role="status"></p><textarea id="room-copy-fallback" aria-label="Room list to copy" readonly hidden></textarea>';
+ return h+'</section>';
+}
+async function copyRooms(){var status=document.getElementById("room-copy-status");try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error("Clipboard unavailable");await navigator.clipboard.writeText(roomListText());status.textContent="Room list copied."}catch(e){var field=document.getElementById("room-copy-fallback");field.hidden=false;field.value=roomListText();field.focus();field.select();status.textContent="Select and copy the room list above."}}
+
 function roomOf(c,o){for(var r in S.claims)if(S.claims[r]==c)return S.rooms[r];if(Object.keys(S.claims).length==4&&o[4]==c){for(var r=0;r<5;r++)if(S.claims[r]===undefined)return S.rooms[r]}return""}
 function rtext(){var o=order(),t="🏆 Room Wars "+(readyToReveal()?"results":"live standings")+"\n";pairStandings().forEach(function(x){var r=roomOf(x.c,o);t+=(x.tied?'TIED ':x.r+'. ')+cn(x.c)+" – "+x.t+" pts"+(x.h.length?' · '+tieNote(x):'')+(r?" · "+r:"")+"\n"});return t}
 function rooms(){view="rooms";var h='<h1 style="text-align:center">Room names</h1><p class="sub">Type the names from the Airbnb listing, like "Bedroom 3 – ensuite". You can change them any time.</p>';
@@ -981,7 +1039,7 @@ function tbG(){if(!S.tb||S.tb.pairs.indexOf(me>>1)<0||S.tbs[me]!==undefined)retu
  A.innerHTML='<div class="arena" id="ar"><div class="big" id="c">0</div><small id="tl">Tie-breaker! Tap to start (5 seconds)</small></div>';
  document.getElementById("ar").onpointerdown=function(e){e.preventDefault();if(over||(t0&&Date.now()-t0>=5000))return;
   if(!t0){t0=Date.now();tm=setInterval(function(){var l=5-(Date.now()-t0)/1000;
-   if(l<=0){clearInterval(tm);over=true;playingTie=false;view="fin";if(!S.tb||S.tb.id!==tieId)return home();send({t:"tbs",p:me,v:n,tieId:tieId});A.innerHTML='<h1 style="text-align:center">'+n+' taps</h1><button id="nx">Back to main screen</button>';document.getElementById("nx").onclick=home}
+   if(l<=0){clearInterval(tm);over=true;playingTie=false;view="fin";if(!S.tb||S.tb.id!==tieId)return home();send({t:"tbs",p:me,v:n,tieId:tieId});A.innerHTML='<h1 style="text-align:center">'+n+' taps</h1><button id="nx">Back to Room Wars</button>';document.getElementById("nx").onclick=home}
    else document.getElementById("tl").textContent=l.toFixed(1)+"s left"},50)}
   n++;var cc=document.getElementById("c");cc.textContent=n;ani(cc,"pop")}}
 function ac(){if(!snd||snd.state==="closed"){var C=window.AudioContext||window.webkitAudioContext;if(C)try{snd=new C()}catch(e){}}return snd}
@@ -989,9 +1047,9 @@ document.addEventListener("pointerdown",function(){var a=ac();if(a&&a.state!=="r
 function chime(f){var a=ac();if(!a||a.state!="running")return;f.forEach(function(fr,i){var o=a.createOscillator(),g=a.createGain(),t=a.currentTime+i*.22;o.type="sine";o.frequency.value=fr;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.3,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.7);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+.75)})}
 function fin(g,v){view="fin";v=scoreValue(g,v);
  var big='<h1 style="text-align:center">'+esc(pn(me))+'</h1><p class="sub" style="text-align:center;margin:-2px 0 12px">'+G[g].n+(practice?' · practice':'')+'</p><div class="arena result-'+g+' rise glow"><div class="big pop">'+G[g].f(v)+'</div>'+(practice?'<small>Practice only. Not scored.</small>':'')+'</div>';
- if(practice){A.innerHTML=big+'<button id="nx">Back to main screen</button>';document.getElementById("nx").onclick=home;return}
+ if(practice){A.innerHTML=big+'<button id="nx">Back to Room Wars</button>';document.getElementById("nx").onclick=home;return}
  var mid=send({t:"score",g:g,p:me,v:v});
- A.innerHTML=big+'<p class="sub result-sync" id="resultSync" data-mid="'+mid+'" role="status"></p><button id="nx">Back to main screen</button><details class="backup"><summary>Share a backup result</summary><p>If the host cannot see this result, share this backup.</p><button class="alt" id="sh">Share backup</button></details>';
+ A.innerHTML=big+'<p class="sub result-sync" id="resultSync" data-mid="'+mid+'" role="status"></p><button id="nx">Back to Room Wars</button><details class="backup"><summary>Share a backup result</summary><p>If the host cannot see this result, share this backup.</p><button class="alt" id="sh">Share backup</button></details>';
  document.getElementById("sh").onclick=function(){share(mine())};document.getElementById("nx").onclick=home;stat()}
 function run(g,pr){view="play";practice=!!pr;
  A.innerHTML='<h1 style="text-align:center">'+G[g].n+'</h1>'+(pr?'<p class="sub" style="text-align:center"><b>Practice round: 1 try only, not scored.</b></p>':'')+'<p class="sub">'+G[g].d+'</p><div class="card" style="text-align:center"><div class="sub">Playing as</div><div style="font-size:30px;font-weight:700">'+esc(pn(me))+'</div></div><button id="st">I’m ready!</button><button class="alt" id="bk">Back</button>';
@@ -1023,6 +1081,7 @@ function stopG(g){
 var rawHash=location.hash.slice(1),sep=rawHash.indexOf("~"),parts=[sep<0?rawHash:rawHash.slice(0,sep),sep<0?"":rawHash.slice(sep+1)];code=(parts[0]||"").replace(/[^a-z0-9]/gi,"").toLowerCase();
 if(code){host=ls("rwh-"+code)=="1";var m=ls("rwm-"+code);me=m===null?null:+m;
  if(parts[1])try{var names=parts[1]==="d"?standardNames():JSON.parse(decodeURIComponent(parts[1]));if(strs(names,10))S.names=names.map(function(x){return x.slice(0,20)})}catch(e){}
+ restoreRoomResult();
  try{var saved=JSON.parse(ls("rwq-"+code)||"[]");if(Array.isArray(saved)){out=saved.filter(function(x){return x&&typeof x.t=="string"});out.forEach(function(x){mark(x.mid);apply(x)})}}catch(e){}
  connect();post()}
 render();
