@@ -1639,7 +1639,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 #tvAudio .display-controls-panel>button{width:100%;margin-bottom:8px}#tvAudio .display-controls-panel>a{display:flex;align-items:center;min-height:44px;margin-top:8px;border-top:1px solid var(--d);padding-top:8px}
 #tvAudio .tone-tests{padding:8px 0;border:0}
 
-</style></head><body>
+</style><link rel="stylesheet" href="../assets/layout.css?v=14">
+</head><body data-page="scoreboard">
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
 <details id="tvAudio"><summary id="tvControlSummary">Sound off</summary><div class="display-controls-panel"><button id="tvAudioToggle" aria-pressed="false" onclick="toggleTvSound()">Turn on TV sound</button><details id="tvAudioTests"><summary>Test tones</summary><div class="tone-tests"><small>Audio plays from this screen.</small><button onclick="previewTvCue('end')">Timer · Time’s up</button><button onclick="previewTvCue('happy')">2–6 · Happy</button><button onclick="previewTvCue('organiser')">7–9 · Oh no!</button><button onclick="previewTvCue('champion')">1st · Champion</button><button onclick="previewTvCue('cheeky')">10th · Cheeky</button></div></details><a href="../">← MAIN MENU</a></div></details>
@@ -2145,7 +2146,7 @@ d.querySelector('.rk').textContent=o.r;d.querySelector('.nm').innerHTML=hide?'??
 d.querySelector('i').style.width=hide?'0':(o.t/top*100)+'%';d.querySelector('.pt').textContent=hide?'':o.t});
 if(rev&&k==10&&lastRev!=10)confetti();lastRev=rev?k:-1}
 // ---- boot ----
-function render(){document.body.className=ROLE||'landing';if(ROLE=='host')host();else if(ROLE=='tv'){tv();tvRevealAudio()}else $('H').innerHTML=`<div class="chooser"><div class="chooser-topbar"><a class="back-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="title-icons">${holidayIcon('tree')}<div class="title-middle"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-label="Animated pixel abacus" role="img">
+function render(){document.body.className=ROLE||'landing';if(ROLE=='host')host();else if(ROLE=='tv'){tv();tvRevealAudio()}else $('H').innerHTML=`<div class="chooser-topbar"><a class="back-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="chooser"><div class="title-icons">${holidayIcon('tree')}<div class="title-middle"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-label="Animated pixel abacus" role="img">
 <path fill="#d4af37" d="M1 1h16v1H1zM1 2h1v10H1zM16 2h1v10h-1zM1 12h16v1H1z"/>
 <path fill="#6b5a22" d="M3 4h12v1H3zM3 7h12v1H3zM3 10h12v1H3z"/>
 <g class="bead-one"><path fill="#65d9cb" d="M4 3h2v3H4z"/></g>
