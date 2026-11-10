@@ -683,6 +683,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .completed-games{margin:18px 0}.completed-games>summary{min-height:48px;line-height:24px;padding:12px 0;cursor:pointer;color:var(--l)}
 #room-copy-fallback{font-size:16px}
 
+
+.backup-import>summary { min-height:44px; padding:10px 0; line-height:24px; cursor:pointer; list-style-position:inside; color:var(--l); }
+.score-unit { margin:8px 0 0; font-size:14px; }
+#backup-preview h3 { font-size:16px; color:var(--l); margin:18px 0 10px; }
+.import-results { list-style:none; padding:0; margin:0 0 12px; }
+.import-results li { display:grid; gap:4px; border-top:1px solid var(--d); padding:12px 0; overflow-wrap:anywhere; }
+.import-results span { font-size:14px; font-weight:400; color:var(--m); }
+.import-results strong { color:var(--teal); }
+.import-error { color:var(--coral); font-size:14px; font-weight:400; line-height:1.6; }
 </style></head><body>
 <i id="dot" class="dot"></i>
 <header class="site-navigation"><a id="site-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></header>
@@ -696,7 +705,7 @@ function relayWrite(key,value){try{localStorage.setItem(key,JSON.stringify(value
 function relayInfo(){var x=relayRead('jialat-relay-hold');if(x&&typeof x.until==='number'&&isFinite(x.until)&&x.until>relayMemory.until)relayMemory=x;return relayMemory}
 function relayWait(){return Math.max(0,relayInfo().until-Date.now())}
 function relayLocalTime(at){try{return new Date(at).toLocaleString([],{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}catch(e){return new Date(at).toLocaleString()}}
-function relayWaitLabel(){var x=relayInfo(),wait=Math.ceil(relayWait()/1000);return (x.reason||'Relay busy (429)')+(x.resetKnown&&x.code===42908?' · resets '+relayLocalTime(x.until):' · next check in '+wait+'s')}
+function relayWaitLabel(){var x=relayInfo(),wait=Math.ceil(relayWait()/1000);var label={42901:'Connection busy',42903:'Too many game tabs open',42905:'Daily data limit reached',42908:'Daily connection limit reached',42911:'Too many games started'}[x.code]||(/daily/i.test(x.reason||'')?'Daily connection limit reached':'Connection busy');return label+(x.resetKnown&&x.code===42908?' · resets '+relayLocalTime(x.until):' · next check in '+wait+'s')}
 function relayLater(fn,ms){return setTimeout(fn,Math.min(2147483000,Math.max(0,ms)))}
 function relayWaitingError(){var e=Error('HTTP 429');e.status=429;e.retryAfterMs=relayWait();e.ntfyCode=relayInfo().code||0;return e}
 function relayReason(code,detail){return {42901:'Too many requests (42901)',42903:'Too many open game tabs (42903)',42905:'Daily data allowance reached (42905)',42908:'Daily relay allowance reached (42908)',42911:'Too many new games (42911)'}[code]||(/daily/i.test(detail)?'Daily relay allowance reached (429)':'Relay busy (429)')}
@@ -777,8 +786,26 @@ function zc(i){return i==0?0:i==4?3:i==3?2:1}
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}return null}
 function pn(i){return S.names[i]}
 function cn(c){return pn(c*2)+" & "+pn(c*2+1)}
+// Shared result imports show names before saving and use one relay message.
+var backupRows=[];
+function friendName(n){return /^shi\s*min$/i.test(n.trim())?'Shi Min':n}
+function validResultRow(x){return x&&I(x.p,0,9)&&validScore(x.g,x.v)}
+function reviewBackup(){
+ var field=document.getElementById('bc'),panel=document.getElementById('backup-preview'),lines=field.value.trim().split(/\r?\n/),rows=[],errors=[],seenRows={};backupRows=[];
+ lines.forEach(function(line,i){if(!line.trim()||line.indexOf('|')<0)return;var a=line.trim().split('|'),x={g:a[0].trim(),p:Number(a[1]),v:Number(a[2])};
+  if(a.length!==3||!a[1].trim()||!a[2].trim()||!validResultRow(x)){errors.push('Line '+(i+1)+': check the result code.');return}
+  var key=x.g+':'+x.p;if(seenRows[key])errors.push(pn(x.p)+': two '+G[x.g].n+' results. Keep the correct one.');seenRows[key]=true;rows.push(x)
+ });
+ if(!rows.length&&!errors.length)errors.push('Paste the results shared by a player first.');
+ panel.innerHTML=errors.length?'<p class="import-error" role="alert">'+errors.map(esc).join('<br>')+'</p>':'<h3 tabindex="-1">Check these results</h3><ul class="import-results">'+rows.map(function(x){return '<li><b>'+esc(pn(x.p))+'</b><span>'+esc(G[x.g].n)+'</span><strong>'+esc(G[x.g].f(x.v))+'</strong></li>'}).join('')+'</ul><p class="sub">Check the names and scores. These replace any existing results for the same player and game.</p><button id="backup-confirm">Save these results</button>';
+ if(!errors.length){backupRows=rows;var namesAtReview=JSON.stringify(S.names),sourceAtReview=field.value;panel.querySelector('h3').focus();document.getElementById('backup-confirm').onclick=function(){
+   if(namesAtReview!==JSON.stringify(S.names)||sourceAtReview!==field.value||!backupRows.length||!backupRows.every(validResultRow)){reviewBackup();return}
+   send({t:'scores',rows:backupRows});backupRows=[];field.value='';panel.innerHTML='<p role="status">Results saved.</p>';
+  }}
+}
+
 function standardNames(){return Array.from({length:10},function(_,i){return "Player "+(i+1)})}
-function link(){var u=new URL(location.href);u.hash="";u.searchParams.set("v","10");
+function link(){var u=new URL(location.href);u.hash="";u.searchParams.set("v","11");
  return u.toString()+"#"+code+(S.names?"~"+(S.names.every(function(n,i){return n==="Player "+(i+1)})?"d":encodeURIComponent(JSON.stringify(S.names))):"")}
 function I(x,a,b){return typeof x=="number"&&x%1===0&&x>=a&&x<=b}
 function F(x){return typeof x=="number"&&isFinite(x)}
@@ -786,19 +813,20 @@ function validScore(g,v){return G.hasOwnProperty(g)&&F(v)&&v>=0&&(g!=="tap"||v%1
 function scoreValue(g,v){return g==="react"?Math.round(v):g==="stop"?Math.round(v*1000)/1000:v}
 function strs(a,n){return Array.isArray(a)&&a.length==n&&a.every(function(x){return typeof x=="string"})}
 function perm(o){return Array.isArray(o)&&o.length==5&&o.every(function(x,i){return I(x,0,4)&&o.indexOf(x)==i})}
-function roundMessage(t){return ["score","tb","tbs","pick","pickend","claim","reveal"].indexOf(t)>=0}
+function roundMessage(t){return ["score","scores","tb","tbs","pick","pickend","claim","reveal"].indexOf(t)>=0}
 function showSharedPhase(){clearTimeout(tm);clearInterval(tm);tm=null;playingTie=false;practice=false;if(S.names&&me!==null)view="home"}
 function apply(m){
  if(!m||typeof m!="object")return;var t=m.t;
  if(roundMessage(t)&&(m.round||"0")!==S.round)return;
- if(t=="cfg"){if(strs(m.names,10))S.names=m.names.map(function(x){return x.slice(0,20)})}
+ if(t==="scores"){if(!Array.isArray(m.rows)||!m.rows.length||m.rows.length>30||!m.rows.every(validResultRow))return;var unique={};if(!m.rows.every(function(x){var key=x.g+":"+x.p;if(unique[key])return false;unique[key]=true;return true}))return;m.rows.forEach(function(x){apply({t:"score",g:x.g,p:x.p,v:x.v,round:S.round})});return}
+ if(t=="cfg"){if(strs(m.names,10))S.names=m.names.map(function(x){return friendName(x.slice(0,20))})}
  else if(t=="score"){if(I(m.p,0,9)&&validScore(m.g,m.v)){var value=scoreValue(m.g,m.v);if(scoreValue(m.g,S.sc[m.g][m.p])!==value){S.tbs={};S.tbh={};S.reveal=false;if(S.tb){S.tb=null;showSharedPhase()}}S.sc[m.g][m.p]=value;if(!readyToReveal())S.reveal=false}}
  else if(t=="reset"){S.round=m.round||m.mid||"0";S.roundNo=I(m.roundNo,1,100000)?m.roundNo:S.roundNo+1;S.sc={tap:{},react:{},stop:{}};S.reveal=false;S.pick=null;S.roomResult=null;clearRoomResult();S.claims={};S.tb=null;S.tbs={};S.tbh={};skip=false;practice=false;playingTie=false;["mv","bc"].forEach(function(id){var e=document.getElementById(id);if(e)e.value=""});clearTimeout(tm);clearInterval(tm);tm=null;if(S.names&&me!==null)view="home"}
  else if(t=="pick"){if(m.start===true&&!readyToReveal())return;if(perm(m.order)&&I(m.i,0,4)&&F(m.rem)&&m.rem>=0){var entering=!S.pick;S.roomResult=null;clearRoomResult();if(m.start===true){S.claims={};showSharedPhase()}else if(entering)showSharedPhase();S.pick={order:m.order.slice(),i:m.i,rem:m.rem,paused:m.paused===true,at:F(m.at)?m.at:Date.now()}}}
  else if(t=="pickend"){
   var finished=m.result||makeRoomResult(S.pick,m.at);if(finished&&!validRoomResult(finished))return;
   if(finished&&finished.round!==S.round)return;
-  if(finished){S.roomResult=finished;S.claims=Object.assign({},finished.claims);saveRoomResult()}
+  if(finished){finished.names=finished.names.map(friendName);S.roomResult=finished;S.claims=Object.assign({},finished.claims);saveRoomResult()}
   S.pick=null;skip=true;roomResultFocus=!!finished;
  }
  else if(t=="tb"){
@@ -863,10 +891,10 @@ function connect(){
 function resume(){if(code&&!document.hidden){if(!es||es.readyState===2)connect();post();if(!es||es.readyState===2)poll()}}
 document.addEventListener("visibilitychange",resume);window.addEventListener("online",resume);window.addEventListener("pageshow",function(e){if(e.persisted)resume()});
 window.addEventListener('jialat-relay-status',function(){stat()});
-function stat(){updatePageChrome();var d=document.getElementById("dot"),e=document.getElementById("stat"),help=document.getElementById("syncHelp"),result=document.getElementById("resultSync"),label=relayWait()>0?relayWaitLabel():postFailed&&out.length?postError:out.length?"Sending updates…":on?"Connected":pollOk?"Connected · checking for updates":fl?"Connection unavailable · retrying":"Connecting";
+function stat(){updatePageChrome();var d=document.getElementById("dot"),e=document.getElementById("stat"),help=document.getElementById("syncHelp"),result=document.getElementById("resultSync"),label=relayWait()>0?relayWaitLabel():postFailed&&out.length?"Could not send · retrying":out.length?"Sending updates…":on?"Connected":pollOk?"Connected · checking for updates":fl?"Connection lost · retrying":"Connecting";
  if(d)d.className="dot "+((postFailed&&out.length)||fl&&!on&&!pollOk?"bad":on||pollOk?"ok":"");if(e)e.textContent=label;
  if(help){help.textContent=postFailed&&out.length?"Your updates are saved here but may not reach others yet. Wait for the displayed retry time, or use backup sharing below.":"";help.style.display=postFailed&&out.length?"block":"none"}
- if(result&&result.dataset&&result.dataset.mid){var waiting=out.some(function(m){return m.mid===result.dataset.mid});result.className="sub result-sync"+(waiting&&postFailed?" retry":"");result.textContent=waiting?(postFailed?"Saved on this phone. Sync is retrying. Use backup sharing below if needed.":"Saved. Sending automatically… You can return to the main screen."):"Result synced. You can return to the main screen."}}
+ if(result&&result.dataset&&result.dataset.mid){var waiting=out.some(function(m){return m.mid===result.dataset.mid});result.className="sub result-sync"+(waiting&&postFailed?" retry":"");result.textContent=waiting?(postFailed?"Saved on this phone. Reconnecting. Share a backup if the host cannot see it.":"Saved. Sending to the host… You can go back to Room Wars."):"Sent to the host. You can go back to Room Wars."}}
 function render(){updatePageChrome();clearTimeout(tm);clearInterval(tm);
  if(!code)return setup();
  if(!S.names)return wait();
@@ -879,7 +907,7 @@ function setup(){updatePageChrome();view="setup";
  h+='<button id="go">'+(code?'Save names':'Create game')+'</button>'+(code?'<button class="alt" id="bk">Cancel</button>':'');
  A.innerHTML=h;var b=document.getElementById("bk");if(b)b.onclick=render;
  document.getElementById("go").onclick=function(){
-  var nm=[];for(var i=0;i<10;i++){var v=document.getElementById("p"+i).value.trim();nm.push(v||("Player "+(i+1)))}
+  var nm=[];for(var i=0;i<10;i++){var v=document.getElementById("p"+i).value.trim();nm.push(friendName(v||("Player "+(i+1))))}
   if(!code){var al="abcdefghjkmnpqrstuvwxyz23456789";for(var i=0;i<8;i++)code+=al[Math.floor(Math.random()*al.length)];
    host=true;ls("rwh-"+code,"1");location.hash=code;connect()}
   send({t:"cfg",names:nm});render()}}
@@ -903,17 +931,17 @@ function home(){
  var gm='<h2>Play the games</h2><p class="sub" style="text-align:center;margin-top:-4px">Play all 3 games to win points for your pair!</p>',ico={tap:spr("tap",4),react:spr("react",4),stop:spr("stop",4)},num=0;
  for(var g in G){num++;var n=Object.keys(S.sc[g]).length,mine=S.sc[g][me]!==undefined;
   gm+='<div class="card game'+(mine?' dn':'')+'"><div class="gt"><span class="gi">'+ico[g]+'</span><div><div class="gl">GAME '+num+'</div><b class="gn">'+G[g].n+'</b></div><span class="tag">'+n+'/10 played</span></div><div class="sub" style="margin:8px 0 0">'+G[g].d+'</div><button data-g="'+g+'"'+(mine||completed?' disabled':'')+'>'+(mine?'✓ You played':'▶ PLAY NOW')+'</button><button class="alt" data-pr="'+g+'"'+(U(g)||completed?' disabled':'')+'>'+(U(g)?'Practice used ✓':'Practice (1 try only, not scored)')+'</button></div>'}
- var st='<h2>Pair standings</h2>';
- cs.forEach(function(x){st+='<div class="rank z'+zc(x.r-1)+'" data-pair="'+x.c+'" style="--w:'+Math.round(x.t/Math.max(1,cs[0].t)*100)+'%"><div class="n">'+(x.tied?'=':'')+x.r+'</div><div class="g"><b>'+esc(cn(x.c))+'</b><small>'+esc(pn(x.c*2))+' '+p[x.c*2]+' · '+esc(pn(x.c*2+1))+' '+p[x.c*2+1]+'</small>'+(x.h.length?'<small>'+tieNote(x)+'</small>':'')+'</div><div class="pts">'+x.t+'<small>'+(played<30?'Live position':x.tied?'TIED':ord[x.r-1]+' room pick')+'</small></div></div>'});
+ var st='<h2>Pair rankings</h2>';
+ cs.forEach(function(x){st+='<div class="rank z'+zc(x.r-1)+'" data-pair="'+x.c+'" style="--w:'+Math.round(x.t/Math.max(1,cs[0].t)*100)+'%"><div class="n">'+(x.tied?'=':'')+x.r+'</div><div class="g"><b>'+esc(cn(x.c))+'</b><small>'+esc(pn(x.c*2))+' '+p[x.c*2]+' · '+esc(pn(x.c*2+1))+' '+p[x.c*2+1]+'</small>'+(x.h.length?'<small>'+tieNote(x)+'</small>':'')+'</div><div class="pts">'+x.t+'<small>'+(played<30?'Current position':x.tied?'TIED':ord[x.r-1]+' room pick')+'</small></div></div>'});
  var tie=cs.some(function(x){return x.tied});
  if(played===30&&tie)st+='<p class="sub">Some pairs are tied. The host can start a 5-second tapping tie-breaker for those pairs.</p>';
- h+=(completed?'<details class="completed-games"><summary>Game results</summary>':'')+tbb()+gm+(host||!any1()?'':'<details class="backup"><summary>Share backup results</summary><p>If the host cannot see your scores, share this backup.</p><button class="alt" id="shh">Share backup</button></details>')+st+'<button class="alt" id="shs">Share standings</button>';
- h+='<h2>Individual scores</h2><div class="card">';
+ h+=(completed?'<details class="completed-games"><summary>Game results</summary>':'')+tbb()+gm+(host||!any1()?'':'<details class="backup"><summary>Share results if missing</summary><p>If the host cannot see your scores, share this backup.</p><button class="alt" id="shh">Share backup</button></details>')+st+'<button class="alt" id="shs">Share rankings</button>';
+ h+='<h2>Player scores</h2><div class="card">';
  for(var g in G){h+='<b>'+G[g].n+'</b><div class="sub">';
   var ids=Object.keys(S.sc[g]).sort(function(a,b){return G[g].hi?scoreValue(g,S.sc[g][b])-scoreValue(g,S.sc[g][a]):scoreValue(g,S.sc[g][a])-scoreValue(g,S.sc[g][b])});
   h+=ids.length?ids.map(function(i){return esc(pn(i))+" "+G[g].f(S.sc[g][i])}).join(" · "):"No scores yet";h+='</div>'}
  h+='</div>'+(completed?'</details>':'');
- if(host){var ready=readyToReveal();h+='<h2>Host tools</h2><div class="card"><b>Invite link</b><input id="lk" aria-label="Room Wars invite link" readonly value="'+esc(link())+'"><button id="sh">Share invite link</button></div><div class="card"><b>Add or fix a score</b><select id="mg" aria-label="Game">'+Object.keys(G).map(function(g){return'<option value="'+g+'">'+G[g].n+'</option>'}).join("")+'</select><select id="mp" aria-label="Player">'+S.names.map(function(n,i){return'<option value="'+i+'">'+esc(n)+'</option>'}).join("")+'</select><input id="mv" aria-label="Result" type="number" step="any" inputmode="decimal" placeholder="Taps, ms, or seconds off"><button id="ma" class="alt">Save score</button></div><div class="card"><b>Paste backup codes</b><div class="sub" style="margin:2px 0">One per line, like tap|3|62</div><textarea id="bc" aria-label="Backup result codes"></textarea><button id="bb" class="alt">Add codes</button></div><button id="rv"'+(ready?'':' disabled title="Complete all three games and settle ties first"')+'>1. Reveal winners to everyone</button><button id="sp"'+(ready&&!completed?'':' disabled')+'>'+(completed?'Rooms confirmed':S.roomResult?'Resume room picking':'2. Start room picking')+'</button>'+(ties().length&&!S.tb?'<button class="alt" id="tbs">Start tie-breaker (tied pairs only)</button>':'')+'<button class="alt" id="er">Edit room names</button><button class="alt" id="en">Edit names</button><p class="sub" style="margin:20px 0 0">Play again with the same people. Clears this round’s results and room picks.</p><button class="alt" id="rs">Start a new round</button>'}
+ if(host){var ready=readyToReveal();h+='<h2>Host controls</h2><div class="card"><b>Invite link</b><input id="lk" aria-label="Room Wars invite link" readonly value="'+esc(link())+'"><button id="sh">Share invite link</button></div><div class="card"><b>Enter or correct a score</b><select id="mg" aria-label="Game">'+Object.keys(G).map(function(g){return'<option value="'+g+'">'+G[g].n+'</option>'}).join("")+'</select><select id="mp" aria-label="Player">'+S.names.map(function(n,i){return'<option value="'+i+'">'+esc(n)+'</option>'}).join("")+'</select><input id="mv" aria-label="Result" type="number" step="any" inputmode="decimal" placeholder="Taps, ms, or seconds off"><p class="sub score-unit" id="score-unit"></p><button id="ma" class="alt">Save score</button></div><details class="card backup-import"><summary>Advanced backup</summary><p class="sub">Use this only if a player’s score is missing. Paste the results they shared, then check their name.</p><textarea id="bc" aria-label="Shared result codes" placeholder="Paste the player’s shared results here"></textarea><button id="bb" class="alt">Check results</button><div id="backup-preview" aria-live="polite"></div></details><button id="rv"'+(ready?'':' disabled title="Complete all three games and settle ties first"')+'>1. Show final rankings</button><button id="sp"'+(ready&&!completed?'':' disabled')+'>'+(completed?'Rooms confirmed':S.roomResult?'Resume room picking':'2. Start room picking')+'</button>'+(ties().length&&!S.tb?'<button class="alt" id="tbs">Start tie-breaker (tied pairs only)</button>':'')+'<button class="alt" id="er">Edit room names</button><button class="alt" id="en">Edit names</button><p class="sub" style="margin:20px 0 0">Play again with the same people. Clears this round’s results and room picks.</p><button class="alt" id="rs">Start a new round</button>'}
  A.innerHTML=h+(host?relayPanelHTML():'');relayPanelBind();Object.keys(draft).forEach(function(id){var e=document.getElementById(id);if(e)e.value=draft[id]});stat();var roomCopy=document.getElementById("copy-rooms");if(roomCopy)roomCopy.onclick=copyRooms;var summary=document.querySelector(".room-confirmation");if(roomResultFocus&&summary){roomResultFocus=false;summary.scrollIntoView({block:"start",behavior:"auto"});summary.querySelector("h2").focus({preventScroll:true})}
  Array.prototype.forEach.call(A.querySelectorAll("button[data-g]"),function(b){b.onclick=function(){run(b.dataset.g,false)}});
  Array.prototype.forEach.call(A.querySelectorAll("button[data-pr]"),function(b){b.onclick=function(){run(b.dataset.pr,true)}});
@@ -933,17 +961,17 @@ function home(){
  var t3=document.getElementById("tbs");if(t3)t3.onclick=function(){send({t:"tb",pairs:ties()})};
  document.getElementById("er").onclick=rooms;
  document.getElementById("en").onclick=setup;
- var scoreInput=document.getElementById("mv"),gameInput=document.getElementById("mg");gameInput.onchange=function(){scoreInput.min="0";scoreInput.step=gameInput.value=="stop"?"0.001":"1";scoreInput.placeholder=gameInput.value=="tap"?"Whole number of taps":gameInput.value=="react"?"Reaction time in whole milliseconds":"Seconds off, to 3 decimal places"};gameInput.onchange();
+ var scoreInput=document.getElementById("mv"),gameInput=document.getElementById("mg");gameInput.onchange=function(){scoreInput.min="0";scoreInput.step=gameInput.value=="stop"?"0.001":"1";scoreInput.placeholder=gameInput.value=="tap"?"Whole number of taps":gameInput.value=="react"?"Reaction time in whole milliseconds":"Seconds off, to 3 decimal places";document.getElementById("score-unit").textContent=gameInput.value==="stop"?"Enter seconds away from 10.00. Example: 10.25 seconds means 0.250 off.":gameInput.value==="react"?"Enter reaction time in milliseconds. Example: 285.":"Enter the whole number of taps."};gameInput.onchange();
  ["mg","mp","mv","bc"].forEach(function(id){document.getElementById(id).onblur=rq});
  document.getElementById("ma").onclick=function(){var raw=scoreInput.value.trim(),g=gameInput.value,v=Number(raw);if(!raw||!validScore(g,v)){alert(g=="tap"?"Enter a whole tap count of 0 or more.":"Enter a valid result of 0 or more.");return}send({t:"score",g:g,p:+document.getElementById("mp").value,v:v});scoreInput.value=""};
- document.getElementById("bb").onclick=function(){var box=document.getElementById("bc"),raw=box.value.trim(),bad=[];if(!raw){alert("Paste at least one backup result code first.");return}raw.split("\n").forEach(function(l){var a=l.trim().split("|"),v=Number(a[2]),p=Number(a[1]);if(a.length===3&&a[1].trim()&&a[2].trim()&&I(p,0,9)&&validScore(a[0],v))send({t:"score",g:a[0],p:p,v:v});else bad.push(l)});box.value=bad.join("\n");if(bad.length)alert(bad.length+" invalid backup code(s) were not added. Check the remaining lines.")};
+ document.getElementById("bb").onclick=reviewBackup;
  document.getElementById("rs").onclick=newRound}
 function newRound(){if(!confirm("Start a new Room Wars round for everyone? This clears all three game results, practice attempts, tie-breaks and room picks. Player and room names are kept."))return;out=out.filter(function(m){return !roundMessage(m.t)&&m.t!=="reset"});remember();send({t:"reset"});home()}
 function final(){view="final";var cs=pairStandings(),ord=["1st","2nd","3rd","4th","5th"];
  var ordr=order(),w=cs[0],tie=w.tied;
  var h='<div class="brand"><img src="'+LOGO+'" alt="JIALAT"><h1>Congratulations!</h1></div><div class="card win"><div class="sub">'+(tie?'Tied at the top':'Winning pair')+'</div><div class="big" style="font-size:30px;line-height:1.2">'+esc(cn(w.c))+'</div><div class="sub" style="margin:8px 0 0">'+w.t+' points'+(tie?' · complete the tapping tie-breaker first':' · picks their room first')+'</div></div><h2>Room pick order</h2>';
  cs.forEach(function(x){h+='<div class="rank z'+zc(x.r-1)+'" style="--w:'+Math.round(x.t/Math.max(1,w.t)*100)+'%"><div class="n">'+(x.tied?'=':'')+x.r+'</div><div class="g"><b>'+esc(cn(x.c))+'</b><small>'+(x.tied?'TIED':ord[x.r-1]+' pick')+(roomOf(x.c,ordr)?' · '+esc(roomOf(x.c,ordr)):'')+'</small>'+(x.h.length?'<small>'+tieNote(x)+'</small>':'')+'</div><div class="pts">'+x.t+'</div></div>'});
- h+='<button id="st1">Share results</button><button id="st2">Share as image</button><div id="cb"></div><button class="alt" id="sb">View full scoreboard</button>'+(host?'<button class="alt" id="hd">Hide results for everyone</button>':'');
+ h+='<button id="st1">Share results</button><button id="st2">Share as image</button><div id="cb"></div><button class="alt" id="sb">View all scores</button>'+(host?'<button class="alt" id="hd">Hide results for everyone</button>':'');
  for(var i=0;i<28;i++){var r=Math.random();h+='<i class="cf" style="background:'+["#f3d77a","#d4af37","#fff","#2f9e5b","#e5484d"][i%5]+';left:'+(r*100)+'%;animation-delay:'+(Math.random()*3)+'s;animation-duration:'+(3+Math.random()*2.5)+'s"></i>'}
  A.innerHTML=h;
  document.getElementById("sb").onclick=function(){skip=true;home()};
@@ -995,7 +1023,7 @@ function makeRoomResult(pick,at){
 }
 function saveRoomResult(){if(!code||!validRoomResult(S.roomResult))return;try{localStorage.setItem("rw-final-"+code,JSON.stringify(S.roomResult))}catch(e){}}
 function clearRoomResult(){try{localStorage.removeItem("rw-final-"+code)}catch(e){}}
-function restoreRoomResult(){try{var x=JSON.parse(localStorage.getItem("rw-final-"+code)||"null");if(validRoomResult(x)){S.roomResult=x;roomResultFocus=true;S.round=x.round;S.roundNo=I(x.roundNo,1,100000)?x.roundNo:1;S.claims=Object.assign({},x.claims);S.rooms=x.rooms.slice();S.names=x.names.slice()}}catch(e){}}
+function restoreRoomResult(){try{var x=JSON.parse(localStorage.getItem("rw-final-"+code)||"null");if(validRoomResult(x)){x.names=x.names.map(friendName);S.roomResult=x;roomResultFocus=true;S.round=x.round;S.roundNo=I(x.roundNo,1,100000)?x.roundNo:1;S.claims=Object.assign({},x.claims);S.rooms=x.rooms.slice();S.names=x.names.slice()}}catch(e){}}
 function chosenRoom(x,pair){for(var r in x.claims)if(x.claims[r]===pair)return x.rooms[r];return ""}
 function resultPair(x,pair){return x.names[pair*2]+" & "+x.names[pair*2+1]}
 function roomListText(){var x=S.roomResult;if(!x)return "";return "JIALAT | "+(x.complete?"Rooms confirmed":"Room choices so far")+"\n"+x.order.map(function(pair){return resultPair(x,pair)+": "+(chosenRoom(x,pair)||"Not chosen yet")}).join("\n")}
@@ -1010,7 +1038,7 @@ function roomResultHTML(){
 async function copyRooms(){var status=document.getElementById("room-copy-status");try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error("Clipboard unavailable");await navigator.clipboard.writeText(roomListText());status.textContent="Room list copied."}catch(e){var field=document.getElementById("room-copy-fallback");field.hidden=false;field.value=roomListText();field.focus();field.select();status.textContent="Select and copy the room list above."}}
 
 function roomOf(c,o){for(var r in S.claims)if(S.claims[r]==c)return S.rooms[r];if(Object.keys(S.claims).length==4&&o[4]==c){for(var r=0;r<5;r++)if(S.claims[r]===undefined)return S.rooms[r]}return""}
-function rtext(){var o=order(),t="🏆 Room Wars "+(readyToReveal()?"results":"live standings")+"\n";pairStandings().forEach(function(x){var r=roomOf(x.c,o);t+=(x.tied?'TIED ':x.r+'. ')+cn(x.c)+" – "+x.t+" pts"+(x.h.length?' · '+tieNote(x):'')+(r?" · "+r:"")+"\n"});return t}
+function rtext(){var o=order(),t="🏆 Room Wars "+(readyToReveal()?"results":"current rankings")+"\n";pairStandings().forEach(function(x){var r=roomOf(x.c,o);t+=(x.tied?'TIED ':x.r+'. ')+cn(x.c)+" – "+x.t+" pts"+(x.h.length?' · '+tieNote(x):'')+(r?" · "+r:"")+"\n"});return t}
 function rooms(){view="rooms";var h='<h1 style="text-align:center">Room names</h1><p class="sub">Type the names from the Airbnb listing, like "Bedroom 3 – ensuite". You can change them any time.</p>';
  S.rooms.forEach(function(n,i){h+='<input id="r'+i+'" aria-label="Room '+(i+1)+' name" maxlength="30" value="'+esc(n)+'">'});
  A.innerHTML=h+'<button id="rs2">Save rooms</button><button class="alt" id="rb">Cancel</button>';
@@ -1049,7 +1077,7 @@ function fin(g,v){view="fin";v=scoreValue(g,v);
  var big='<h1 style="text-align:center">'+esc(pn(me))+'</h1><p class="sub" style="text-align:center;margin:-2px 0 12px">'+G[g].n+(practice?' · practice':'')+'</p><div class="arena result-'+g+' rise glow"><div class="big pop">'+G[g].f(v)+'</div>'+(practice?'<small>Practice only. Not scored.</small>':'')+'</div>';
  if(practice){A.innerHTML=big+'<button id="nx">Back to Room Wars</button>';document.getElementById("nx").onclick=home;return}
  var mid=send({t:"score",g:g,p:me,v:v});
- A.innerHTML=big+'<p class="sub result-sync" id="resultSync" data-mid="'+mid+'" role="status"></p><button id="nx">Back to Room Wars</button><details class="backup"><summary>Share a backup result</summary><p>If the host cannot see this result, share this backup.</p><button class="alt" id="sh">Share backup</button></details>';
+ A.innerHTML=big+'<p class="sub result-sync" id="resultSync" data-mid="'+mid+'" role="status"></p><button id="nx">Back to Room Wars</button><details class="backup"><summary>Share result if missing</summary><p>If the host cannot see this result, share this backup.</p><button class="alt" id="sh">Share backup</button></details>';
  document.getElementById("sh").onclick=function(){share(mine())};document.getElementById("nx").onclick=home;stat()}
 function run(g,pr){view="play";practice=!!pr;
  A.innerHTML='<h1 style="text-align:center">'+G[g].n+'</h1>'+(pr?'<p class="sub" style="text-align:center"><b>Practice round: 1 try only, not scored.</b></p>':'')+'<p class="sub">'+G[g].d+'</p><div class="card" style="text-align:center"><div class="sub">Playing as</div><div style="font-size:30px;font-weight:700">'+esc(pn(me))+'</div></div><button id="st">I’m ready!</button><button class="alt" id="bk">Back</button>';
@@ -1080,7 +1108,7 @@ function stopG(g){
  var d=false;document.getElementById("ar").onpointerdown=function(e){e.preventDefault();if(d)return;d=true;clearInterval(tm);var v=Math.abs((Date.now()-t0)/1000-10),ar=document.getElementById("ar");c.textContent="LOCKED";ani(ar,"glow");ani(c,"pop");tm=setTimeout(function(){fin(g,v)},400)}}
 var rawHash=location.hash.slice(1),sep=rawHash.indexOf("~"),parts=[sep<0?rawHash:rawHash.slice(0,sep),sep<0?"":rawHash.slice(sep+1)];code=(parts[0]||"").replace(/[^a-z0-9]/gi,"").toLowerCase();
 if(code){host=ls("rwh-"+code)=="1";var m=ls("rwm-"+code);me=m===null?null:+m;
- if(parts[1])try{var names=parts[1]==="d"?standardNames():JSON.parse(decodeURIComponent(parts[1]));if(strs(names,10))S.names=names.map(function(x){return x.slice(0,20)})}catch(e){}
+ if(parts[1])try{var names=parts[1]==="d"?standardNames():JSON.parse(decodeURIComponent(parts[1]));if(strs(names,10))S.names=names.map(function(x){return friendName(x.slice(0,20))})}catch(e){}
  restoreRoomResult();
  try{var saved=JSON.parse(ls("rwq-"+code)||"[]");if(Array.isArray(saved)){out=saved.filter(function(x){return x&&typeof x.t=="string"});out.forEach(function(x){mark(x.mid);apply(x)})}}catch(e){}
  connect();post()}
