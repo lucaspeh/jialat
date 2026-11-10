@@ -9,6 +9,9 @@ body[data-page] input,
 body[data-page] select,
 body[data-page] textarea { min-width:0; }
 [data-page="scoreboard"] #sync { font-family:"Courier New",ui-monospace,monospace; }
+[data-page="scoreboard"] #playerNames { margin:0 0 12px; padding:0 12px; border:1px solid var(--d); background:#111; }
+[data-page="scoreboard"] #playerNames[open] { padding-bottom:12px; }
+[data-page="scoreboard"] #playerNames > .hint { margin:0 0 10px; }
 body[data-page]:not(.tv) .page-wordmark { width:104px; height:auto; max-width:30vw; }
 body[data-page]:not(.tv) :is(.site-navigation,.topbar,.chooser-topbar,.hd) {
   min-height:44px;
@@ -225,4 +228,74 @@ body[data-page="scoreboard"].host #H {
   [data-page="menu"] .menu-grid { gap:12px; }
   [data-page="menu"] .destination-card { min-height:88px; padding:8px 12px; }
   [data-page="menu"] .brand-signature { margin-top:10px; }
+}
+
+/* Presentation uses the same two role choices as Scoreboard. */
+[data-page="presentation"] .role-actions { display:flex; gap:12px; }
+[data-page="presentation"] .role-actions .button { flex:1; min-width:0; margin:0; }
+@media(max-width:619px) {
+  [data-page="presentation"] .role-actions { flex-direction:column; }
+}
+
+/* A bounded TV stage leaves space for the announcement and a quiet footer. */
+@media(min-width:900px) {
+  body[data-page="presentation"].tv .shell {
+    width:100%;
+    max-width:1320px;
+    height:100vh;
+    height:100svh;
+    min-height:0;
+    padding:clamp(16px,2.5vh,32px) clamp(24px,3vw,48px) 80px;
+    display:flex;
+    flex-direction:column;
+  }
+  body[data-page="presentation"].tv .topbar { min-height:0; height:0; margin:0; }
+  body[data-page="presentation"].tv .topbar .mode { display:none; }
+  body[data-page="presentation"].tv .masthead { flex:none; margin:0 0 8px; }
+  body[data-page="presentation"].tv .masthead h1 { font-size:clamp(28px,3.8vh,44px); }
+  body[data-page="presentation"].tv .masthead .eyebrow { margin:0 0 6px; font-size:clamp(12px,1.35vh,16px); }
+  body[data-page="presentation"].tv .masthead > p:last-child { display:none; }
+  body[data-page="presentation"].tv .sync { flex:none; min-height:22px; margin:0 0 16px; font-size:clamp(14px,1.5vh,18px); }
+  body[data-page="presentation"].tv .stage {
+    flex:1;
+    min-height:0;
+    width:100%;
+    max-width:1200px;
+    grid-template-columns:minmax(0,min(50vw,50svh,640px)) minmax(260px,340px);
+    gap:clamp(28px,4vw,56px);
+    align-items:center;
+    justify-content:center;
+  }
+  body[data-page="presentation"].tv .wheel-area { min-height:0; }
+  body[data-page="presentation"].tv .wheel-wrap {
+    width:min(100%,46vh,calc(100vh - 330px),590px);
+    width:min(100%,46svh,calc(100svh - 330px),590px);
+  }
+  body[data-page="presentation"].tv .result { min-height:clamp(110px,13vh,160px); margin:12px 0 0; }
+  body[data-page="presentation"].tv .result h2,
+  body[data-page="presentation"].tv .result.has-winner h2 { font-size:clamp(40px,6vh,72px); line-height:1.15; margin:8px 0; }
+  body[data-page="presentation"].tv .result:not(.has-winner) h2 { font-size:clamp(28px,4vh,48px); }
+  body[data-page="presentation"].tv .result p { font-size:clamp(14px,1.5vh,18px); }
+  body[data-page="presentation"].tv .result .eyebrow { font-size:clamp(12px,1.4vh,16px); }
+  body[data-page="presentation"].tv .order-panel { width:100%; padding:clamp(12px,1.7vh,22px); }
+  body[data-page="presentation"].tv .order-panel h2 { font-size:clamp(16px,1.8vh,22px); }
+  body[data-page="presentation"].tv .order-count { font-size:clamp(14px,1.5vh,18px); margin:0 0 10px; }
+  body[data-page="presentation"].tv .order-list li {
+    height:clamp(26px,3.5vh,42px);
+    min-height:0;
+    padding:2px 0;
+    font-size:clamp(16px,2.15vh,24px);
+    line-height:1.2;
+    gap:10px;
+  }
+  body[data-page="presentation"].tv .order-list li::before { font-size:clamp(14px,1.65vh,20px); }
+  body[data-page="presentation"].tv .page-wordmark {
+    width:104px;
+    right:max(24px,calc((100vw - 1224px)/2));
+    bottom:max(24px,env(safe-area-inset-bottom,0px));
+  }
+  body[data-page="presentation"].tv .display-controls {
+    left:max(24px,calc((100vw - 1224px)/2));
+    bottom:max(24px,env(safe-area-inset-bottom,0px));
+  }
 }

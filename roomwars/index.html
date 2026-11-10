@@ -685,7 +685,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .import-results span { font-size:14px; font-weight:400; color:var(--m); }
 .import-results strong { color:var(--teal); }
 .import-error { color:var(--coral); font-size:14px; font-weight:400; line-height:1.6; }
-</style><link rel="stylesheet" href="../assets/layout.css?v=14">
+</style><link rel="stylesheet" href="../assets/layout.css?v=15">
 </head><body data-page="roomwars">
 <i id="dot" class="dot"></i>
 <header class="site-navigation"><a id="site-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></header>
@@ -798,9 +798,22 @@ function reviewBackup(){
   }}
 }
 
+// Compact known names keep the invite short; edited names travel in the invite too.
+var INVITE_NAMES=['Eng Tuck','Desiree','Jasmine','Geraldine','Fion','Harry','Shi Min','Wesley','Candy','Cindy','Ernest'];
 function standardNames(){return Array.from({length:10},function(_,i){return "Player "+(i+1)})}
-function link(){var u=new URL(location.href);u.hash="";u.searchParams.set("v","12");
- return u.toString()+"#"+code+(S.names?"~"+(S.names.every(function(n,i){return n==="Player "+(i+1)})?"d":encodeURIComponent(JSON.stringify(S.names))):"")}
+function namesForInvite(names){
+ if(names.every(function(n,i){return n==="Player "+(i+1)}))return 'd';
+ if(names.every(function(n){return INVITE_NAMES.indexOf(n)>=0}))return 'r'+names.map(function(n){return INVITE_NAMES.indexOf(n).toString(36)}).join('');
+ return 'n'+names.map(function(n){return encodeURIComponent(n)}).join(',');
+}
+function namesFromInvite(raw){
+ if(raw==='d')return standardNames();
+ if(/^r[0-9a-z]{10}$/.test(raw))return raw.slice(1).split('').map(function(n){return INVITE_NAMES[parseInt(n,36)]});
+ if(raw.charAt(0)==='n')return raw.slice(1).split(',').map(function(n){return decodeURIComponent(n)});
+ return JSON.parse(decodeURIComponent(raw));
+}
+function link(){var u=new URL(location.href);u.hash="";u.search='?v=13';
+ return u.toString()+"#"+code+(S.names?"~"+namesForInvite(S.names):"")}
 function I(x,a,b){return typeof x=="number"&&x%1===0&&x>=a&&x<=b}
 function F(x){return typeof x=="number"&&isFinite(x)}
 function validScore(g,v){return G.hasOwnProperty(g)&&F(v)&&v>=0&&(g!=="tap"||v%1===0)}
@@ -1104,7 +1117,7 @@ function stopG(g){
  var d=false;document.getElementById("ar").onpointerdown=function(e){e.preventDefault();if(d)return;d=true;clearInterval(tm);var v=Math.abs((Date.now()-t0)/1000-10),ar=document.getElementById("ar");c.textContent="LOCKED";ani(ar,"glow");ani(c,"pop");tm=setTimeout(function(){fin(g,v)},400)}}
 var rawHash=location.hash.slice(1),sep=rawHash.indexOf("~"),parts=[sep<0?rawHash:rawHash.slice(0,sep),sep<0?"":rawHash.slice(sep+1)];code=(parts[0]||"").replace(/[^a-z0-9]/gi,"").toLowerCase();
 if(code){host=ls("rwh-"+code)=="1";var m=ls("rwm-"+code);me=m===null?null:+m;
- if(parts[1])try{var names=parts[1]==="d"?standardNames():JSON.parse(decodeURIComponent(parts[1]));if(strs(names,10))S.names=names.map(function(x){return friendName(x.slice(0,20))})}catch(e){}
+ if(parts[1])try{var names=namesFromInvite(parts[1]);if(strs(names,10))S.names=names.map(function(x){return friendName(x.slice(0,20))})}catch(e){}
  restoreRoomResult();
  try{var saved=JSON.parse(ls("rwq-"+code)||"[]");if(Array.isArray(saved)){out=saved.filter(function(x){return x&&typeof x.t=="string"});out.forEach(function(x){mark(x.mid);apply(x)})}}catch(e){}
  connect();post()}

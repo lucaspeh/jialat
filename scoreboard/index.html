@@ -1639,7 +1639,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 #tvAudio .display-controls-panel>button{width:100%;margin-bottom:8px}#tvAudio .display-controls-panel>a{display:flex;align-items:center;min-height:44px;margin-top:8px;border-top:1px solid var(--d);padding-top:8px}
 #tvAudio .tone-tests{padding:8px 0;border:0}
 
-</style><link rel="stylesheet" href="../assets/layout.css?v=14">
+</style><link rel="stylesheet" href="../assets/layout.css?v=15">
 </head><body data-page="scoreboard">
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
@@ -2040,7 +2040,8 @@ function tryReveal(){if(allDone()&&!unresolvedTie()){revealCheck=false;S.revealI
 function awardTie(i){if(!allDone())return;const st=stand(9),o=st.find(x=>x.i===i);if(!o||!st.some(x=>x.i!==i&&x.t===o.t&&x.b===o.b))return;tbb(i,1)}
 function rv(d){if(!allDone()||unresolvedTie()){S.m=['board',9];commit();tryReveal();return}const k=Math.max(0,Math.min(10,(S.m[1]||0)+d));S.m=['rev',k];S.spotlight=k>0&&(REVEAL_ORDER[k-1]===1||REVEAL_ORDER[k-1]===10);S.finalShown=k===10;commit()}
 function closeSpotlight(){if(S.m[0]!=='rev'||!S.spotlight)return;S.spotlight=false;commit()}
-function nn(i,v){S.nm[i]=friendName(v.trim().slice(0,14));commit()}
+// Keep the name fields in place during entry; closing the section refreshes game labels.
+function nn(i,v){S.nm[i]=friendName(v.trim().slice(0,14));const field=$('playerName'+i);if(field)field.value=S.nm[i];if($('playerNames')&&$('playerNames').open){S.v=Math.max(Date.now(),S.v+1);save();push()}else commit()}
 function tbb(i,d){S.tb[i]=Math.max(0,(S.tb[i]||0)+d);S.finalShown=false;if(S.m[0]=='rev')S.m=['board',9];commit()}
 function reset(){if(confirm('Start a new round of all nine Christmas games? This clears every result and tie-break. Player names are kept.')){const n=S.nm;Q=null;revealCheck=false;stopCue();S=D();S.nm=n;commit()}}
 async function copyRes(){const t='🎄 JIALAT Christmas 2026\n'+stand(9).map(o=>`${o.r}. ${rn(o.i)} - ${o.t}`).join('\n');try{if(!navigator.clipboard?.writeText)throw Error('Clipboard unavailable');await navigator.clipboard.writeText(t);const b=$('copyResults');if(b){b.textContent='Copied';setTimeout(()=>{if(b.isConnected)b.textContent='Copy results'},2000)}}catch(e){prompt('Copy these results:',t)}}
@@ -2076,9 +2077,9 @@ function resultPanel(g){
  }
  return h;
 }
-function host(){const g=S.g,x=G[g],done=G.map((_,i)=>S.sc.every(r=>r[i]!=null)),m=S.m,ready=allDone()&&!unresolvedTie();
+function host(){const namesOpen=!!($('playerNames')&&$('playerNames').open);const g=S.g,x=G[g],done=G.map((_,i)=>S.sc.every(r=>r[i]!=null)),m=S.m,ready=allDone()&&!unresolvedTie();
 const btn=[['Title',['idle']],['Rules',['rules',g]],['After game 3',['board',3]],['After game 6',['board',6]],['Rankings',['board',9]],['Final reveal',['rev',0]]];
-let h=`<div class="hd"><b class="host-brand"><span class="host-icon" aria-hidden="true">${spr('tally',3)}</span><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"><span class="host-role">HOST</span></b>${Q?'':'<a class="menu-return" href="../">← MAIN MENU</a>'}</div><div class="champion-prize"><b>${PRIZE_TAG}</b><small>Highest total after all nine games.</small></div><div class="soundbar"><button class="${soundOn?'sound-on':''}" aria-pressed="${soundOn}" onclick="toggleSound()">${soundOn?'Host sound on':'Turn on host sound'}</button>${soundOn?'<button onclick="testSound()">Test chime</button>':''}<span class="hint">Turn on TV sound once on the MacBook for Games 8–9’s finish chime and reveal sounds.</span></div><div class="lb">TV SHOWS</div><div class="rw tv-modes">${btn.map(([l,mm])=>`<button class="${m[0]==mm[0]&&(m[0]!='board'||m[1]==mm[1])?'on':''}" onclick='${l==='Final reveal'?'tryReveal()':'tvm('+JSON.stringify(mm)+')'}'>${l}</button>`).join('')}</div>`;
+let h=`<div class="hd"><b class="host-brand"><span class="host-icon" aria-hidden="true">${spr('tally',3)}</span><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"><span class="host-role">HOST</span></b>${Q?'':'<a class="menu-return" href="../">← MAIN MENU</a>'}</div><details id="playerNames"${namesOpen?' open':''} ontoggle="if(!this.open)host()"><summary>Player names &amp; tie-break</summary><p class="hint">Names save automatically. Use +/− only for an overall tie-break.</p>${S.nm.map((n,i)=>`<div class="nr"><input id="playerName${i}" aria-label="Player ${i+1} name" value="${esc(n)}" maxlength="14" onchange="nn(${i},this.value)"><button aria-label="Subtract a tie-break point for player ${i+1}" onclick="tbb(${i},-1)">−</button><span>${S.tb[i]||0}</span><button aria-label="Add a tie-break point for player ${i+1}" onclick="tbb(${i},1)">+</button></div>`).join('')}</details><div class="champion-prize"><b>${PRIZE_TAG}</b><small>Highest total after all nine games.</small></div><div class="soundbar"><button class="${soundOn?'sound-on':''}" aria-pressed="${soundOn}" onclick="toggleSound()">${soundOn?'Host sound on':'Turn on host sound'}</button>${soundOn?'<button onclick="testSound()">Test chime</button>':''}<span class="hint">Turn on TV sound once on the MacBook for Games 8–9’s finish chime and reveal sounds.</span></div><div class="lb">TV SHOWS</div><div class="rw tv-modes">${btn.map(([l,mm])=>`<button class="${m[0]==mm[0]&&(m[0]!='board'||m[1]==mm[1])?'on':''}" onclick='${l==='Final reveal'?'tryReveal()':'tvm('+JSON.stringify(mm)+')'}'>${l}</button>`).join('')}</div>`;
 if(!ready)h+=`<div class="sm" style="margin-top:8px">Tap Final reveal to check what is still needed.</div>`;
 if(revealCheck&&!ready){
  const missing=G.map((_,i)=>i).filter(i=>!done[i]),st=stand(9),groups=[];
@@ -2102,7 +2103,7 @@ const st=stand(9),ties=allDone()?st.filter((o,k)=>(k>0&&st[k-1].t==o.t&&st[k-1].
 h+=`<div class="lb">RANKINGS</div><div style="line-height:1.8">${st.map(o=>`${o.r}. ${nm(o.i)} <b style="color:var(--l)">${o.t}</b>`).join(' · ')}</div>`;
 if(ties.length)h+=`<div class="msg">TIE FOR PLACE ${ties.join(', ')}: replay Snow Blower, then give the winner a +1 tie-break below.</div>`;
 h+=`<div class="rw" style="margin-top:10px"><button id="copyResults" onclick="copyRes()">Copy results</button></div>
-<details><summary>Player names &amp; tie-break</summary>${S.nm.map((n,i)=>`<div class="nr"><input value="${esc(n)}" maxlength="14" onchange="nn(${i},this.value)"><button onclick="tbb(${i},-1)">−</button><span>${S.tb[i]||0}</span><button onclick="tbb(${i},1)">+</button></div>`).join('')}</details><div class="hint" style="margin-top:20px">Play all nine games again with the same people. Clears every result and tie-break.</div><div class="rw"><button onclick="reset()">Start a new round</button></div>`;
+<div class="hint" style="margin-top:20px">Play all nine games again with the same people. Clears every result and tie-break.</div><div class="rw"><button onclick="reset()">Start a new round</button></div>`;
 $('H').innerHTML=h+relayPanelHTML();relayPanelBind()}
 // ---- tv ----
 const rows=[];
