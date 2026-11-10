@@ -1,0 +1,228 @@
+/* Shared proportions. Game and TV states keep their own content and controls. */
+:root {
+  --site-width: 880px;
+  --entry-width: 720px;
+  --site-gutter: 24px;
+  --entry-heading: 36px;
+}
+body[data-page] input,
+body[data-page] select,
+body[data-page] textarea { min-width:0; }
+[data-page="scoreboard"] #sync { font-family:"Courier New",ui-monospace,monospace; }
+body[data-page]:not(.tv) .page-wordmark { width:104px; height:auto; max-width:30vw; }
+body[data-page]:not(.tv) :is(.site-navigation,.topbar,.chooser-topbar,.hd) {
+  min-height:44px;
+  align-items:center;
+}
+
+/* A content-sized menu with the signature immediately below its cards. */
+body[data-page="menu"] {
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:max(20px,env(safe-area-inset-top,0px)) max(var(--site-gutter),env(safe-area-inset-right,0px)) max(20px,env(safe-area-inset-bottom,0px)) max(var(--site-gutter),env(safe-area-inset-left,0px));
+}
+[data-page="menu"] .menu-shell {
+  max-width:var(--site-width);
+  min-height:0;
+  padding:0;
+  flex:none;
+}
+[data-page="menu"] .menu-header { margin-bottom:24px; }
+[data-page="menu"] .christmas-mark { width:42px; height:48px; margin-bottom:12px; }
+[data-page="menu"] h1 { font-size:var(--entry-heading); }
+[data-page="menu"] .menu-grid { gap:16px; }
+[data-page="menu"] .destination-card { min-height:116px; padding:18px; gap:12px; }
+[data-page="menu"] .brand-signature { margin:24px 0 0; padding:0; }
+[data-page="menu"] .brand-signature img { width:104px; }
+
+/* Room Wars uses one shell in setup, gameplay, rankings and room picking. */
+body[data-page="roomwars"] {
+  width:100%;
+  max-width:var(--site-width);
+  min-height:100vh;
+  min-height:100svh;
+  padding:max(24px,env(safe-area-inset-top,0px)) max(var(--site-gutter),env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(var(--site-gutter),env(safe-area-inset-left,0px));
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+[data-page="roomwars"] .site-navigation { margin:0; flex:none; }
+[data-page="roomwars"] #app { width:100%; max-width:var(--entry-width); margin:auto; flex:none; }
+[data-page="roomwars"] h1 { font-size:var(--entry-heading); line-height:1.2; }
+[data-page="roomwars"] .brand { gap:10px; margin:0 0 16px; }
+[data-page="roomwars"] .brand .bob { height:56px; }
+[data-page="roomwars"] .brand .bob svg { height:56px; width:auto; }
+[data-page="roomwars"] .brand h1 { font-size:var(--entry-heading); line-height:1.2; }
+[data-page="roomwars"] #app:has(#go) > .sub { text-align:center; margin-bottom:16px; }
+[data-page="roomwars"] .pair-setup-list { display:grid; gap:8px; }
+[data-page="roomwars"] .pair-setup {
+  display:grid;
+  grid-template-columns:68px minmax(0,1fr);
+  align-items:center;
+  gap:12px;
+  margin:0;
+  padding:7px 12px;
+}
+[data-page="roomwars"] .pair-setup input { margin:0; min-height:44px; padding:8px 10px; font-size:16px; }
+[data-page="roomwars"] .pair-setup .row { min-width:0; }
+[data-page="roomwars"] #go { min-height:52px; margin-top:16px; }
+[data-page="roomwars"] .setup-actions { display:flex; gap:10px; margin-top:16px; }
+[data-page="roomwars"] .setup-actions > button { flex:1; width:auto; min-width:0; margin:0; }
+[data-page="roomwars"] .setup-actions > #go { margin:0; }
+[data-page="roomwars"] .player-choices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+[data-page="roomwars"] .player-choices button { margin:0; min-height:48px; overflow-wrap:anywhere; }
+[data-page="roomwars"] .arena { height:46vh; height:46svh; min-height:240px; max-height:420px; }
+[data-page="roomwars"] .brand img { width:160px; }
+[data-page="roomwars"] .final-summary .brand h1 { font-size:28px; }
+[data-page="roomwars"] .final-actions .row { gap:10px; }
+[data-page="roomwars"] .final-actions button { min-width:0; }
+[data-page="roomwars"] .final-order > h2 { margin-top:0; }
+@media(min-width:900px) {
+  [data-page="roomwars"] .room-final { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); gap:20px; align-items:center; }
+  [data-page="roomwars"] .final-actions { grid-column:1/-1; }
+  [data-page="roomwars"] .final-order .rank { padding:8px; margin-bottom:8px; gap:8px; }
+}
+
+/* Presentation entry, host and TV share type, without constraining the TV stage. */
+body[data-page="presentation"]:not(.tv) .shell {
+  max-width:var(--site-width);
+  padding-left:max(var(--site-gutter),env(safe-area-inset-left,0px));
+  padding-right:max(var(--site-gutter),env(safe-area-inset-right,0px));
+  padding-top:max(24px,env(safe-area-inset-top,0px));
+}
+body[data-page="presentation"]:not(.tv):not(.host) .shell {
+  min-height:100vh;
+  min-height:100svh;
+  padding-bottom:max(24px,env(safe-area-inset-bottom,0px));
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+[data-page="presentation"] .landing { width:100%; max-width:var(--entry-width); margin:auto; flex:none; }
+[data-page="presentation"] .landing-mark { width:64px; height:64px; margin:0 auto 16px; }
+[data-page="presentation"] .landing .masthead h1 { font-size:var(--entry-heading); line-height:1.2; }
+[data-page="presentation"] .landing .intro-text { margin:16px 0; line-height:1.6; }
+[data-page="presentation"] .landing .button { min-height:52px; }
+[data-page="presentation"] .landing .join-card { margin-top:20px; padding:16px; }
+[data-page="presentation"] .landing .join-card input { min-height:48px; font-size:16px; }
+body[data-page="presentation"].host .masthead h1 { font-size:var(--entry-heading); }
+body[data-page="presentation"].host .wheel-wrap { width:min(100%,32vh,320px); width:min(100%,32svh,320px); }
+body[data-page="presentation"].host .masthead { margin:8px 0 2px; }
+body[data-page="presentation"].host .masthead > p { display:none; }
+body[data-page="presentation"].host .sync { margin:4px 0 8px; }
+body[data-page="presentation"].host .pairing:not([open]) { padding:0 12px; margin-bottom:12px; }
+body[data-page="presentation"].host .order-panel { padding:12px; }
+body[data-page="presentation"].host .order-count { margin-bottom:8px; }
+body[data-page="presentation"].host .order-list li { min-height:28px; padding:3px 0; font-size:14px; }
+body[data-page="presentation"].host .options { margin-top:8px; padding-top:0; }
+body[data-page="presentation"].host .relay-details { margin-top:8px; padding:0 8px; }
+
+/* The Scoreboard chooser gets the same header and entry width as the others. */
+body[data-page="scoreboard"].landing #H {
+  width:100%;
+  max-width:var(--site-width);
+  min-height:100vh;
+  min-height:100svh;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  padding:max(24px,env(safe-area-inset-top,0px)) max(var(--site-gutter),env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(var(--site-gutter),env(safe-area-inset-left,0px));
+}
+[data-page="scoreboard"] .chooser-topbar { width:100%; margin:0; flex:none; }
+[data-page="scoreboard"] .chooser { width:100%; max-width:var(--entry-width); margin:auto; flex:none; }
+[data-page="scoreboard"] .chooser h1 { font-size:var(--entry-heading); line-height:1.2; margin:16px 0; }
+[data-page="scoreboard"] .chooser .title-icons { height:72px; gap:24px; margin:0 auto 16px; }
+[data-page="scoreboard"] .chooser .title-icons svg { height:72px; width:auto; max-width:100px; }
+[data-page="scoreboard"] .chooser button { min-height:52px; padding:12px 16px; }
+body[data-page="scoreboard"].host #H {
+  max-width:var(--site-width);
+  padding:max(24px,env(safe-area-inset-top,0px)) max(var(--site-gutter),env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(var(--site-gutter),env(safe-area-inset-left,0px));
+}
+
+/* The itinerary is a reading page; its content keeps normal vertical scrolling. */
+[data-page="itinerary"] .shell {
+  max-width:var(--site-width);
+  padding:max(24px,env(safe-area-inset-top,0px)) max(var(--site-gutter),env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(var(--site-gutter),env(safe-area-inset-left,0px));
+}
+[data-page="itinerary"] .intro h1 { font-size:var(--entry-heading); }
+
+@media(min-width:760px) {
+  [data-page="roomwars"] #app:has(#go),
+  [data-page="presentation"] .landing,
+  [data-page="scoreboard"] .chooser {
+    margin-top:max(20px,calc((100svh - 800px)/2 + 40px));
+    margin-bottom:auto;
+  }
+}
+@media(min-width:900px) {
+  body[data-page="presentation"].host .host-controls { position:static; max-width:100%; padding:0; margin:16px 0 0; background:none; border:0; }
+  body[data-page="presentation"].host .shell { padding-bottom:max(24px,env(safe-area-inset-bottom,0px)); }
+  body[data-page="presentation"].host .result { min-height:100px; }
+  body[data-page="presentation"].host .result h2 { font-size:40px; }
+}
+@media(max-width:759px) {
+  :root { --site-gutter:16px; --entry-heading:clamp(24px,7.2vw,28px); }
+  [data-page="menu"] .menu-header { margin-bottom:16px; }
+  [data-page="menu"] .christmas-mark { width:30px; height:34px; margin-bottom:8px; }
+  [data-page="menu"] .menu-grid { gap:10px; }
+  [data-page="menu"] .destination-card { min-height:88px; padding:10px 12px; }
+  [data-page="menu"] .brand-signature { margin-top:18px; }
+  body[data-page="roomwars"] { gap:16px; padding-top:max(16px,env(safe-area-inset-top,0px)); padding-bottom:max(16px,env(safe-area-inset-bottom,0px)); }
+  [data-page="roomwars"] .pair-setup { grid-template-columns:1fr; gap:6px; padding:8px 10px; }
+  [data-page="roomwars"] .pair-setup b { font-size:14px; line-height:1.2; }
+  [data-page="roomwars"] .pair-setup input { min-height:44px; padding:8px; }
+  [data-page="roomwars"] .brand { gap:8px; margin-bottom:12px; }
+  [data-page="roomwars"] .brand .bob,[data-page="roomwars"] .brand .bob svg { height:44px; }
+  [data-page="presentation"] .landing .join-card { padding:12px; margin-top:16px; }
+  [data-page="presentation"] .landing-mark { width:56px; height:56px; margin-bottom:12px; }
+  body[data-page="presentation"]:not(.tv) .shell { padding-top:max(16px,env(safe-area-inset-top,0px)); }
+  body[data-page="presentation"].host .wheel-wrap { width:min(100%,24svh,220px); }
+  body[data-page="presentation"].host .result { min-height:0; margin:10px 0; }
+  body[data-page="presentation"].host .result h2 { font-size:clamp(26px,7.5vw,32px); }
+  body[data-page="presentation"].host #result-hint { display:none; }
+  [data-page="roomwars"] .final-summary .brand h1 { font-size:var(--entry-heading); }
+  body[data-page="scoreboard"].landing #H,body[data-page="scoreboard"].host #H,[data-page="itinerary"] .shell { padding-top:max(16px,env(safe-area-inset-top,0px)); padding-bottom:max(16px,env(safe-area-inset-bottom,0px)); }
+}
+@media(min-width:900px) and (max-height:760px) {
+  body[data-page="presentation"].host .masthead h1 { font-size:30px; }
+  body[data-page="presentation"].host .result { min-height:92px; }
+  body[data-page="presentation"].host .result h2 { font-size:34px; }
+}
+@media(max-height:700px) and (max-width:759px) {
+  body[data-page="menu"] { padding-top:max(12px,env(safe-area-inset-top,0px)); padding-bottom:max(12px,env(safe-area-inset-bottom,0px)); }
+  [data-page="menu"] .christmas-mark { width:24px; height:27px; margin-bottom:4px; }
+  [data-page="menu"] .menu-header { margin-bottom:12px; }
+  [data-page="menu"] .menu-grid { gap:8px; }
+  [data-page="menu"] .destination-card { min-height:84px; padding:8px 10px; }
+  [data-page="menu"] .brand-signature { margin-top:12px; }
+  [data-page="presentation"] .landing-mark { width:44px; height:44px; margin-bottom:8px; }
+  [data-page="presentation"] .landing .intro-text { margin:10px 0; }
+  [data-page="roomwars"] #app:has(.result-sync) .arena { height:40svh; min-height:200px; }
+}
+@media(max-height:600px) and (max-width:759px) {
+  [data-page="roomwars"] #app:has(.result-sync) .arena { height:32svh; min-height:180px; }
+}
+@media(min-width:760px) and (max-height:760px) {
+  body[data-page="roomwars"],
+  body[data-page="presentation"]:not(.tv) .shell,
+  body[data-page="scoreboard"].landing #H,
+  body[data-page="scoreboard"].host #H,
+  [data-page="itinerary"] .shell {
+    padding-top:max(16px,env(safe-area-inset-top,0px));
+    padding-bottom:max(16px,env(safe-area-inset-bottom,0px));
+  }
+}
+@media(max-height:500px) {
+  body[data-page="roomwars"] { gap:12px; }
+  [data-page="roomwars"] .arena { min-height:140px; height:42vh; height:42svh; }
+}
+@media(min-width:760px) and (max-height:500px) {
+  body[data-page="menu"] { padding:12px max(20px,env(safe-area-inset-right,0px)) 12px max(20px,env(safe-area-inset-left,0px)); }
+  [data-page="menu"] .menu-header { margin-bottom:12px; }
+  [data-page="menu"] .christmas-mark { width:20px; height:23px; margin-bottom:4px; }
+  [data-page="menu"] h1 { font-size:28px; }
+  [data-page="menu"] .menu-grid { gap:12px; }
+  [data-page="menu"] .destination-card { min-height:88px; padding:8px 12px; }
+  [data-page="menu"] .brand-signature { margin-top:10px; }
+}
