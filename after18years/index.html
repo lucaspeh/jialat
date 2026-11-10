@@ -594,7 +594,7 @@ button:active:not(:disabled) {
   }
 }
 .host .shell {
-  padding-bottom:calc(220px + env(safe-area-inset-bottom,0px))
+  padding-bottom:var(--host-controls-clearance,calc(180px + env(safe-area-inset-bottom,0px)))
 }
 .host .host-controls {
   position:fixed;
@@ -734,7 +734,7 @@ button:active:not(:disabled) {
 @media(max-height:740px) and (min-width:900px) {
   .tv .shell {
     height:100vh;
-    padding:8px 24px 12px;
+    padding:8px 24px 52px;
     display:flex;
     flex-direction:column
   }
@@ -782,7 +782,7 @@ button:active:not(:disabled) {
     margin-bottom:6px
   }
   .tv .order-list li {
-    height:calc((100vh - 221px)/11);
+    height:calc((100vh - 261px)/11);
     min-height:0;
     padding:2px 0;
     font-size:clamp(14px,2.6vh,22px);
@@ -915,6 +915,16 @@ a[href="../"]:active  {
   font-size:clamp(14px,1.7vh,20px);
   min-width:1.8em
 }
+
+/* Event navigation and display controls. */
+
+.topbar{gap:8px}.page-wordmark{display:block;width:100px;max-width:30vw;height:auto;flex:none}
+.tv .topbar{justify-content:center}.tv .page-wordmark{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(12px,env(safe-area-inset-bottom,0px));width:96px;z-index:5;pointer-events:none}
+.display-controls{position:fixed;left:max(16px,env(safe-area-inset-left,0px));bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:8;font-size:clamp(12px,1.4vh,16px);font-weight:400}
+.display-controls>summary{display:block;min-width:96px;min-height:44px;padding:10px 14px;border:1px solid var(--edge);background:#111;color:var(--muted);cursor:pointer;list-style:none}.display-controls>summary::-webkit-details-marker{display:none}
+.display-controls-panel{position:absolute;bottom:calc(100% + 8px);left:0;width:min(290px,calc(100vw - 32px));padding:12px;border:2px solid var(--edge);background:#111;box-shadow:4px 4px 0 #000}
+.display-controls-panel .button{width:100%;font-size:14px!important}.display-controls-panel>a{display:flex;align-items:center;min-height:44px;margin-top:8px;padding-top:8px;border-top:1px solid var(--edge)}
+
 </style></head><body><div class="shell" id="app"></div>
 <script>
 (function(){
@@ -997,6 +1007,7 @@ const BASE='https://ntfy.sh/',PREFIX='jialat18-',NS='j18-v1-',ALPHABET='abcdefgh
 const app=document.getElementById('app');
 let mode='',room='',owner='',S=null,pending=null,stream=null,streamOpen=false,pollOK=false,cursor='',polling=false,sending=false;
 let retryTimer=0,retryAt=0,pollTimer=0,probe=null,peer=null,waitingDisplay='',errorText='',storageOK=true,blocked=false;
+let hostControlsObserver=null;
 let raf=0,wheelKey='',viewKey='',displayId=uid(),seen=new Set(),helloTimer=0,relayWake=0;
 let readyViewSeen=false,lastReadyDraw='',revealArmed='',revealedDraw='';
 let helloChallenge=uid(),answeredChallenges=new Set(),ackTimer=0;
@@ -1039,7 +1050,7 @@ function snapshot(changes){return Object.assign({},S,{id:uid(),rev:S.rev+1},chan
 function wheelIcon(){return '<svg viewBox="0 0 60 60" aria-hidden="true"><g class="icon-disc"><circle cx="30" cy="30" r="25" fill="#111" stroke="#d4af37" stroke-width="3"/><g stroke="#111" stroke-width="2"><path d="M30 30V7A23 23 0 0 1 53 30Z" fill="#ca5364"/><path d="M30 30H53A23 23 0 0 1 30 53Z" fill="#f0d47a"/><path d="M30 30V53A23 23 0 0 1 7 30Z" fill="#68ad83"/><path d="M30 30H7A23 23 0 0 1 30 7Z" fill="#f6f0de"/></g><circle cx="30" cy="30" r="6" fill="#d4af37" stroke="#111" stroke-width="2"/></g><path d="M25 0h10l-5 12z" fill="#ff8b78"/></svg>'}
 function landing(){
  document.body.className='';const last=read('last');
- app.innerHTML='<div class="topbar"><a href="../">← MAIN MENU</a><span>JIALAT 2026</span></div><div class="landing"><div class="landing-mark">'+wheelIcon()+'</div><header class="masthead"><p class="eyebrow">18 YEARS · 11 FRIENDS</p><h1>AFTER 18 YEARS…</h1><p>PRESENTATION NIGHT</p></header><p class="intro-text">One wheel. Everyone gets a turn.<br>Draw the presentation order together.</p><button class="button primary" id="host-start">'+(last?'Resume host draw':'Host the draw')+'</button>'+(last?'<button class="button small" id="host-new">Create a new draw</button>':'')+'<form class="join-card" id="tv-join"><label for="room-input">ON THE TV / MACBOOK</label><input id="room-input" placeholder="ROOM CODE" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" required aria-describedby="join-error"><button class="button primary" type="submit">Open TV display</button><p class="join-error" id="join-error" role="status"></p></form><footer class="brand-signature"><img src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></footer></div>';
+ app.innerHTML='<div class="topbar"><a href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="landing"><div class="landing-mark">'+wheelIcon()+'</div><header class="masthead"><p class="eyebrow">18 YEARS · 11 FRIENDS</p><h1>AFTER 18 YEARS…</h1><p>PRESENTATION NIGHT</p></header><p class="intro-text">One wheel. Everyone gets a turn.<br>Draw the presentation order together.</p><button class="button primary" id="host-start">'+(last?'Resume host draw':'Host the draw')+'</button>'+(last?'<button class="button small" id="host-new">Create a new draw</button>':'')+'<form class="join-card" id="tv-join"><label for="room-input">ON THE TV / MACBOOK</label><input id="room-input" placeholder="ROOM CODE" maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" required aria-describedby="join-error"><button class="button primary" type="submit">Open TV display</button><p class="join-error" id="join-error" role="status"></p></form></div>';
  $('host-start').onclick=()=>{if(last&&/^[a-z2-9]{8}$/.test(last.room)&&/^[a-f0-9]{16}$/.test(last.owner))location.hash='host='+last.room+'.'+last.owner;else newHost()};
  if($('host-new'))$('host-new').onclick=newHost;
  $('tv-join').onsubmit=e=>{e.preventDefault();const r=$('room-input').value.toLowerCase().replace(/\s/g,'');if(!/^[a-z2-9]{8}$/.test(r)){$('join-error').textContent='Enter the 8-character code shown on the host.';return}location.hash='tv='+r};
@@ -1047,10 +1058,13 @@ function landing(){
 function newHost(){const r=code(),o=uid();write('last',{room:r,owner:o});location.hash='host='+r+'.'+o}
 function layout(){
  document.body.className=mode;
- app.innerHTML='<div class="topbar"><a href="../">← MAIN MENU</a><span class="mode">'+(mode==='host'?'HOST':'TV DISPLAY')+' · '+esc(prettyCode())+'</span>'+(mode==='tv'?'<button class="button small tv-sound" id="presentation-sound" aria-pressed="false">Enable TV sound</button>':'')+'</div><header class="masthead"><p class="eyebrow">18 YEARS · 11 FRIENDS</p><h1>AFTER 18 YEARS…</h1><p>PRESENTATION NIGHT</p></header><div class="sync" id="sync" role="status">Connecting…</div><p class="storage-warning" id="storage-warning" hidden>This browser cannot save the draw. Keep this page open until the order is complete.</p>'+(mode==='host'?'<details class="pairing" id="pairing" open><summary>CONNECT THE TV</summary><p>On the MacBook or TV, open this page and enter the code, or open the TV link below.</p><b class="room-code">'+prettyCode()+'</b><input class="pair-link" id="tv-link" readonly aria-label="TV display link" value="'+esc(tvLink())+'"><div class="pair-actions"><button class="button small" id="copy-tv">Copy TV link</button><button class="button small" id="reconnect">Reconnect</button></div><p class="copy-note" id="copy-note" role="status"></p></details>':'')+'<main class="stage"><div class="wheel-area"><div class="wheel-wrap"><svg class="wheel-svg" id="wheel-svg" viewBox="0 0 1000 1000" role="img" aria-label="Presentation wheel"><circle cx="500" cy="500" r="492" fill="#0a0a0a" stroke="#6b5a22" stroke-width="12"/><circle cx="500" cy="500" r="479" fill="#111" stroke="#f3d77a" stroke-width="6"/><g id="wheel-disc"></g><circle cx="500" cy="500" r="117" fill="#0a0a0a" stroke="#f3d77a" stroke-width="9"/><image id="wheel-trophy" x="420" y="388" width="160" height="224" href="'+TROPHY_DATA+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true"/></svg><svg class="wheel-pointer" viewBox="0 0 32 45" aria-hidden="true"><path d="M3 0h26v13h-5v9h-5v10h-6V22H8v-9H3z" fill="#ff8b78" stroke="#0a0a0a" stroke-width="3"/></svg></div><div class="result" aria-live="polite" aria-atomic="true"><p class="eyebrow" id="position-label">NEXT · 1ST PRESENTER</p><h2 id="picked-name">Who goes first?</h2><p id="result-hint">11 friends. One presentation order.</p></div>'+(mode==='host'?'<div class="host-controls"><button class="button spin-button" id="spin" disabled>Connect TV to spin</button><p class="host-hint" id="host-hint">Open the TV display using the code above.</p></div>':'')+'</div><aside class="order-panel" aria-label="Presentation order"><h2>PRESENTATION ORDER</h2><p class="order-count" id="order-count">0 / 11 picked</p><ol class="order-list" id="order-list"></ol>'+(mode==='host'?'<details class="options"><summary>DRAW OPTIONS</summary><p>Restart clears the order on both screens. The same 11 names stay in the draw.</p><button class="button small" id="restart" disabled>Restart draw</button></details>':'')+'</aside></main><p class="footer">JIALAT 2026 · 18 YEARS · 11 FRIENDS</p>';
- if(mode==='host'){document.querySelector('.order-panel').insertAdjacentHTML('beforeend',relayPanelHTML());relayPanelBind();$('spin').onclick=startSpin;$('restart').onclick=restart;$('reconnect').onclick=()=>resume(true);$('copy-tv').onclick=copyTV}else $('presentation-sound').onclick=togglePresentationSound;
- paint();
+ app.innerHTML='<div class="topbar">'+(mode==='host'?'<a href="../">← MAIN MENU</a>':'')+'<span class="mode">'+(mode==='host'?'HOST':'TV DISPLAY · '+esc(prettyCode()))+'</span><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><header class="masthead"><p class="eyebrow">18 YEARS · 11 FRIENDS</p><h1>AFTER 18 YEARS…</h1><p>PRESENTATION NIGHT</p></header><div class="sync" id="sync" role="status">Connecting…</div><p class="storage-warning" id="storage-warning" hidden>This browser cannot save the draw. Keep this page open until the order is complete.</p>'+(mode==='host'?'<details class="pairing" id="pairing" open><summary>CONNECT THE TV</summary><p>On the MacBook or TV, open this page and enter the code, or open the TV link below.</p><b class="room-code">'+prettyCode()+'</b><input class="pair-link" id="tv-link" readonly aria-label="TV display link" value="'+esc(tvLink())+'"><div class="pair-actions"><button class="button small" id="copy-tv">Copy TV link</button><button class="button small" id="reconnect">Reconnect</button></div><p class="copy-note" id="copy-note" role="status"></p></details>':'')+'<main class="stage"><div class="wheel-area"><div class="wheel-wrap"><svg class="wheel-svg" id="wheel-svg" viewBox="0 0 1000 1000" role="img" aria-label="Presentation wheel"><circle cx="500" cy="500" r="492" fill="#0a0a0a" stroke="#6b5a22" stroke-width="12"/><circle cx="500" cy="500" r="479" fill="#111" stroke="#f3d77a" stroke-width="6"/><g id="wheel-disc"></g><circle cx="500" cy="500" r="117" fill="#0a0a0a" stroke="#f3d77a" stroke-width="9"/><image id="wheel-trophy" x="420" y="388" width="160" height="224" href="'+TROPHY_DATA+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true"/></svg><svg class="wheel-pointer" viewBox="0 0 32 45" aria-hidden="true"><path d="M3 0h26v13h-5v9h-5v10h-6V22H8v-9H3z" fill="#ff8b78" stroke="#0a0a0a" stroke-width="3"/></svg></div><div class="result" aria-live="polite" aria-atomic="true"><p class="eyebrow" id="position-label">NEXT · 1ST PRESENTER</p><h2 id="picked-name">Who goes first?</h2><p id="result-hint">11 friends. One presentation order.</p></div>'+(mode==='host'?'<div class="host-controls"><button class="button spin-button" id="spin" disabled>Connect TV to spin</button><p class="host-hint" id="host-hint">Open the TV display using the code above.</p></div>':'')+'</div><aside class="order-panel" aria-label="Presentation order"><h2>PRESENTATION ORDER</h2><p class="order-count" id="order-count">0 / 11 picked</p><ol class="order-list" id="order-list"></ol>'+(mode==='host'?'<details class="options"><summary>DRAW OPTIONS</summary><p>Restart clears the order on both screens. The same 11 names stay in the draw.</p><button class="button small" id="restart" disabled>Restart draw</button></details>':'')+'</aside></main>'+(mode==='tv'?'<details class="display-controls" id="display-controls"><summary id="display-sound-status">Sound off</summary><div class="display-controls-panel"><button class="button tv-sound" id="presentation-sound" aria-pressed="false">Enable TV sound</button><a href="../">← MAIN MENU</a></div></details>':'');
+ if(mode==='host'){document.querySelector('.order-panel').insertAdjacentHTML('beforeend',relayPanelHTML());relayPanelBind();$('spin').onclick=startSpin;$('restart').onclick=restart;$('reconnect').onclick=()=>resume(true);$('copy-tv').onclick=copyTV}else $('presentation-sound').onclick=async()=>{await togglePresentationSound();const a=presentationCtx;if(a&&a.state==='running'||!presentationSoundOn)$('display-controls').open=false};
+ installControlSizing();paint();
 }
+function measureHostControls(){if(mode!=='host')return;const panel=document.querySelector('.host-controls');if(!panel)return;const height=panel.getBoundingClientRect().height;if(height>0)document.documentElement.style.setProperty('--host-controls-clearance',Math.ceil(height+16)+'px')}
+function installControlSizing(){if(mode!=='host')return;const panel=document.querySelector('.host-controls');if(!panel)return;if(typeof ResizeObserver!=='undefined'){hostControlsObserver=new ResizeObserver(measureHostControls);hostControlsObserver.observe(panel)}requestAnimationFrame(measureHostControls)}
+window.addEventListener('resize',measureHostControls);
 function svg(tag,attrs,text){const e=document.createElementNS('http://www.w3.org/2000/svg',tag);Object.entries(attrs).forEach(([k,v])=>e.setAttribute(k,String(v)));if(text!==undefined)e.textContent=text;return e}
 function polar(r,a){const t=(a-90)*Math.PI/180;return [500+r*Math.cos(t),500+r*Math.sin(t)]}
 function buildWheel(players,key){
@@ -1103,7 +1117,7 @@ function presentationTone(hz,length,volume,delay=0){
  const a=presentationCtx;if(!presentationSoundOn||!a||a.state!=='running'||document.hidden)return;
  try{const o=a.createOscillator(),g=a.createGain(),at=a.currentTime+.015+delay,v={o,g};o.type='triangle';o.frequency.setValueAtTime(hz,at);g.gain.setValueAtTime(.0001,at);g.gain.exponentialRampToValueAtTime(volume,at+.006);g.gain.exponentialRampToValueAtTime(.0001,at+length);o.connect(g);g.connect(a.destination);presentationVoices.add(v);o.onended=()=>{presentationVoices.delete(v);o.disconnect();g.disconnect()};o.start(at);o.stop(at+length+.02)}catch(e){}
 }
-function updatePresentationSound(){const b=$('presentation-sound');if(!b)return;const available=!!(window.AudioContext||window.webkitAudioContext),ready=presentationSoundOn&&presentationCtx&&presentationCtx.state==='running',text=!available?'TV sound unavailable':ready?'TV sound on':presentationSoundOn?'Resume TV sound':'Enable TV sound';if(b.textContent!==text)b.textContent=text;b.disabled=!available;b.setAttribute('aria-pressed',String(!!ready))}
+function updatePresentationSound(){const b=$('presentation-sound');if(!b)return;const available=!!(window.AudioContext||window.webkitAudioContext),ready=presentationSoundOn&&presentationCtx&&presentationCtx.state==='running',text=!available?'TV sound unavailable':ready?'TV sound on':presentationSoundOn?'Resume TV sound':'Enable TV sound';if(b.textContent!==text)b.textContent=text;b.disabled=!available;b.setAttribute('aria-pressed',String(!!ready));const summary=$('display-sound-status');if(summary)summary.textContent=ready?'Sound on':presentationSoundOn?'Resume sound':'Sound off'}
 async function togglePresentationSound(){
  if(presentationSoundOn&&presentationCtx&&presentationCtx.state==='running'){presentationSoundOn=false;stopPresentationAudio();updatePresentationSound();return}
  presentationSoundOn=true;const a=presentationAudioContext(),until=performance.now()+1000;if(a)try{if(a.state!=='running')await a.resume();if(a.state==='running'&&performance.now()<=until){presentationTone(659,.11,.05);presentationTone(880,.17,.05,.13)}}catch(e){}updatePresentationSound()
@@ -1224,7 +1238,7 @@ function connect(){
 }
 function resume(force){if(!mode||document.hidden)return;errorText='';if(force===true||!stream||stream.readyState===2)connect();if(mode==='host')flush();else if(streamOpen)announce();paint()}
 async function copyTV(){try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error('Clipboard unavailable');await navigator.clipboard.writeText(tvLink());$('copy-note').textContent='TV link copied. Open it on the MacBook or TV.'}catch(e){$('tv-link').focus();$('tv-link').select();$('copy-note').textContent='Select and copy the TV link above.'}}
-function cleanup(){clearTimeout(ackTimer);stopPresentationAudio();soundDraw='';soundEligible=false;soundRevealed.clear();clearTimeout(relayWake);if(stream)stream.close();stream=null;clearTimeout(pollTimer);clearTimeout(retryTimer);clearTimeout(helloTimer);if(probe)clearTimeout(probe.timer);if(raf)cancelAnimationFrame(raf);raf=0;probe=null;peer=null;waitingDisplay='';seen=new Set();cursor='';streamOpen=false;pollOK=false;wheelKey='';viewKey='';sending=false;polling=false;blocked=false;errorText='';readyViewSeen=false;lastReadyDraw='';revealArmed='';revealedDraw='';helloChallenge=uid();answeredChallenges=new Set()}
+function cleanup(){if(hostControlsObserver){hostControlsObserver.disconnect();hostControlsObserver=null}clearTimeout(ackTimer);stopPresentationAudio();soundDraw='';soundEligible=false;soundRevealed.clear();clearTimeout(relayWake);if(stream)stream.close();stream=null;clearTimeout(pollTimer);clearTimeout(retryTimer);clearTimeout(helloTimer);if(probe)clearTimeout(probe.timer);if(raf)cancelAnimationFrame(raf);raf=0;probe=null;peer=null;waitingDisplay='';seen=new Set();cursor='';streamOpen=false;pollOK=false;wheelKey='';viewKey='';sending=false;polling=false;blocked=false;errorText='';readyViewSeen=false;lastReadyDraw='';revealArmed='';revealedDraw='';helloChallenge=uid();answeredChallenges=new Set()}
 function route(){
  cleanup();mode='';room='';owner='';S=null;pending=null;
  const m=/^#(host|tv)=([a-z2-9]{8})(?:\.([a-f0-9]{16}))?$/.exec(location.hash);
