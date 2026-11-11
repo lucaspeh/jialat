@@ -5,6 +5,7 @@
   --color-gold:#d4af37;
   --color-gold-light:#f3d77a;
   --color-edge:#6b5a22;
+  --color-input-edge:#8f7937;
   --color-text:#f2ead3;
   --color-muted:#b9b6a8;
   --color-teal:#65d9cb;
@@ -12,9 +13,9 @@
   --color-coral:#ff8b78;
   --color-lavender:#c4a7e7;
   --font-ui:"Courier New",ui-monospace,monospace;
-  --text-body:16px;
-  --text-secondary:14px;
-  --text-label:12px;
+  --text-body:1rem;
+  --text-secondary:.875rem;
+  --text-label:.75rem;
   --space-1:8px;
   --space-2:12px;
   --space-3:16px;
@@ -37,7 +38,28 @@ body[data-page] {
   --coral:var(--color-coral); --lavender:var(--color-lavender);
   font-family:var(--font-ui);
 }
-body[data-page]:not(.tv) { font-size:var(--text-body); line-height:1.5; letter-spacing:.035em; }
+body[data-page]:not(.tv) { font-size:var(--text-body); font-weight:400; line-height:1.5; letter-spacing:.035em; overflow-wrap:anywhere; }
+html { -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+body[data-page] :is(button,input,select,textarea) { font-family:var(--font-ui); }
+body[data-page]:not(.tv) :is(button,summary) { font-weight:700; }
+body[data-page] :is(button,a,summary) { touch-action:manipulation; }
+body[data-page] :is(button,a,input,select,textarea,summary):focus-visible { outline:3px solid var(--color-teal); outline-offset:3px; }
+body[data-page]:not(.tv) :is(input,select,textarea) { border-color:var(--color-input-edge); font-size:1rem; }
+body[data-page]:not(.tv) :is(input,select,button,summary) { min-height:44px; }
+body[data-page]:not(.tv) summary { display:list-item; padding-top:12px; padding-bottom:12px; }
+body[data-page] :is(h1,h2,h3,p,button,summary) { overflow-wrap:break-word; }
+body[data-page] [tabindex="-1"] { scroll-margin-top:24px; }
+body[data-page] .confirmation {
+  width:min(440px,calc(100vw - 32px)); max-height:calc(100svh - 48px); overflow:auto;
+  padding:24px; border:2px solid var(--color-gold); color:var(--color-text);
+  background:var(--color-surface); font:400 1rem/1.6 var(--font-ui); letter-spacing:0;
+}
+body[data-page] .confirmation::backdrop { background:rgb(0 0 0 / .78); }
+body[data-page] .confirmation h2 { margin:0 0 12px; font-size:1.25rem; line-height:1.35; color:var(--color-gold-light); text-transform:none; letter-spacing:normal; }
+body[data-page] .confirmation p { margin:0 0 20px; color:var(--color-muted); font-size:1rem; }
+body[data-page] .confirmation form { display:flex; flex-wrap:wrap; gap:12px; }
+body[data-page] .confirmation button { flex:1 1 120px; width:auto; min-height:48px; margin:0; padding:10px 12px; font-size:.875rem; border:2px solid var(--color-input-edge); background:var(--color-bg); color:var(--color-text); text-transform:none; letter-spacing:normal; }
+body[data-page] .confirmation .confirm-action { border-color:var(--color-gold); color:var(--color-gold-light); background:#2a2108; }
 body[data-page]:not(.tv) :is(button,input,select,textarea) { font-family:var(--font-ui); }
 body[data-page]:not(.tv) input { font-size:16px; }
 body[data-page]:not(.tv) :is(.sub,.hint,.sm,.intro-text,.chooser-intro) { font-size:var(--text-secondary); line-height:1.6; }
@@ -180,6 +202,37 @@ body[data-page="presentation"].host .order-count { margin-bottom:8px; }
 body[data-page="presentation"].host .order-list li { min-height:32px; padding:4px 0; font-size:16px; }
 body[data-page="presentation"].host .options { margin-top:8px; padding-top:0; }
 body[data-page="presentation"].host .relay-details { margin-top:8px; padding:0 8px; }
+/* Keep the result and its action together, including on short phones and with larger text. */
+body[data-page="presentation"].host .host-controls {
+  position:static; width:100%; max-width:100%; padding:0; margin:16px 0 0;
+  border:0; background:none;
+}
+body[data-page="presentation"].host .shell { padding-bottom:max(24px,env(safe-area-inset-bottom,0px)); }
+body[data-page="presentation"].host .host-controls .spin-button { min-height:64px; }
+body[data-page="presentation"].host .host-hint { min-height:0; margin-top:8px; }
+body[data-page="presentation"].host .result { scroll-margin-block:20px; }
+
+.host-overview {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,4.5em),1fr)); gap:12px;
+  padding:12px; margin:16px 0; border:1px solid var(--color-edge); background:var(--color-surface);
+}
+.host-overview > div { min-width:0; }
+.host-overview span { display:block; color:var(--color-muted); font-size:var(--text-label); line-height:1.5; }
+.host-overview strong { display:block; margin-top:4px; font-size:20px; line-height:1.25; color:var(--color-gold-light); font-variant-numeric:tabular-nums; }
+[data-page="roomwars"] .host-overview { grid-template-columns:repeat(auto-fit,minmax(min(100%,4.5em),1fr)); }
+.host-shortcuts { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 20px; }
+[data-page="roomwars"] .host-shortcuts button { flex:1; width:auto; min-width:0; min-height:44px; margin:0; padding:8px; font-size:14px; }
+[data-page="scoreboard"] .host-audio { margin:12px 0; border:1px solid var(--color-edge); padding:0 12px; }
+[data-page="scoreboard"] .host-audio .hint { flex-basis:100%; margin:0; }
+[data-page="scoreboard"] .soundbar button { white-space:normal; min-width:0; }
+[data-page="roomwars"] .brand > h1 { min-width:0; max-width:100%; overflow-wrap:anywhere; }
+[data-page="roomwars"] .row > * { min-width:0; }
+[data-page="roomwars"] .rank { flex-wrap:wrap; }
+[data-page="roomwars"] .rank .g { flex:1 1 120px; }
+[data-page="roomwars"] .rank button { max-width:100%; min-width:0; }
+.checklist-heading { display:flex; align-items:center; flex-wrap:wrap; justify-content:space-between; gap:8px; }
+.checklist-heading h2 { margin:0; font-size:18px; }
+.checklist-heading button { font-size:14px; }
 
 /* The Scoreboard chooser gets the same header and entry width as the others. */
 body[data-page="scoreboard"].landing #H {
@@ -209,6 +262,14 @@ body[data-page="scoreboard"].host #H {
   padding:max(24px,env(safe-area-inset-top,0px)) max(var(--site-gutter),env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(var(--site-gutter),env(safe-area-inset-left,0px));
 }
 [data-page="itinerary"] .intro h1 { font-size:var(--entry-heading); }
+[data-page="itinerary"] .intro > div { flex:1; min-width:0; }
+[data-page="itinerary"] .intro h1 { max-width:100%; overflow-wrap:anywhere; }
+[data-page="itinerary"] .day-heading > div { min-width:0; }
+[data-page="itinerary"] .day-heading h2 { max-width:100%; overflow-wrap:anywhere; }
+[data-page="itinerary"] .intro .eyebrow span,
+[data-page="itinerary"] .day-tab .tab-date { white-space:normal; }
+[data-page="itinerary"] .pager-button { flex:1; min-width:0; overflow-wrap:anywhere; }
+[data-page="itinerary"] .page-count { flex:none; }
 
 
 @media(min-width:900px) {
@@ -259,6 +320,12 @@ body[data-page="scoreboard"].host #H {
   [data-page="presentation"] .landing-mark { width:44px; height:44px; margin-bottom:8px; }
   [data-page="presentation"] .landing .intro-text { margin:10px 0; }
   [data-page="roomwars"] #app:has(.result-sync) .arena { height:40svh; min-height:200px; }
+  body[data-page="presentation"].host .site-utility { margin-bottom:12px; }
+  body[data-page="presentation"].host .host-status { margin-bottom:12px; }
+  body[data-page="presentation"].host .tv-screen-controls { margin-bottom:12px; }
+  body[data-page="presentation"].host .wheel-wrap { width:min(100%,20svh,160px); }
+  body[data-page="presentation"].host .result { margin:8px 0; }
+  body[data-page="presentation"].host .host-controls { margin-top:8px; }
 }
 @media(max-height:600px) and (max-width:759px) {
   [data-page="roomwars"] #app:has(.result-sync) .arena { height:32svh; min-height:180px; }
@@ -368,6 +435,19 @@ body[data-page="scoreboard"].host .host-status #sync { position:static; display:
 body[data-page="scoreboard"].host .soundbar { gap:8px; margin:16px 0; }
 body[data-page="scoreboard"].host .soundbar > button { min-width:160px; }
 body[data-page="scoreboard"].tv #tvAudio small { font-size:clamp(12px,1.4vh,16px); line-height:1.5; }
+/* Both TV displays use the same quiet sound control, with a direct recovery action. */
+body[data-page].tv :is(#tvAudio,.display-controls,.tv-sound-start) { font-family:var(--font-ui); font-size:clamp(12px,1.4vh,16px); line-height:1.5; font-weight:400; }
+body[data-page].tv :is(#tvAudio,.display-controls) :is(button,summary,a) { font:inherit; min-height:44px; }
+body[data-page].tv .display-controls-panel button { text-transform:none; letter-spacing:normal; font-weight:400; border:1px solid var(--color-input-edge); padding:10px 12px; background:var(--color-surface); color:var(--color-text); box-shadow:none; }
+body[data-page].tv .display-controls-panel button[aria-pressed="true"] { color:var(--color-teal); border-color:var(--color-teal); }
+body[data-page].tv .display-controls-panel { max-height:min(70vh,560px); overflow:auto; overscroll-behavior:contain; }
+body[data-page].tv .tv-sound-start {
+  position:fixed; left:max(16px,env(safe-area-inset-left,0px)); bottom:max(12px,env(safe-area-inset-bottom,0px));
+  z-index:9; min-height:44px; padding:10px 14px; border:1px solid var(--color-gold);
+  color:var(--color-gold-light); background:var(--color-surface); cursor:pointer;
+}
+body[data-page]:not(.tv) .tv-sound-start { display:none; }
+body[data-page].tv [hidden] { display:none!important; }
 body[data-page="presentation"].host .pairing { margin-top:0; }
 body[data-page="presentation"].host .stage { gap:24px; grid-template-columns:minmax(0,1fr) minmax(260px,36%); }
 body[data-page="roomwars"].is-host #app > .host-status { display:block; }
@@ -395,8 +475,10 @@ body[data-page="presentation"].tv.show-event-title .event-cover {
 .event-cover .event-tag { border:.5vh solid var(--color-gold); padding:.8vh 2vw; font-size:2.6vh; color:var(--color-gold); }
 .event-cover .event-subtitle { margin:1.6vh 0 0; color:var(--color-gold-light); font-size:2.6vh; font-weight:700; }
 .event-cover .title-icons { display:flex; align-items:center; justify-content:center; gap:30px; margin:0 auto 12px; }
-.event-cover .title-side { width:12vh; flex:none; }
-.event-cover .title-middle { width:18vh; display:grid; place-items:center; flex:none; }
+.event-cover .title-icons { max-width:100%; gap:clamp(12px,2.4vw,30px); }
+.event-cover h1 { max-width:100%; overflow-wrap:anywhere; }
+.event-cover .title-side { width:12vh; flex:0 1 12vh; min-width:0; }
+.event-cover .title-middle { width:18vh; display:grid; place-items:center; flex:0 1 18vh; min-width:0; }
 .event-cover .title-icons svg { display:block; width:100%; height:auto; shape-rendering:crispEdges; }
 .event-cover .tree-light { animation:event-tree-twinkle 2.4s steps(2) infinite alternate; animation-delay:calc(var(--i)*.22s); }
 .event-cover .santa-wave { transform-origin:14px 11px; animation:event-santa-wave 3s steps(3) infinite; }
