@@ -1639,7 +1639,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 #tvAudio .display-controls-panel>button{width:100%;margin-bottom:8px}#tvAudio .display-controls-panel>a{display:flex;align-items:center;min-height:44px;margin-top:8px;border-top:1px solid var(--d);padding-top:8px}
 #tvAudio .tone-tests{padding:8px 0;border:0}
 
-</style><link rel="stylesheet" href="../assets/layout.css?v=15">
+</style><link rel="stylesheet" href="../assets/layout.css?v=16">
 </head><body data-page="scoreboard">
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
@@ -2077,9 +2077,9 @@ function resultPanel(g){
  }
  return h;
 }
-function host(){const namesOpen=!!($('playerNames')&&$('playerNames').open);const g=S.g,x=G[g],done=G.map((_,i)=>S.sc.every(r=>r[i]!=null)),m=S.m,ready=allDone()&&!unresolvedTie();
-const btn=[['Title',['idle']],['Rules',['rules',g]],['After game 3',['board',3]],['After game 6',['board',6]],['Rankings',['board',9]],['Final reveal',['rev',0]]];
-let h=`<div class="hd"><b class="host-brand"><span class="host-icon" aria-hidden="true">${spr('tally',3)}</span><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"><span class="host-role">HOST</span></b>${Q?'':'<a class="menu-return" href="../">← MAIN MENU</a>'}</div><details id="playerNames"${namesOpen?' open':''} ontoggle="if(!this.open)host()"><summary>Player names &amp; tie-break</summary><p class="hint">Names save automatically. Use +/− only for an overall tie-break.</p>${S.nm.map((n,i)=>`<div class="nr"><input id="playerName${i}" aria-label="Player ${i+1} name" value="${esc(n)}" maxlength="14" onchange="nn(${i},this.value)"><button aria-label="Subtract a tie-break point for player ${i+1}" onclick="tbb(${i},-1)">−</button><span>${S.tb[i]||0}</span><button aria-label="Add a tie-break point for player ${i+1}" onclick="tbb(${i},1)">+</button></div>`).join('')}</details><div class="champion-prize"><b>${PRIZE_TAG}</b><small>Highest total after all nine games.</small></div><div class="soundbar"><button class="${soundOn?'sound-on':''}" aria-pressed="${soundOn}" onclick="toggleSound()">${soundOn?'Host sound on':'Turn on host sound'}</button>${soundOn?'<button onclick="testSound()">Test chime</button>':''}<span class="hint">Turn on TV sound once on the MacBook for Games 8–9’s finish chime and reveal sounds.</span></div><div class="lb">TV SHOWS</div><div class="rw tv-modes">${btn.map(([l,mm])=>`<button class="${m[0]==mm[0]&&(m[0]!='board'||m[1]==mm[1])?'on':''}" onclick='${l==='Final reveal'?'tryReveal()':'tvm('+JSON.stringify(mm)+')'}'>${l}</button>`).join('')}</div>`;
+function host(){const syncNode=$('sync'),dotNode=$('dot');const namesOpen=!!($('playerNames')&&$('playerNames').open);const g=S.g,x=G[g],done=G.map((_,i)=>S.sc.every(r=>r[i]!=null)),m=S.m,ready=allDone()&&!unresolvedTie();
+const btn=[['Event title',['idle']],['Rules',['rules',g]],['After game 3',['board',3]],['After game 6',['board',6]],['Rankings',['board',9]],['Final reveal',['rev',0]]];
+let h=`<div class="site-utility">${Q?'':'<a class="menu-return" href="../">← MAIN MENU</a>'}<img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><header class="activity-header"><span class="activity-icon"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-hidden="true"><path fill="#d4af37" d="M1 1h16v1H1zM1 2h1v10H1zM16 2h1v10h-1zM1 12h16v1H1z"/><path fill="#6b5a22" d="M3 4h12v1H3zM3 7h12v1H3zM3 10h12v1H3z"/><g class="bead-one"><path fill="#65d9cb" d="M4 3h2v3H4z"/></g><g class="bead-two"><path fill="#86baff" d="M5 6h2v3H5z"/></g><g class="bead-three"><path fill="#ff8b78" d="M7 9h2v3H7z"/></g></svg></span><h1>SCOREBOARD</h1><span class="role-label">HOST</span></header><div class="host-status" id="hostConnection"></div><details id="playerNames"${namesOpen?' open':''} ontoggle="if(!this.open)host()"><summary>Player names &amp; tie-break</summary><p class="hint">Names save automatically. Use +/− only for an overall tie-break.</p>${S.nm.map((n,i)=>`<div class="nr"><input id="playerName${i}" aria-label="Player ${i+1} name" value="${esc(n)}" maxlength="14" onchange="nn(${i},this.value)"><button aria-label="Subtract a tie-break point for player ${i+1}" onclick="tbb(${i},-1)">−</button><span>${S.tb[i]||0}</span><button aria-label="Add a tie-break point for player ${i+1}" onclick="tbb(${i},1)">+</button></div>`).join('')}</details><div class="champion-prize"><b>${PRIZE_TAG}</b><small>Highest total after all nine games.</small></div><div class="soundbar"><button class="${soundOn?'sound-on':''}" aria-pressed="${soundOn}" onclick="toggleSound()">${soundOn?'Host sound on':'Turn on host sound'}</button>${soundOn?'<button onclick="testSound()">Test chime</button>':''}<span class="hint">Turn on TV sound once on the MacBook for Games 8–9’s finish chime and reveal sounds.</span></div><div class="lb">TV SHOWS</div><div class="rw tv-modes">${btn.map(([l,mm])=>`<button class="${m[0]==mm[0]&&(m[0]!='board'||m[1]==mm[1])?'on':''}" onclick='${l==='Final reveal'?'tryReveal()':'tvm('+JSON.stringify(mm)+')'}'>${l}</button>`).join('')}</div>`;
 if(!ready)h+=`<div class="sm" style="margin-top:8px">Tap Final reveal to check what is still needed.</div>`;
 if(revealCheck&&!ready){
  const missing=G.map((_,i)=>i).filter(i=>!done[i]),st=stand(9),groups=[];
@@ -2104,7 +2104,7 @@ h+=`<div class="lb">RANKINGS</div><div style="line-height:1.8">${st.map(o=>`${o.
 if(ties.length)h+=`<div class="msg">TIE FOR PLACE ${ties.join(', ')}: replay Snow Blower, then give the winner a +1 tie-break below.</div>`;
 h+=`<div class="rw" style="margin-top:10px"><button id="copyResults" onclick="copyRes()">Copy results</button></div>
 <div class="hint" style="margin-top:20px">Play all nine games again with the same people. Clears every result and tie-break.</div><div class="rw"><button onclick="reset()">Start a new round</button></div>`;
-$('H').innerHTML=h+relayPanelHTML();relayPanelBind()}
+$('H').innerHTML=h+relayPanelHTML();$('hostConnection').append(dotNode,syncNode);relayPanelBind()}
 // ---- tv ----
 const rows=[];
 function mkRows(){for(let i=0;i<10;i++){const d=document.createElement('div');d.className='row';d.innerHTML='<div class="in"><b class="rk"></b><div class="bar"><i></i><span class="nm"></span></div><b class="pt"></b></div>';$('rows').appendChild(d);rows.push(d)}}
@@ -2147,13 +2147,13 @@ d.querySelector('.rk').textContent=o.r;d.querySelector('.nm').innerHTML=hide?'??
 d.querySelector('i').style.width=hide?'0':(o.t/top*100)+'%';d.querySelector('.pt').textContent=hide?'':o.t});
 if(rev&&k==10&&lastRev!=10)confetti();lastRev=rev?k:-1}
 // ---- boot ----
-function render(){document.body.className=ROLE||'landing';if(ROLE=='host')host();else if(ROLE=='tv'){tv();tvRevealAudio()}else $('H').innerHTML=`<div class="chooser-topbar"><a class="back-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="chooser"><div class="title-icons">${holidayIcon('tree')}<div class="title-middle"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-label="Animated pixel abacus" role="img">
+function render(){document.body.className=ROLE||'landing';if(ROLE=='host')host();else if(ROLE=='tv'){tv();tvRevealAudio()}else $('H').innerHTML=`<div class="chooser-topbar site-utility"><a class="back-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="chooser"><div class="title-icons"><div class="title-middle"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-label="Animated pixel abacus" role="img">
 <path fill="#d4af37" d="M1 1h16v1H1zM1 2h1v10H1zM16 2h1v10h-1zM1 12h16v1H1z"/>
 <path fill="#6b5a22" d="M3 4h12v1H3zM3 7h12v1H3zM3 10h12v1H3z"/>
 <g class="bead-one"><path fill="#65d9cb" d="M4 3h2v3H4z"/></g>
 <g class="bead-two"><path fill="#86baff" d="M5 6h2v3H5z"/></g>
 <g class="bead-three"><path fill="#ff8b78" d="M7 9h2v3H7z"/></g>
-</svg></div>${holidayIcon('santa')}</div><h1>SCOREBOARD</h1><div class="prize-label">${PRIZE_TAG}</div><p class="chooser-intro">Control the games on your phone or iPad.<br>Open the TV display on the MacBook.</p><div class="rw"><button class="go" onclick="location.hash='host';location.reload()">Phone / iPad · Host</button><button class="go" onclick="location.hash='tv';location.reload()">MacBook · TV</button></div></div>`}
+</svg></div></div><h1>SCOREBOARD</h1><div class="prize-label">${PRIZE_TAG}</div><p class="chooser-intro">Control the games on your phone or iPad.<br>Open the TV display on the MacBook.</p><div class="rw"><button class="go" onclick="location.hash='host';location.reload()">Phone / iPad · Host</button><button class="go" onclick="location.hash='tv';location.reload()">MacBook · TV</button></div></div>`}
 restoreCountdown();
 if(ROLE=='tv'){mkRows();setInterval(tickTvCountdown,100);$('T').ondblclick=()=>document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}
 render();if(ROLE)conn();

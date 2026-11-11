@@ -685,10 +685,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .import-results span { font-size:14px; font-weight:400; color:var(--m); }
 .import-results strong { color:var(--teal); }
 .import-error { color:var(--coral); font-size:14px; font-weight:400; line-height:1.6; }
-</style><link rel="stylesheet" href="../assets/layout.css?v=15">
+</style><link rel="stylesheet" href="../assets/layout.css?v=16">
 </head><body data-page="roomwars">
 <i id="dot" class="dot"></i>
-<header class="site-navigation"><a id="site-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></header>
+<header class="site-navigation site-utility"><a id="site-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></header>
 <main id="app"></main>
 <script>
 
@@ -775,7 +775,7 @@ tap:["............","....YYYY....","..YYYYYYYY..",".YYYYYYYYYY.",".YYYYYYYYYY.",
 react:["....YYY..","...YYY...","..YYY....",".YYYYYY..","...YYY...","..YYY....",".YY......",".Y......."],
 stop:[".....YY.....","....YYYY....",".....YY.....","...YYYYYY...","..Y......Y..",".Y........Y.",".Y........Y.",".Y........Y.",".Y........Y.","..Y......Y..","...YYYYYY...","............"]};
 function spr(k,px){var a=SP[k],s="",col={trophy:"#f3d77a",star:"#86baff",tap:"#ff8b78",react:"#65d9cb",stop:"#86baff"}[k]||"#f3d77a",p=0;a.forEach(function(r,y){for(var x=0;x<r.length;x++)if(r[x]=="Y"||r[x]=="B")s+='<rect class="'+(k=="tap"&&r[x]=="Y"?"button-cap":k=="react"?"bolt-pixel":"")+'" style="--p:'+p+++'" x="'+x+'" y="'+y+'" width="1" height="1" fill="'+(r[x]=="B"?"#77504a":col)+'"/>'});if(k=="tap")s+='<g class="press-rays" fill="#f3d77a"><rect x="0" y="0" width="1" height="2"/><rect x="11" y="0" width="1" height="2"/></g>';if(k=="react")s+='<g class="reaction-signal" fill="#ff8b78"><rect x="2" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/></g>';if(k=="stop")s+='<g class="clock-hand" fill="#f3d77a"><rect x="5" y="4" width="1" height="4"/><rect x="5" y="7" width="2" height="1"/></g>';var h=k=="react"?11:a.length;return'<svg class="sp icon-'+k+'" viewBox="0 0 '+a[0].length+' '+h+'" width="'+a[0].length*px+'" height="'+h*px+'" shape-rendering="crispEdges" aria-hidden="true">'+s+'</svg>'}
-function brand(t,k){return'<div class="brand"><div class="bob">'+spr(k||"trophy",5)+'</div><h1>'+t+'</h1></div>'}
+function brand(t,k){if(t==="ROOM WARS"&&(!code||host))return'<header class="activity-header"><span class="activity-icon bob">'+spr("trophy",5)+'</span><h1>ROOM WARS</h1><span class="role-label">HOST</span></header>';return'<div class="brand"><div class="bob">'+spr(k||"trophy",5)+'</div><h1>'+t+'</h1></div>'}
 function zc(i){return i==0?0:i==4?3:i==3?2:1}
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}return null}
 function pn(i){return S.names[i]}
@@ -899,7 +899,7 @@ function resume(){if(code&&!document.hidden){if(!es||es.readyState===2)connect()
 document.addEventListener("visibilitychange",resume);window.addEventListener("online",resume);window.addEventListener("pageshow",function(e){if(e.persisted)resume()});
 window.addEventListener('jialat-relay-status',function(){stat()});
 function stat(){updatePageChrome();var d=document.getElementById("dot"),e=document.getElementById("stat"),help=document.getElementById("syncHelp"),result=document.getElementById("resultSync"),label=relayWait()>0?relayWaitLabel():postFailed&&out.length?"Could not send · retrying":out.length?"Sending updates…":on?"Connected":pollOk?"Connected · checking for updates":fl?"Connection lost · retrying":"Connecting";
- if(d)d.className="dot "+((postFailed&&out.length)||fl&&!on&&!pollOk?"bad":on||pollOk?"ok":"");if(e)e.textContent=label;
+ if(d)d.className="dot "+((postFailed&&out.length)||fl&&!on&&!pollOk?"bad":on||pollOk?"ok":"");if(e){e.textContent=label;e.setAttribute("role","status");e.style.setProperty("--connection-color",(postFailed&&out.length)||fl&&!on&&!pollOk?"#ff8b78":on||pollOk?"#65d9cb":"#d4af37")}
  if(help){help.textContent=postFailed&&out.length?"Your updates are saved here but may not reach others yet. Wait for the displayed retry time, or use backup sharing below.":"";help.style.display=postFailed&&out.length?"block":"none"}
  if(result&&result.dataset&&result.dataset.mid){var waiting=out.some(function(m){return m.mid===result.dataset.mid});result.className="sub result-sync"+(waiting&&postFailed?" retry":"");result.textContent=waiting?(postFailed?"Saved on this phone. Reconnecting. Share a backup if the host cannot see it.":"Saved. Sending to the host… You can go back to Room Wars."):"Sent to the host. You can go back to Room Wars."}}
 function render(){updatePageChrome();clearTimeout(tm);clearInterval(tm);
@@ -919,7 +919,7 @@ function setup(){updatePageChrome();view="setup";
   if(!code){var al="abcdefghjkmnpqrstuvwxyz23456789";for(var i=0;i<8;i++)code+=al[Math.floor(Math.random()*al.length)];
    host=true;ls("rwh-"+code,"1");location.hash=code;connect()}
   send({t:"cfg",names:nm});render()}}
-function who(){view="who";var h='<p class="live" id="stat"></p><p class="sub" id="syncHelp" style="display:none"></p><h1>Who are you?</h1><p class="sub">Tap your name to join your pair.</p>';
+function who(){view="who";var h=(host?brand("ROOM WARS","trophy"):'')+'<p class="live" id="stat"></p><p class="sub" id="syncHelp" style="display:none"></p><h1>Who are you?</h1><p class="sub">Tap your name to join your pair.</p>';
  h+='<div class="player-choices">';for(var i=0;i<10;i++)h+='<button class="alt" data-i="'+i+'">'+esc(pn(i))+'</button>';h+='</div>';A.innerHTML=h;stat();
  Array.prototype.forEach.call(A.querySelectorAll("button"),function(b){b.onclick=function(){me=+b.dataset.i;ls("rwm-"+code,me);render()}})}
 function pts(){var p=[];for(var i=0;i<10;i++)p.push(0);
@@ -936,7 +936,7 @@ function home(){
  var draft={};if(host)["mg","mp","mv","bc"].forEach(function(id){var e=document.getElementById(id);if(e)draft[id]=e.value});
  view="home";var completed=!!(S.roomResult&&S.roomResult.complete),p=pts(),cs=pairStandings(),ord=["1st","2nd","3rd","4th","5th"],played=0;
  for(var g in G)played+=Object.keys(S.sc[g]).length;
- var h='<p class="live"><span id="stat"></span> · You: <b>'+esc(pn(me))+'</b> <a href="#" id="chg">change</a></p><p class="sub" id="syncHelp" style="display:none"></p>'+brand("ROOM WARS","trophy")+(S.roundNo>1?'<p class="sub" style="text-align:center">ROUND '+S.roundNo+'</p>':'')+(completed?'':'<p class="sub">1st place in each game = 10 pts, 2nd = 9, and so on. Equal game results share points. Pair score = both partners added.</p><p class="sub">After all 3 games, equal pair totals use a 5-second tapping tie-break. Both partners’ taps are added. Only pairs still tied replay.</p>')+roomResultHTML();
+ var h=brand("ROOM WARS","trophy")+'<p class="live host-status"><span id="stat"></span> · You: <b>'+esc(pn(me))+'</b> <a href="#" id="chg">change</a></p><p class="sub" id="syncHelp" style="display:none"></p>'+(S.roundNo>1?'<p class="sub" style="text-align:center">ROUND '+S.roundNo+'</p>':'')+(completed?'':'<p class="sub">1st place in each game = 10 pts, 2nd = 9, and so on. Equal game results share points. Pair score = both partners added.</p><p class="sub">After all 3 games, equal pair totals use a 5-second tapping tie-break. Both partners’ taps are added. Only pairs still tied replay.</p>')+roomResultHTML();
  var gm='<h2>Play the games</h2><p class="sub" style="text-align:center;margin-top:-4px">Play all 3 games to win points for your pair!</p>',ico={tap:spr("tap",4),react:spr("react",4),stop:spr("stop",4)},num=0;
  for(var g in G){num++;var n=Object.keys(S.sc[g]).length,mine=S.sc[g][me]!==undefined;
   gm+='<div class="card game'+(mine?' dn':'')+'"><div class="gt"><span class="gi">'+ico[g]+'</span><div><div class="gl">GAME '+num+'</div><b class="gn">'+G[g].n+'</b></div><span class="tag">'+n+'/10 played</span></div><div class="sub" style="margin:8px 0 0">'+G[g].d+'</div><button data-g="'+g+'"'+(mine||completed?' disabled':'')+'>'+(mine?'✓ You played':'▶ PLAY NOW')+'</button><button class="alt" data-pr="'+g+'"'+(U(g)||completed?' disabled':'')+'>'+(U(g)?'Practice used ✓':'Practice (1 try only, not scored)')+'</button></div>'}
@@ -1017,7 +1017,7 @@ async function shareInvite(){var l=link();if(navigator.share)try{await navigator
 function mine(){var l="🏆 Room Wars – "+pn(me)+"\n",c="";for(var g in G)if(S.sc[g][me]!==undefined){var value=scoreValue(g,S.sc[g][me]);l+=G[g].n+": "+G[g].f(value)+"\n";c+=g+"|"+me+"|"+value+"\n"}return l+"\n"+c}
 
 var roomResultFocus=false;
-function updatePageChrome(){var menu=document.getElementById("site-menu");if(menu)menu.hidden=!!code&&!host}
+function updatePageChrome(){document.body.classList.toggle("is-host",!code||host);var menu=document.getElementById("site-menu");if(menu)menu.hidden=!!code&&!host}
 function validRoomResult(x){
  if(!x||typeof x.round!=="string"||x.round.length>100||!strs(x.names,10)||!strs(x.rooms,5)||!perm(x.order)||!x.claims||typeof x.claims!=="object"||Array.isArray(x.claims))return false;
  var keys=Object.keys(x.claims),pairs=keys.map(function(r){return x.claims[r]});
