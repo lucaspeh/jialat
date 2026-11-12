@@ -1640,6 +1640,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 #tvAudio .tone-tests{padding:8px 0;border:0}
 
 </style><link rel="stylesheet" href="../assets/layout.css?v=17">
+<link rel="stylesheet" href="../assets/festive.css?v=retro-xmas-1">
 </head><body data-page="scoreboard">
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
@@ -2135,7 +2136,7 @@ function dismissRevealCheck(){revealCheck=false;host();const title=$('currentGam
 // ---- tv ----
 const rows=[];
 function mkRows(){for(let i=0;i<10;i++){const d=document.createElement('div');d.className='row';d.innerHTML='<div class="in"><b class="rk"></b><div class="bar"><i></i><span class="nm"></span></div><b class="pt"></b></div>';$('rows').appendChild(d);rows.push(d)}}
-function confetti(){for(let k=0;k<80;k++){const s=document.createElement('span');s.className='cf';s.style.cssText=`left:${Math.random()*100}vw;background:${['#f3d77a','#d4af37','#fff','#65d9cb','#ff8b78'][k%5]};animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*1.5}s`;document.body.appendChild(s);setTimeout(()=>s.remove(),7000)}}
+function confetti(){for(let k=0;k<80;k++){const s=document.createElement('span');s.className='cf';s.style.cssText=`left:${Math.random()*100}vw;background:${['#f3d77a','#d4af37','#fff','#c95b62','#68ad83','#f3d77a','#d4af37','#fff'][k%8]};animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*1.5}s`;document.body.appendChild(s);setTimeout(()=>s.remove(),7000)}}
 let lastRev=-1;
 function activeCountdown(){return validCountdown(S.timer)&&S.m[0]==='rules'&&S.m[1]===S.timer.g?S.timer:null}
 function drawTvCountdown(c){

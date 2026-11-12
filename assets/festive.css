@@ -1,0 +1,133 @@
+/* Small seasonal details within the existing retro identity.
+   Decorations are outside normal flow and never receive pointer input. */
+[data-page="menu"] .menu-header,
+[data-page="presentation"] .landing,
+[data-page="presentation"] .masthead,
+[data-page="presentation"] .event-cover,
+[data-page="scoreboard"] .chooser .title-icons,
+[data-page="scoreboard"] #bd,
+[data-page="scoreboard"] #msg.rules {
+  position:relative;
+}
+
+/* A pair of pixel snowflakes beside the existing tree. */
+[data-page="menu"] .menu-header::before,
+[data-page="menu"] .menu-header::after {
+  content:"";
+  position:absolute;
+  top:12px;
+  width:22px;
+  height:22px;
+  background:url("pixel-snowflake.svg") center / contain no-repeat;
+  opacity:.45;
+  pointer-events:none;
+  animation:festive-snow-drift 10s steps(4,end) infinite;
+}
+[data-page="menu"] .menu-header::before { left:calc(50% - 88px); }
+[data-page="menu"] .menu-header::after {
+  right:calc(50% - 88px);
+  top:26px;
+  width:11px;
+  height:11px;
+  opacity:.3;
+  animation-delay:-5s;
+}
+[data-page="menu"] .trip-dates { position:relative; }
+[data-page="menu"] .trip-dates::before,
+[data-page="menu"] .trip-dates::after {
+  content:"";
+  position:absolute;
+  top:calc(50% - 2px);
+  width:4px;
+  height:4px;
+  pointer-events:none;
+}
+[data-page="menu"] .trip-dates::before { left:-13px; background:#c95b62; }
+[data-page="menu"] .trip-dates::after { right:-13px; background:#68ad83; }
+
+/* Warm pixel bulbs frame the presentation title, away from the wheel. */
+[data-page="presentation"] .landing::before,
+[data-page="presentation"].tv .masthead::before,
+[data-page="presentation"] .event-cover::before {
+  content:"";
+  position:absolute;
+  top:-32px;
+  left:50%;
+  width:288px;
+  max-width:82%;
+  height:24px;
+  transform:translateX(-50%);
+  background:url("pixel-lights.svg") center / contain no-repeat;
+  opacity:.85;
+  pointer-events:none;
+  animation:festive-light-glimmer 14s steps(1,end) infinite;
+}
+[data-page="presentation"].tv .masthead::before {
+  top:-16px;
+  width:192px;
+  height:16px;
+}
+[data-page="presentation"] .event-cover::before {
+  top:3vh;
+  width:clamp(240px,32vw,432px);
+  height:36px;
+}
+[data-page="presentation"] .landing-mark { position:relative; }
+[data-page="presentation"] .landing-mark::after,
+[data-page="presentation"].tv .masthead::after {
+  content:"";
+  position:absolute;
+  width:9px;
+  height:9px;
+  background:url("pixel-star.svg") center / contain no-repeat;
+  opacity:.7;
+  pointer-events:none;
+}
+[data-page="presentation"] .landing-mark::after { top:10px; right:-24px; }
+[data-page="presentation"].tv .masthead::after { top:-12px; left:calc(50% + 112px); }
+
+/* One quiet motif on the chooser, rankings and each game's rules screen.
+   Timers, game illustrations, ranking rows and controls keep their own styles. */
+[data-page="scoreboard"] .chooser .title-icons::after,
+[data-page="scoreboard"] #bd::after,
+[data-page="scoreboard"] #msg.rules::after {
+  content:"";
+  position:absolute;
+  width:22px;
+  height:22px;
+  background:url("pixel-snowflake.svg") center / contain no-repeat;
+  opacity:.35;
+  pointer-events:none;
+}
+[data-page="scoreboard"] .chooser .title-icons::after { top:4px; left:calc(50% + 64px); width:11px; height:11px; }
+[data-page="scoreboard"] #bd::after { top:1vh; right:0; }
+[data-page="scoreboard"] #msg.rules::after { top:0; right:0; }
+[data-page="scoreboard"] .cf { pointer-events:none; }
+
+@keyframes festive-snow-drift {
+  0%,100% { transform:translateY(0); }
+  50% { transform:translateY(4px); }
+}
+@keyframes festive-light-glimmer {
+  0%,79%,83%,100% { opacity:.85; }
+  80%,82% { opacity:.6; }
+  81% { opacity:1; }
+}
+@media(max-width:759px) {
+  [data-page="menu"] .menu-header::before { top:6px; width:11px; height:11px; left:calc(50% - 62px); }
+  [data-page="menu"] .menu-header::after { top:20px; right:calc(50% - 62px); }
+}
+@media(max-height:600px) {
+  [data-page="presentation"] .landing::before { top:-20px; width:192px; height:16px; }
+  [data-page="presentation"] .event-cover::before { top:0; height:20px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  [data-page="menu"] .menu-header::before,
+  [data-page="menu"] .menu-header::after,
+  [data-page="presentation"] .landing::before,
+  [data-page="presentation"].tv .masthead::before,
+  [data-page="presentation"] .event-cover::before {
+    animation:none;
+  }
+  [data-page="scoreboard"] .cf { display:none; }
+}
