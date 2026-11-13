@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8">
+<html lang="en"><head><meta name="jialat-build" content="22"><meta charset="utf-8">
 <meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a">
@@ -59,13 +59,13 @@ h1,h2 {
   text-transform:uppercase
 }
 h1 {
-  font-size:22px;
+  font-size:calc(22 * var(--font-unit));
   color:var(--l);
   text-shadow:2px 2px 0 var(--d);
   letter-spacing:.06em
 }
 h2 {
-  font-size:13px;
+  font-size:calc(13 * var(--font-unit));
   color:var(--g);
   margin:24px 0 10px;
   padding:8px 10px;
@@ -90,7 +90,7 @@ h2 {
 .sub {
   color:var(--m);
   font-weight:400;
-  font-size:14px;
+  font-size:calc(14 * var(--font-unit));
   line-height:1.6;
   margin:0 0 12px
 }
@@ -124,7 +124,7 @@ button.alt {
 }
 #pn {
   min-height:64px;
-  font-size:18px;
+  font-size:calc(18 * var(--font-unit));
   touch-action:manipulation
 }
 #pp,#pm {
@@ -167,7 +167,7 @@ textarea {
   flex:1;
   margin:0;
   padding:12px 6px;
-  font-size:13px
+  font-size:calc(13 * var(--font-unit))
 }
 .rank {
   position:relative;
@@ -220,7 +220,7 @@ textarea {
   --c:#a8262c
 }
 .n {
-  font-size:22px;
+  font-size:calc(22 * var(--font-unit));
   width:30px;
   text-align:center;
   color:var(--l);
@@ -237,12 +237,12 @@ textarea {
 .g small {
   color:var(--t);
   font-weight:400;
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   text-shadow:1px 1px 0 #000
 }
 .pts {
   font-weight:700;
-  font-size:20px;
+  font-size:calc(20 * var(--font-unit));
   text-align:right;
   color:var(--l);
   text-shadow:2px 2px 0 #000
@@ -251,7 +251,7 @@ textarea {
   display:block;
   font-weight:400;
   color:var(--t);
-  font-size:12px
+  font-size:calc(12 * var(--font-unit))
 }
 .arena {
   height:46vh;
@@ -261,7 +261,7 @@ textarea {
   align-items:center;
   justify-content:center;
   text-align:center;
-  font-size:24px;
+  font-size:calc(24 * var(--font-unit));
   user-select:none;
   -webkit-user-select:none;
   touch-action:manipulation;
@@ -288,15 +288,15 @@ textarea {
 }
 .arena small {
   font-weight:400;
-  font-size:14px;
+  font-size:calc(14 * var(--font-unit));
   margin-top:8px
 }
 .big {
-  font-size:56px;
+  font-size:calc(56 * var(--font-unit));
   line-height:1.1
 }
 .cd {
-  font-size:64px;
+  font-size:calc(64 * var(--font-unit));
   line-height:1.1;
   color:var(--ice);
   text-shadow:3px 3px 0 #000;
@@ -316,13 +316,13 @@ textarea {
 }
 .tag {
   display:inline-block;
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   padding:2px 8px;
   border:2px solid var(--g);
   color:var(--g)
 }
 .live {
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   color:var(--m);
   font-weight:400;
   margin:0 0 8px;
@@ -349,13 +349,13 @@ a {
   height:100%
 }
 .gl {
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   letter-spacing:.1em;
   letter-spacing:.2em;
   color:var(--m)
 }
 .gn {
-  font-size:18px;
+  font-size:calc(18 * var(--font-unit));
   color:var(--l)
 }
 .result-sync {
@@ -369,7 +369,7 @@ details.backup {
   margin:18px 0 8px;
   padding-top:12px;
   border-top:1px solid var(--d);
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   color:var(--m);
   font-weight:400
 }
@@ -380,7 +380,7 @@ details.backup summary {
   line-height:1.5
 }
 details.backup button {
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   padding:9px;
   margin-top:8px
 }
@@ -552,11 +552,11 @@ details.backup p {
   padding:12px 0;
   cursor:pointer;
   color:#f3d77a;
-  font-size:12px
+  font-size:calc(12 * var(--font-unit))
 }
 .relay-details p {
   white-space:pre-line;
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   line-height:1.6;
   font-weight:400;
   margin:8px 0
@@ -569,7 +569,7 @@ details.backup p {
 .relay-actions button {
   min-height:44px;
   padding:9px 11px;
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   letter-spacing:0;
   box-shadow:none;
   margin:0;
@@ -598,7 +598,7 @@ a[href="../"]  {
   align-items: center;
   min-height: 44px;
   color: #b9b6a8;
-  font-size: 12px;
+  font-size:calc(12 * var(--font-unit));
   line-height: 1.4;
   text-decoration: none;
   touch-action: manipulation;
@@ -619,7 +619,7 @@ a[href="../"]:active  {
 }
 @media (max-width: 760px)  {
   input, select, textarea  {
-    font-size: 16px;
+    font-size:calc(16 * var(--font-unit));
   }
 }
 /* Original group artwork, kept separate from the game controls. */
@@ -664,44 +664,47 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .site-navigation{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;margin-bottom:12px}
 .page-wordmark{display:block;width:108px;max-width:34vw;height:auto;margin-left:auto;flex:none}
 .room-confirmation{margin:18px 0 24px;padding:18px 16px;border:3px solid var(--teal);background:#101b18;scroll-margin-top:16px}
-.room-confirmation>.sub{font-size:12px;margin:0 0 8px;color:var(--teal)}
-.room-result-title{font-size:24px;line-height:1.25;border:0;background:none;padding:0;margin:0 0 16px;color:var(--l);letter-spacing:.02em}
+.room-confirmation>.sub{font-size:calc(12 * var(--font-unit));margin:0 0 8px;color:var(--teal)}
+.room-result-title{font-size:calc(24 * var(--font-unit));line-height:1.25;border:0;background:none;padding:0;margin:0 0 16px;color:var(--l);letter-spacing:.02em}
 .your-room{padding:14px;margin-bottom:16px;background:#0a0a0a;border-left:4px solid var(--teal)}
-.your-room>span{display:block;font-size:12px;color:var(--m);text-transform:uppercase}
-.your-room strong{display:block;font-size:24px;color:var(--teal);line-height:1.3;overflow-wrap:anywhere;margin:5px 0}
-.your-room p{font-size:14px;font-weight:400;margin:0;overflow-wrap:anywhere}
+.your-room>span{display:block;font-size:calc(12 * var(--font-unit));color:var(--m);text-transform:uppercase}
+.your-room strong{display:block;font-size:calc(24 * var(--font-unit));color:var(--teal);line-height:1.3;overflow-wrap:anywhere;margin:5px 0}
+.your-room p{font-size:calc(14 * var(--font-unit));font-weight:400;margin:0;overflow-wrap:anywhere}
 .room-assignment{display:grid;gap:5px;padding:12px 0;border-top:1px solid #355249;overflow-wrap:anywhere}
-.room-assignment b{font-size:15px}.room-assignment span{font-size:16px;font-weight:400;color:var(--m)}
+.room-assignment b{font-size:calc(15 * var(--font-unit))}.room-assignment span{font-size:calc(16 * var(--font-unit));font-weight:400;color:var(--m)}
 .room-assignment.is-yours span{color:var(--teal);font-weight:700}
 .completed-games{margin:18px 0}.completed-games>summary{min-height:48px;line-height:24px;padding:12px 0;cursor:pointer;color:var(--l)}
-#room-copy-fallback{font-size:16px}
+#room-copy-fallback{font-size:calc(16 * var(--font-unit))}
 
 
 .backup-import>summary { min-height:44px; padding:10px 0; line-height:24px; cursor:pointer; list-style-position:inside; color:var(--l); }
-.score-unit { margin:8px 0 0; font-size:14px; }
-#backup-preview h3 { font-size:16px; color:var(--l); margin:18px 0 10px; }
+.score-unit { margin:8px 0 0; font-size:calc(14 * var(--font-unit)); }
+#backup-preview h3 { font-size:calc(16 * var(--font-unit)); color:var(--l); margin:18px 0 10px; }
 .import-results { list-style:none; padding:0; margin:0 0 12px; }
 .import-results li { display:grid; gap:4px; border-top:1px solid var(--d); padding:12px 0; overflow-wrap:anywhere; }
-.import-results span { font-size:14px; font-weight:400; color:var(--m); }
+.import-results span { font-size:calc(14 * var(--font-unit)); font-weight:400; color:var(--m); }
 .import-results strong { color:var(--teal); }
-.import-error { color:var(--coral); font-size:14px; font-weight:400; line-height:1.6; }
-</style><link rel="stylesheet" href="../assets/layout.css?v=17">
-</head><body data-page="roomwars">
+.import-error { color:var(--coral); font-size:calc(14 * var(--font-unit)); font-weight:400; line-height:1.6; }
+</style><link rel="stylesheet" href="../assets/layout.css?v=22">
+</head><body data-page="roomwars"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section>
 <i id="dot" class="dot"></i>
 <header class="site-navigation site-utility"><a id="site-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></header>
 <main id="app"></main>
-<script src="../assets/ui.js?v=17"></script>
+<script src="../assets/ui.js?v=22"></script>
+<script src="../assets/reliability.js?v=22"></script>
 <script>
 
 // Connection state is shared by the three apps on this browser. No game data is stored here.
+var relayFetch=window.JialatUI&&JialatUI.relayFetch?JialatUI.relayFetch:fetch;
 var relayMemory={until:0,reason:'Relay busy (429)'},relayQuotaPromise=null,relayDetailsOpen=false;
 function relayRead(key){try{return JSON.parse(localStorage.getItem(key)||'null')}catch(e){return null}}
 function relayWrite(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch(e){}}
 function relayInfo(){var x=relayRead('jialat-relay-hold');if(x&&typeof x.until==='number'&&isFinite(x.until)&&x.until>relayMemory.until)relayMemory=x;return relayMemory}
 function relayWait(){return Math.max(0,relayInfo().until-Date.now())}
 function relayLocalTime(at){try{return new Date(at).toLocaleString([],{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}catch(e){return new Date(at).toLocaleString()}}
-function relayWaitLabel(){var x=relayInfo(),wait=Math.ceil(relayWait()/1000);var label={42901:'Connection busy',42903:'Too many game tabs open',42905:'Daily data limit reached',42908:'Daily connection limit reached',42911:'Too many games started'}[x.code]||(/daily/i.test(x.reason||'')?'Daily connection limit reached':'Connection busy');return label+(x.resetKnown&&x.code===42908?' · resets '+relayLocalTime(x.until):' · next check in '+wait+'s')}
+function relayWaitLabel(){var x=relayInfo(),wait=Math.ceil(relayWait()/1000);var label={42901:'Connection busy',42903:'Too many game tabs open',42905:'Daily data limit reached',42908:'Daily message limit reached',42911:'Too many games started'}[x.code]||(/daily/i.test(x.reason||'')?'Daily message limit reached':'Connection busy');return label+(x.resetKnown&&x.code===42908?' · resets '+relayLocalTime(x.until):' · next check in '+wait+'s')}
 function relayLater(fn,ms){return setTimeout(fn,Math.min(2147483000,Math.max(0,ms)))}
+function relayRetryDelay(failures){return Math.min(60000,5000*Math.pow(2,Math.min(4,Math.max(0,failures-1))))}
 function relayWaitingError(){var e=Error('HTTP 429');e.status=429;e.retryAfterMs=relayWait();e.ntfyCode=relayInfo().code||0;return e}
 function relayReason(code,detail){return {42901:'Too many requests (42901)',42903:'Too many open game tabs (42903)',42905:'Daily data allowance reached (42905)',42908:'Daily relay allowance reached (42908)',42911:'Too many new games (42911)'}[code]||(/daily/i.test(detail)?'Daily relay allowance reached (429)':'Relay busy (429)')}
 function relayQuota(){var q=relayRead('jialat-relay-quota');return q&&Number.isFinite(q.limit)&&q.limit>0&&Number.isFinite(q.remaining)&&q.remaining>=0&&Number.isFinite(q.checkedAt)&&Number.isFinite(q.resetAt)?q:null}
@@ -712,7 +715,7 @@ async function relayQuotaCheck(){
  var cached=relayQuota();if(cached&&Date.now()-cached.checkedAt<60000){relayUseQuota(cached);return cached}
  if(relayQuotaPromise)return relayQuotaPromise;
  relayQuotaPromise=(async function(){var c=new AbortController(),timer=setTimeout(function(){c.abort()},8000);try{
-  var r=await fetch('https://ntfy.sh/v1/account',{cache:'no-store',credentials:'omit',signal:c.signal});if(!r.ok)return null;
+  var r=await relayFetch('https://ntfy.sh/v1/account',{cache:'no-store',credentials:'omit',signal:c.signal});if(!r.ok)return null;
   var x=await r.json(),l=x&&x.limits,s=x&&x.stats;if(!l||!s||l.basis!=='ip'||!Number.isFinite(l.messages)||l.messages<=0||!Number.isFinite(s.messages_remaining)||s.messages_remaining<0||!Number.isFinite(s.reset_at))return null;
   var q={limit:l.messages,remaining:Math.min(l.messages,s.messages_remaining),used:Number.isFinite(s.messages)?s.messages:l.messages-s.messages_remaining,resetAt:s.reset_at*1000,checkedAt:Date.now(),basis:'ip'};
   relayWrite('jialat-relay-quota',q);relayUseQuota(q);return q;
@@ -732,7 +735,7 @@ async function relayResponseError(response){
  relayWrite('jialat-relay-diagnostic',{http:429,code:code,reason:relayReason(code,detail),at:at,retryAt:relayInfo().until,retryHeaderVisible:raw!==null,resetKnown:known});
  e.ntfyCode=code;e.retryAfterMs=relayWait();relayPanelUpdate();return e;
 }
-function relayPanelHTML(){return '<details class="relay-details"'+(relayDetailsOpen?' open':'')+'><summary>CONNECTION STATUS</summary><p id="relay-allowance" role="status">Check this network’s remaining allowance and reset time.</p><div class="relay-actions"><button type="button" id="relay-check">Check allowance</button><button type="button" id="relay-copy">Copy connection details</button></div><p id="relay-note" role="status"></p></details>'}
+function relayPanelHTML(){return '<details class="relay-details"'+(relayDetailsOpen?' open':'')+'><summary>CONNECTION STATUS</summary><p id="relay-allowance" role="status">Check this network’s remaining allowance and reset time.</p><div class="relay-actions"><button type="button" id="relay-check">Check allowance</button><button type="button" id="relay-copy">Copy connection details</button></div><p id="relay-traffic"></p><p id="relay-note" role="status"></p></details>'}
 function relayPanelUpdate(){
  var box=document.getElementById('relay-allowance');if(!box)return;var q=relayQuota(),d=relayRead('jialat-relay-diagnostic'),lines=[];
  if(q){lines.push(q.remaining+' / '+q.limit+' messages left when checked.');lines.push('Resets '+relayLocalTime(q.resetAt)+' (your device time).');lines.push('Checked '+relayLocalTime(q.checkedAt)+'. Devices on the same network may share this allowance.')}
@@ -744,19 +747,19 @@ function relayPanelBind(){
  var check=document.getElementById('relay-check'),copy=document.getElementById('relay-copy'),panel=document.querySelector('.relay-details');if(!check)return;
  panel.ontoggle=function(){relayDetailsOpen=panel.open};
  check.onclick=async function(){check.disabled=true;var note=document.getElementById('relay-note');if(note)note.textContent='Checking allowance…';var q=await relayQuotaCheck();check.disabled=false;relayPanelUpdate();window.dispatchEvent(new Event('jialat-relay-status'));note=document.getElementById('relay-note');if(note)note.textContent=q?'Allowance checked. It does not reset by refreshing the page.':'Could not check the allowance. Saved game results are kept.';};
- copy.onclick=async function(){var d=relayRead('jialat-relay-diagnostic'),q=relayQuota(),text=JSON.stringify({app:document.title,checkedAt:new Date().toISOString(),lastLimit:d||null,allowance:q||null},null,2),note=document.getElementById('relay-note');try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error('Clipboard unavailable');await navigator.clipboard.writeText(text);if(note)note.textContent='Connection details copied. No names, room links or results are included.'}catch(e){var old=document.getElementById('relay-manual');if(old)old.remove();var field=document.createElement('textarea');field.id='relay-manual';field.readOnly=true;field.setAttribute('aria-label','Connection details to copy');field.value=text;panel.appendChild(field);field.focus();field.select();if(note)note.textContent='Select and copy the connection details below.'}};
- relayPanelUpdate();
+ copy.onclick=async function(){var d=relayRead('jialat-relay-diagnostic'),q=relayQuota(),text=JSON.stringify({app:document.title,build:window.JialatUI?JialatUI.build:null,traffic:window.JialatUI?JialatUI.traffic():null,checkedAt:new Date().toISOString(),lastLimit:d||null,allowance:q||null},null,2),note=document.getElementById('relay-note');try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error('Clipboard unavailable');await navigator.clipboard.writeText(text);if(note)note.textContent='Connection details copied. No names, room links or results are included.'}catch(e){var old=document.getElementById('relay-manual');if(old)old.remove();var field=document.createElement('textarea');field.id='relay-manual';field.readOnly=true;field.setAttribute('aria-label','Connection details to copy');field.value=text;panel.appendChild(field);field.focus();field.select();if(note)note.textContent='Select and copy the connection details below.'}};
+ relayPanelUpdate();if(window.JialatUI&&JialatUI.showTraffic)JialatUI.showTraffic();
 }
 // Try a second persistent connection before entering a deliberately slow standby mode.
 function relayStream(url){
  var api={readyState:0,kind:'',onopen:null,onerror:null,onmessage:null,onconnecting:null},listeners=[],source=null,socket=null,timer=0,closed=false,failed=false,generation=0,lastMessageId='';
- function emit(e){if(closed||failed)return;try{var packet=JSON.parse(e.data);if(packet.event==='message'&&typeof packet.id==='string')lastMessageId=packet.id}catch(ignore){}if(api.onmessage)api.onmessage(e);listeners.forEach(function(f){f(e)})}
+ function emit(e){if(closed||failed)return;try{var packet=JSON.parse(e.data);if(packet.event==='message'&&typeof packet.id==='string'){var transient=false;try{var body=JSON.parse(packet.message);transient=body&&((body._jialat==='control')||['hello','host-online','probe','ready','ack'].includes(body.t))}catch(ignore){}if(!transient)lastMessageId=packet.id}}catch(ignore){}if(api.onmessage)api.onmessage(e);listeners.forEach(function(f){f(e)})}
  function stopCurrent(){generation++;clearTimeout(timer);timer=0;if(source){source.onopen=source.onerror=source.onmessage=null;source.close();source=null}if(socket){socket.onopen=socket.onerror=socket.onclose=socket.onmessage=null;try{socket.close()}catch(e){}socket=null}}
  function fail(){if(closed||failed)return;failed=true;api.readyState=2;stopCurrent();if(api.onerror)api.onerror({type:'error'})}
- function opened(kind){if(closed||failed)return;clearTimeout(timer);timer=0;api.kind=kind;api.readyState=1;if(api.onopen)api.onopen({type:'open'})}
+ function opened(kind){if(closed||failed||api.readyState===1&&api.kind===kind)return;if(window.JialatUI&&JialatUI.recordTraffic)JialatUI.recordTraffic('streamOpens');clearTimeout(timer);timer=0;api.kind=kind;api.readyState=1;if(api.onopen)api.onopen({type:'open'})}
  function webSocket(){if(closed||failed)return;stopCurrent();api.readyState=0;if(api.onconnecting)api.onconnecting({type:'connecting'});if(relayWait()>0){fail();return}try{if(!window.WebSocket)throw Error('WebSocket unavailable');var token=generation,u=new URL(url);u.protocol=u.protocol==='https:'?'wss:':'ws:';u.pathname=u.pathname.replace(/\/sse$/,'/ws');if(lastMessageId)u.searchParams.set('since',lastMessageId);socket=new WebSocket(u.href);socket.onopen=function(){if(token===generation)opened('websocket')};socket.onmessage=function(e){if(token===generation)emit(e)};socket.onerror=socket.onclose=function(){if(token===generation)fail()};timer=setTimeout(fail,8000)}catch(e){fail()}}
- timer=setTimeout(function(){if(closed)return;try{if(relayWait()>0){fail();return}if(!window.EventSource)throw Error('EventSource unavailable');var token=++generation;source=new EventSource(url);source.onopen=function(){if(token===generation)opened('sse')};source.onerror=function(){if(token===generation)webSocket()};source.addEventListener('message',function(e){if(token===generation)emit(e)});timer=setTimeout(webSocket,8000)}catch(e){webSocket()}},0);
- api.addEventListener=function(type,fn){if(type==='message')listeners.push(fn)};api.close=function(){closed=true;api.readyState=2;stopCurrent();listeners=[];window.removeEventListener('pagehide',api.close)};window.addEventListener('pagehide',api.close);return api;
+ timer=setTimeout(function(){if(closed)return;try{if(relayWait()>0){fail();return}if(!window.EventSource)throw Error('EventSource unavailable');var token=++generation;source=new EventSource(url);source.onopen=function(e){if(token===generation){opened('sse');if(e&&e.data)emit(e)}};source.onerror=function(){if(token===generation)webSocket()};source.addEventListener('message',function(e){if(token===generation)emit(e)});timer=setTimeout(webSocket,8000)}catch(e){webSocket()}},0);
+ api.addEventListener=function(type,fn){if(type==='message')listeners.push(fn)};api.close=function(){if(closed)return;if(window.JialatUI&&JialatUI.recordTraffic)JialatUI.recordTraffic('streamCloses');closed=true;api.readyState=2;stopCurrent();listeners=[];window.removeEventListener('pagehide',api.close)};window.addEventListener('pagehide',api.close);return api;
 }
 // End shared relay.
 
@@ -778,7 +781,7 @@ stop:[".....YY.....","....YYYY....",".....YY.....","...YYYYYY...","..Y......Y.."
 function spr(k,px){var a=SP[k],s="",col={trophy:"#f3d77a",star:"#86baff",tap:"#ff8b78",react:"#65d9cb",stop:"#86baff"}[k]||"#f3d77a",p=0;a.forEach(function(r,y){for(var x=0;x<r.length;x++)if(r[x]=="Y"||r[x]=="B")s+='<rect class="'+(k=="tap"&&r[x]=="Y"?"button-cap":k=="react"?"bolt-pixel":"")+'" style="--p:'+p+++'" x="'+x+'" y="'+y+'" width="1" height="1" fill="'+(r[x]=="B"?"#77504a":col)+'"/>'});if(k=="tap")s+='<g class="press-rays" fill="#f3d77a"><rect x="0" y="0" width="1" height="2"/><rect x="11" y="0" width="1" height="2"/></g>';if(k=="react")s+='<g class="reaction-signal" fill="#ff8b78"><rect x="2" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/></g>';if(k=="stop")s+='<g class="clock-hand" fill="#f3d77a"><rect x="5" y="4" width="1" height="4"/><rect x="5" y="7" width="2" height="1"/></g>';var h=k=="react"?11:a.length;return'<svg class="sp icon-'+k+'" viewBox="0 0 '+a[0].length+' '+h+'" width="'+a[0].length*px+'" height="'+h*px+'" shape-rendering="crispEdges" aria-hidden="true">'+s+'</svg>'}
 function brand(t,k){if(t==="ROOM WARS"&&(!code||host))return'<header class="activity-header"><span class="activity-icon bob">'+spr("trophy",5)+'</span><h1>ROOM WARS</h1><span class="role-label">HOST</span></header>';return'<div class="brand"><div class="bob">'+spr(k||"trophy",5)+'</div><h1>'+t+'</h1></div>'}
 function zc(i){return i==0?0:i==4?3:i==3?2:1}
-function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){}return null}
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){if(v!==undefined&&window.JialatUI)JialatUI.storageFailure()}return null}
 function pn(i){return S.names[i]}
 function cn(c){return pn(c*2)+" & "+pn(c*2+1)}
 // Shared result imports show names before saving and use one relay message.
@@ -813,7 +816,7 @@ function namesFromInvite(raw){
  if(raw.charAt(0)==='n')return raw.slice(1).split(',').map(function(n){return decodeURIComponent(n)});
  return JSON.parse(decodeURIComponent(raw));
 }
-function link(){var u=new URL(location.href);u.hash="";u.search='?v=13';
+function link(){var u=new URL(location.href);u.hash="";u.search='?v=22';
  return u.toString()+"#"+code+(S.names?"~"+namesForInvite(S.names):"")}
 function I(x,a,b){return typeof x=="number"&&x%1===0&&x>=a&&x<=b}
 function F(x){return typeof x=="number"&&isFinite(x)}
@@ -829,7 +832,7 @@ function apply(m){
  if(t==="scores"){if(!Array.isArray(m.rows)||!m.rows.length||m.rows.length>30||!m.rows.every(validResultRow))return;var unique={};if(!m.rows.every(function(x){var key=x.g+":"+x.p;if(unique[key])return false;unique[key]=true;return true}))return;m.rows.forEach(function(x){apply({t:"score",g:x.g,p:x.p,v:x.v,round:S.round})});return}
  if(t=="cfg"){if(strs(m.names,10))S.names=m.names.map(function(x){return friendName(x.slice(0,20))})}
  else if(t=="score"){if(I(m.p,0,9)&&validScore(m.g,m.v)){var value=scoreValue(m.g,m.v);if(scoreValue(m.g,S.sc[m.g][m.p])!==value){S.tbs={};S.tbh={};S.reveal=false;if(S.tb){S.tb=null;showSharedPhase()}}S.sc[m.g][m.p]=value;if(!readyToReveal())S.reveal=false}}
- else if(t=="reset"){S.round=m.round||m.mid||"0";S.roundNo=I(m.roundNo,1,100000)?m.roundNo:S.roundNo+1;S.sc={tap:{},react:{},stop:{}};S.reveal=false;S.pick=null;S.roomResult=null;clearRoomResult();S.claims={};S.tb=null;S.tbs={};S.tbh={};skip=false;practice=false;playingTie=false;["mv","bc"].forEach(function(id){var e=document.getElementById(id);if(e)e.value=""});clearTimeout(tm);clearInterval(tm);tm=null;if(S.names&&me!==null)view="home"}
+ else if(t=="reset"){if(!I(m.roundNo,1,100000)||m.roundNo<=S.roundNo)return;S.round=m.round||m.mid||"0";S.roundNo=I(m.roundNo,1,100000)?m.roundNo:S.roundNo+1;S.sc={tap:{},react:{},stop:{}};S.reveal=false;S.pick=null;S.roomResult=null;clearRoomResult();S.claims={};S.tb=null;S.tbs={};S.tbh={};skip=false;practice=false;playingTie=false;["mv","bc"].forEach(function(id){var e=document.getElementById(id);if(e)e.value=""});clearTimeout(tm);clearInterval(tm);tm=null;if(S.names&&me!==null)view="home"}
  else if(t=="pick"){if(m.start===true&&!readyToReveal())return;if(perm(m.order)&&I(m.i,0,4)&&F(m.rem)&&m.rem>=0){var entering=!S.pick;S.roomResult=null;clearRoomResult();if(m.start===true){S.claims={};showSharedPhase()}else if(entering)showSharedPhase();S.pick={order:m.order.slice(),i:m.i,rem:m.rem,paused:m.paused===true,at:F(m.at)?m.at:Date.now()}}}
  else if(t=="pickend"){
   var finished=m.result||makeRoomResult(S.pick,m.at);if(finished&&!validRoomResult(finished))return;
@@ -853,40 +856,70 @@ function apply(m){
  if(view=="home"||view=="wait"||view=="who"||view=="final"||view=="picking")rq()}
 var rt=null,RV=["home","wait","who","final","picking"];
 function rq(){if(rt)return;rt=setTimeout(function(){rt=null;if(view=="home"&&host&&document.activeElement&&["mg","mp","mv","bc"].indexOf(document.activeElement.id)>=0)return;if(RV.indexOf(view)>=0)render()},80)}
-var out=[],posting=false,postRetry=null,pollTimer=null,polling=false,pollOk=false,cursor="",seen={},seenOrder=[],postFailed=false,postError="";
+var out=[],posting=false,postRetry=null,postRetryAt=0,postFailures=0,pollTimer=null,polling=false,pollOk=false,cursor="",seen={},seenOrder=[],postFailed=false,postError="";
+var roomHostTab=null,wantedRoomHost=false,roomFilesMatch=!!(window.JialatUI&&JialatUI.build==='22');
+function roomHostAccess(){
+ var locked=!!(roomHostTab&&!roomHostTab.active),note=document.getElementById('room-host-note');
+ if(locked&&!note){note=document.createElement('section');note.id='room-host-note';note.className='host-control-note';var text=document.createElement('p');text.textContent='Host controls are open in another tab. Close that tab before using this one.';var retry=document.createElement('button');retry.type='button';retry.textContent='Retry host controls';retry.onclick=function(){roomHostTab.acquire()};note.append(text,retry);A.before(note)}
+ if(note)note.hidden=!locked;
+ if(locked){Array.prototype.forEach.call(A.querySelectorAll('button,input,select,textarea'),function(e){e.disabled=true});Array.prototype.forEach.call(A.querySelectorAll('[role="button"]'),function(e){e.setAttribute('aria-disabled','true');e.tabIndex=-1})}
+}
+function saveSnapshot(){if(!code)return;try{localStorage.setItem('rws-'+code,JSON.stringify({v:1,code:code,state:S,cursor:cursor,seen:seenOrder.slice(-500)}))}catch(e){if(window.JialatUI)JialatUI.storageFailure()}}
+function restoreSnapshot(){
+ try{
+  var cached=JSON.parse(ls('rws-'+code)||'null'),x=cached&&cached.state;
+  if(!cached||cached.v!==1||cached.code!==code||!x||!strs(x.names,10)||!strs(x.rooms,5)||typeof x.round!=='string'||!I(x.roundNo,1,100000)||!x.sc||!x.claims)return false;
+  if(!Object.keys(G).every(function(g){return x.sc[g]&&typeof x.sc[g]==='object'&&Object.keys(x.sc[g]).every(function(p){return /^(?:[0-9])$/.test(p)&&validScore(g,x.sc[g][p])})}))return false;
+  if(!Object.keys(x.claims).every(function(r){return /^[0-4]$/.test(r)&&I(x.claims[r],0,4)}))return false;
+  if(typeof x.reveal!=='boolean'||!x.tbs||typeof x.tbs!=='object'||Array.isArray(x.tbs)||!x.tbh||typeof x.tbh!=='object'||Array.isArray(x.tbh))return false;
+  if(!Object.keys(x.tbs).every(function(p){return /^[0-9]$/.test(p)&&I(x.tbs[p],0,100000)}))return false;
+  if(!Object.keys(x.tbh).every(function(p){return /^[0-4]$/.test(p)&&Array.isArray(x.tbh[p])&&x.tbh[p].every(function(n){return I(n,0,200000)})}))return false;
+  if(x.pick&&(!perm(x.pick.order)||!I(x.pick.i,0,4)||!F(x.pick.rem)||x.pick.rem<0||!F(x.pick.at)))return false;
+  if(x.tb&&(!Array.isArray(x.tb.pairs)||!x.tb.pairs.length||x.tb.pairs.length>5||!x.tb.pairs.every(function(p,i){return I(p,0,4)&&x.tb.pairs.indexOf(p)===i})||typeof x.tb.id!=='string'))return false;
+  if(x.roomResult&&!validRoomResult(x.roomResult))return false;
+  ['names','round','roundNo','reveal','pick','roomResult','tb','tbs','tbh','rooms','claims','sc'].forEach(function(k){if(Object.prototype.hasOwnProperty.call(x,k))S[k]=x[k]});
+  cursor=typeof cached.cursor==='string'?cached.cursor:'';
+  if(Array.isArray(cached.seen))cached.seen.slice(-500).forEach(function(id){if(typeof id==='string')mark(id)});
+  return true;
+ }catch(e){return false}
+}
 function mark(id){if(!id||seen[id])return false;seen[id]=true;seenOrder.push(id);if(seenOrder.length>500)delete seen[seenOrder.shift()];return true}
 function remember(){try{localStorage.setItem("rwq-"+code,JSON.stringify(out))}catch(e){}}
 function send(m){
+ if(roomHostTab&&!roomHostTab.active)return '';
  m.mid=Date.now().toString(36)+Math.random().toString(36).slice(2,9);
  if(roundMessage(m.t))m.round=S.round;if(m.t=="reset"){m.round=m.mid;m.roundNo=S.roundNo+1}
  m.at=Date.now();mark(m.mid);apply(m);
- out.push(m);remember();stat();post();return m.mid}
+ out.push(m);remember();saveSnapshot();stat();post();return m.mid}
 async function post(){
- if(posting||!out.length)return;
- if(relayWait()>0){postFailed=true;postError=relayWaitLabel();clearTimeout(postRetry);postRetry=relayLater(post,relayWait());stat();return}
+ if(posting||!out.length||roomHostTab&&!roomHostTab.active||Date.now()<postRetryAt||navigator.onLine===false)return;
+ if(relayWait()>0){postFailed=true;postError=relayWaitLabel();postRetryAt=Date.now()+relayWait();clearTimeout(postRetry);postRetry=relayLater(post,relayWait());stat();return}
  posting=true;var m=out[0],ctrl=new AbortController(),limit=setTimeout(function(){ctrl.abort()},8000);
- try{var r=await fetch(BASE+"rw-"+code,{method:"POST",body:JSON.stringify(m),signal:ctrl.signal});if(!r.ok)throw await relayResponseError(r);
-  out=out.filter(function(x){return x.mid!==m.mid});remember();postFailed=false;postError="";clearTimeout(postRetry);postRetry=null;
- }catch(e){postFailed=true;var delay=e.status===429?Math.max(1,relayWait()):5000;
+ try{var r=await relayFetch(BASE+"rw-"+code,{method:"POST",body:JSON.stringify(m),signal:ctrl.signal});if(!r.ok)throw await relayResponseError(r);
+  out=out.filter(function(x){return x.mid!==m.mid});remember();postFailed=false;postError="";postRetryAt=0;postFailures=0;clearTimeout(postRetry);postRetry=null;
+ }catch(e){if(!out.some(function(x){return x.mid===m.mid})){postFailed=false;postError='';postFailures=0;postRetryAt=0;return}postFailed=true;postFailures++;var delay=e.status===429?Math.max(1,relayWait()):relayRetryDelay(postFailures);postRetryAt=Date.now()+delay;
   postError=e.status===429?relayWaitLabel():e.status?"Relay HTTP "+e.status:"Network request failed";
   clearTimeout(postRetry);postRetry=relayLater(post,delay)}
  finally{clearTimeout(limit);posting=false;stat();if(out.length&&!postRetry)post()}}
 function incoming(d){
  if(!d||d.event!="message")return;
  if(d.id)cursor=d.id;
- try{var m=JSON.parse(d.message);if(m.mid&&!mark(m.mid))return;
-  var st=d.time*1000;if(!F(m.at))m.at=st;apply(m)
+ try{var m=JSON.parse(d.message);
+  if(m.mid&&out.some(function(x){return x.mid===m.mid})){out=out.filter(function(x){return x.mid!==m.mid});remember();clearTimeout(postRetry);postRetry=null;postRetryAt=0;postFailures=0;postFailed=false;postError='';stat()}
+  if(m.mid&&!mark(m.mid)){saveSnapshot();return}
+  var st=d.time*1000;if(!F(m.at))m.at=st;var oldRound=S.round;apply(m);if(S.round!==oldRound){out=out.filter(function(x){return !roundMessage(x.t)||x.round===S.round});remember()}saveSnapshot()
  }catch(e){}
 }
 async function poll(){if(polling||document.hidden||relayWait()>0)return;polling=true;
  var ctrl=new AbortController(),limit=setTimeout(function(){ctrl.abort()},8000);
- try{var since=cursor||"all",r=await fetch(BASE+"rw-"+code+"/json?poll=1&since="+encodeURIComponent(since),{cache:"no-store",signal:ctrl.signal});
-  if(!r.ok)throw await relayResponseError(r);
+ try{var since=cursor||"all",r=await relayFetch(BASE+"rw-"+code+"/json?poll=1&since="+encodeURIComponent(since),{cache:"no-store",signal:ctrl.signal});
+  if(!r.ok){if((r.status===400||r.status===404)&&cursor){cursor="";saveSnapshot();connect()}throw await relayResponseError(r)}
   (await r.text()).trim().split("\n").forEach(function(line){if(line)try{incoming(JSON.parse(line))}catch(e){}});
   pollOk=true;stat()
  }catch(e){pollOk=false;fl=true;if(e.status===429)connect();stat()}
  finally{clearTimeout(limit);polling=false}}
 function connect(){
+ if(!roomFilesMatch)return;
  if(relayWait()>0){if(es)es.close();on=false;clearInterval(pollTimer);pollTimer=relayLater(resume,relayWait());stat();return}
  if(es)es.close();
  try{es=relayStream(BASE+"rw-"+code+"/sse?since="+encodeURIComponent(cursor||"all"));
@@ -896,13 +929,13 @@ function connect(){
   es.addEventListener("message",function(e){try{incoming(JSON.parse(e.data))}catch(x){}})
  }catch(e){on=false;fl=true;stat();if(!pollTimer)pollTimer=setInterval(poll,90000);poll()}
 }
-function resume(){if(code&&!document.hidden){if(!es||es.readyState===2)connect();post();if(!es||es.readyState===2)poll()}}
+function resume(event){if(code&&!document.hidden){if(roomHostTab&&!roomHostTab.active){roomHostTab.acquire();return}if(event&&event.type==='online'){clearTimeout(postRetry);postRetry=null;postRetryAt=0;postFailures=0}if(!es||es.readyState===2)connect();post();if(!es||es.readyState===2)poll()}}
 document.addEventListener("visibilitychange",resume);window.addEventListener("online",resume);window.addEventListener("pageshow",function(e){if(e.persisted)resume()});
 window.addEventListener('jialat-relay-status',function(){stat()});
-function stat(){updatePageChrome();var d=document.getElementById("dot"),e=document.getElementById("stat"),help=document.getElementById("syncHelp"),result=document.getElementById("resultSync"),label=relayWait()>0?relayWaitLabel():postFailed&&out.length?"Could not send · retrying":out.length?"Sending updates…":on?"Connected":pollOk?"Connected · checking for updates":fl?"Connection lost · retrying":"Connecting";
- if(d)d.className="dot "+((postFailed&&out.length)||fl&&!on&&!pollOk?"bad":on||pollOk?"ok":"");if(e){e.textContent=label;e.setAttribute("role","status");e.style.setProperty("--connection-color",(postFailed&&out.length)||fl&&!on&&!pollOk?"#ff8b78":on||pollOk?"#65d9cb":"#d4af37")}
+function stat(){updatePageChrome();roomHostAccess();var d=document.getElementById("dot"),e=document.getElementById("stat"),help=document.getElementById("syncHelp"),result=document.getElementById("resultSync"),label=roomHostTab&&!roomHostTab.active?'Host controls open in another tab':relayWait()>0?relayWaitLabel():postFailed&&out.length?"Could not send · retrying":out.length?"Sending updates…":on?"Connected":pollOk?"Connected · checking for updates":fl?"Connection lost · retrying":"Connecting";
+ if(d)d.className="dot "+((postFailed&&out.length)||fl&&!on&&!pollOk?"bad":on||pollOk?"ok":"");if(e){if(window.JialatUI)JialatUI.status(e,label);else e.textContent=label;e.setAttribute("role","status");e.style.setProperty("--connection-color",(postFailed&&out.length)||fl&&!on&&!pollOk?"#ff8b78":on||pollOk?"#65d9cb":"#d4af37")}
  if(help){help.textContent=postFailed&&out.length?"Your updates are saved here but may not reach others yet. Wait for the displayed retry time, or use backup sharing below.":"";help.style.display=postFailed&&out.length?"block":"none"}
- if(result&&result.dataset&&result.dataset.mid){var waiting=out.some(function(m){return m.mid===result.dataset.mid});result.className="sub result-sync"+(waiting&&postFailed?" retry":"");result.textContent=waiting?(postFailed?"Saved on this phone. Reconnecting. Share a backup if the host cannot see it.":"Saved. Sending to the host… You can go back to Room Wars."):"Sent to the host. You can go back to Room Wars."}}
+ if(result&&result.dataset&&result.dataset.mid){var waiting=out.some(function(m){return m.mid===result.dataset.mid});result.className="sub result-sync"+(waiting&&postFailed?" retry":"");result.textContent=waiting?(postFailed?"Saved on this phone. Reconnecting. Share a backup if the host cannot see it.":"Saved. Sending to the host… You can go back to Room Wars."):"Result sent. You can go back to Room Wars."}}
 function render(){updatePageChrome();clearTimeout(tm);clearInterval(tm);
  if(!code)return setup();
  if(!S.names)return wait();
@@ -981,10 +1014,12 @@ function home(){
 function newRound(confirmed){if(confirmed!==true){var options={title:'Start a new round?',message:'Clear all three game results, practice attempts, tie-breaks and room picks for everyone? Player and room names are kept.',label:'Start new round'};if(window.JialatUI)JialatUI.confirm(options,function(){newRound(true)});else if(confirm(options.message))newRound(true);return;}out=out.filter(function(m){return !roundMessage(m.t)&&m.t!=="reset"});remember();send({t:"reset"});home()}
 function final(){view="final";var cs=pairStandings(),ord=["1st","2nd","3rd","4th","5th"];
  var ordr=order(),w=cs[0],tie=w.tied;
- var h='<section class="room-final"><div class="final-summary"><div class="brand"><div class="bob">'+spr("trophy",5)+'</div><h1>Congratulations!</h1></div><div class="card win"><div class="sub">'+(tie?'Tied at the top':'Winning pair')+'</div><div class="big" style="font-size:30px;line-height:1.2">'+esc(cn(w.c))+'</div><div class="sub" style="margin:8px 0 0">'+w.t+' points'+(tie?' · complete the tapping tie-breaker first':' · picks their room first')+'</div></div></div><div class="final-order"><h2>Room pick order</h2>';
+ var h='<section class="room-final"><div class="final-summary"><div class="brand"><div class="bob">'+spr("trophy",5)+'</div><h1>Congratulations!</h1></div><div class="card win"><div class="sub">'+(tie?'Tied at the top':'Winning pair')+'</div><div class="big" style="font-size:var(--text-feature);line-height:1.2">'+esc(cn(w.c))+'</div><div class="sub" style="margin:8px 0 0">'+w.t+' points'+(tie?' · complete the tapping tie-breaker first':' · picks their room first')+'</div></div></div><div class="final-order"><h2>Room pick order</h2>';
  cs.forEach(function(x){h+='<div class="rank z'+zc(x.r-1)+'" style="--w:'+Math.round(x.t/Math.max(1,w.t)*100)+'%"><div class="n">'+(x.tied?'=':'')+x.r+'</div><div class="g"><b>'+esc(cn(x.c))+'</b><small>'+(x.tied?'TIED':ord[x.r-1]+' pick')+(roomOf(x.c,ordr)?' · '+esc(roomOf(x.c,ordr)):'')+'</small>'+(x.h.length?'<small>'+tieNote(x)+'</small>':'')+'</div><div class="pts">'+x.t+'</div></div>'});
  h+='</div><div class="final-actions"><div class="row"><button id="st1">Share results</button><button id="st2">Share as image</button></div><div id="cb"></div><div class="row"><button class="alt" id="sb">View all scores</button>'+(host?'<button class="alt" id="hd">Hide results for everyone</button>':'')+'</div></div></section>';
+ h+='<div class="confetti-overlay" aria-hidden="true">';
  for(var i=0;i<28;i++){var r=Math.random();h+='<i class="cf" style="background:'+["#f3d77a","#d4af37","#fff","#2f9e5b","#e5484d"][i%5]+';left:'+(r*100)+'%;animation-delay:'+(Math.random()*3)+'s;animation-duration:'+(3+Math.random()*2.5)+'s"></i>'}
+ h+='</div>';
  A.innerHTML=h;
  document.getElementById("sb").onclick=function(){skip=true;home()};
  document.getElementById("st1").onclick=function(){share(rtext())};document.getElementById("st2").onclick=cardImg;
@@ -998,7 +1033,7 @@ function tick(){var k=S.pick,e=document.getElementById("cd");if(!k||!e){clearInt
  var caption=k.paused?"⏸ Paused":(l<=0?"Time’s up!":""),cs=document.getElementById("cs");if(cs.textContent!==caption)cs.textContent=caption}
 function picking(){view="picking";var k=S.pick,c=k.order[k.i],nx=k.order[k.i+1],last=k.i==4,ord=["1st","2nd","3rd","4th","5th"];
  if(k.i!==lastI){lastI=k.i;chime([880])}
- var h=''+brand("ROOM PICKING","star")+'<div class="card win"><div class="sub">'+ord[k.i]+' pick · now choosing</div><div class="big" style="font-size:30px;line-height:1.2">'+esc(cn(c))+'</div>'+(last?'<div class="sub" style="margin:10px 0 0">No timer. This pair takes the last room'+(roomOf(c,k.order)?': <b>'+esc(roomOf(c,k.order))+'</b>':'')+'.</div>':'<div class="cd" id="cd"></div><div class="hp"><i id="hpb"></i></div><div class="sub" id="cs" style="margin:0;min-height:20px"></div>')+(nx!==undefined?'<div class="sub" style="margin:10px 0 0">Up next: <b>'+esc(cn(nx))+'</b></div>':'')+'</div><p class="sub" style="text-align:center;margin:12px 0 4px">Everyone can look around the whole building. Only the pair above chooses now.</p><h2>Pick order</h2>';
+ var h=''+brand("ROOM PICKING","star")+'<div class="card win"><div class="sub">'+ord[k.i]+' pick · now choosing</div><div class="big" style="font-size:var(--text-feature);line-height:1.2">'+esc(cn(c))+'</div>'+(last?'<div class="sub" style="margin:10px 0 0">No timer. This pair takes the last room'+(roomOf(c,k.order)?': <b>'+esc(roomOf(c,k.order))+'</b>':'')+'.</div>':'<div class="cd" id="cd"></div><div class="hp"><i id="hpb"></i></div><div class="sub" id="cs" style="margin:0;min-height:20px"></div>')+(nx!==undefined?'<div class="sub" style="margin:10px 0 0">Up next: <b>'+esc(cn(nx))+'</b></div>':'')+'</div><p class="sub" style="text-align:center;margin:12px 0 4px">Everyone can look around the whole building. Only the pair above chooses now.</p><h2>Pick order</h2>';
  k.order.forEach(function(x,i){h+='<div class="rank'+(i==k.i?' first':'')+(i<k.i?' done':'')+'"><div class="n">'+(i<k.i?'✓':i+1)+'</div><div class="g"><b>'+esc(cn(x))+'</b><small>'+ord[i]+' pick'+(i==4?' · last room':'')+'</small></div></div>'});
  h+='<h2>Rooms</h2>';
  S.rooms.forEach(function(n,r){var t=S.claims[r],b='style="width:auto;margin:0;padding:10px 14px"';h+='<div class="rank'+(t!==undefined?' done':'')+'"><div class="g"><b>'+esc(n)+'</b><small>'+(t!==undefined?'Taken by '+esc(cn(t)):'Available')+'</small></div>'+(host&&!last&&t===undefined?'<button '+b+' data-r="'+r+'">Give to this pair</button>':'')+(host&&t!==undefined?'<button class="alt" '+b+' data-f="'+r+'">Free</button>':'')+'</div>'});
@@ -1079,50 +1114,54 @@ function tbG(){if(!S.tb||S.tb.pairs.indexOf(me>>1)<0||S.tbs[me]!==undefined)retu
  A.innerHTML='<div class="arena" id="ar"><div class="big" id="c">0</div><small id="tl">Tie-breaker! Tap to start (5 seconds)</small></div>';
  document.getElementById("ar").onpointerdown=function(e){e.preventDefault();if(over||(t0&&Date.now()-t0>=5000))return;
   if(!t0){t0=Date.now();tm=setInterval(function(){var l=5-(Date.now()-t0)/1000;
-   if(l<=0){clearInterval(tm);over=true;playingTie=false;view="fin";if(!S.tb||S.tb.id!==tieId)return home();send({t:"tbs",p:me,v:n,tieId:tieId});A.innerHTML='<h1 style="text-align:center">'+n+' taps</h1><button id="nx">Back to Room Wars</button>';document.getElementById("nx").onclick=home}
+   if(l<=0){clearInterval(tm);over=true;playingTie=false;view="fin";if(!S.tb||S.tb.id!==tieId)return home();send({t:"tbs",p:me,v:n,tieId:tieId});A.innerHTML='<h1 style="text-align:center">'+n+' taps</h1><button id="nx">Back to Room Wars</button>';document.getElementById("nx").onclick=home;focusGameResult()}
    else document.getElementById("tl").textContent=l.toFixed(1)+"s left"},50)}
-  n++;var cc=document.getElementById("c");cc.textContent=n;ani(cc,"pop")}}
+  n++;var cc=document.getElementById("c");cc.textContent=n;ani(cc,"pop")};arenaInput(document.getElementById("ar"),"Tie-breaker. Press Space or Enter to tap.")}
 function ac(){if(!snd||snd.state==="closed"){var C=window.AudioContext||window.webkitAudioContext;if(C)try{snd=new C()}catch(e){}}return snd}
 document.addEventListener("pointerdown",function(){var a=ac();if(a&&a.state!=="running")try{var p=a.resume();if(p&&p.catch)p.catch(function(){})}catch(e){}});
 function chime(f){if(!host)return;var a=ac();if(!a||a.state!="running")return;f.forEach(function(fr,i){var o=a.createOscillator(),g=a.createGain(),t=a.currentTime+i*.22;o.type="sine";o.frequency.value=fr;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.12,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.7);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+.75)})}
+function focusGameResult(){var heading=A.querySelector("h1");if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true})}}
 function fin(g,v){view="fin";v=scoreValue(g,v);
- var big='<h1 style="text-align:center">'+esc(pn(me))+'</h1><p class="sub" style="text-align:center;margin:-2px 0 12px">'+G[g].n+(practice?' · practice':'')+'</p><div class="arena result-'+g+' rise glow"><div class="big pop">'+G[g].f(v)+'</div>'+(practice?'<small>Practice only. Not scored.</small>':'')+'</div>';
- if(practice){A.innerHTML=big+'<button id="nx">Back to Room Wars</button>';document.getElementById("nx").onclick=home;return}
+ var big='<h1 aria-describedby="result-game result-score" style="text-align:center">'+esc(pn(me))+'</h1><p id="result-game" class="sub" style="text-align:center;margin:-2px 0 12px">'+G[g].n+(practice?' · practice':'')+'</p><div id="result-score" class="arena result-'+g+' rise glow"><div class="big pop">'+G[g].f(v)+'</div>'+(practice?'<small>Practice only. Not scored.</small>':'')+'</div>';
+ if(practice){A.innerHTML=big+'<button id="nx">Back to Room Wars</button>';document.getElementById("nx").onclick=home;focusGameResult();return}
  var mid=send({t:"score",g:g,p:me,v:v});
  A.innerHTML=big+'<p class="sub result-sync" id="resultSync" data-mid="'+mid+'" role="status"></p><button id="nx">Back to Room Wars</button><details class="backup"><summary>Share result if missing</summary><p>If the host cannot see this result, share this backup.</p><button class="alt" id="sh">Share backup</button></details>';
- document.getElementById("sh").onclick=function(){share(mine())};document.getElementById("nx").onclick=home;stat()}
+ document.getElementById("sh").onclick=function(){share(mine())};document.getElementById("nx").onclick=home;focusGameResult();stat()}
 function run(g,pr){view="play";practice=!!pr;
- A.innerHTML='<h1 style="text-align:center">'+G[g].n+'</h1>'+(pr?'<p class="sub" style="text-align:center"><b>Practice round: 1 try only, not scored.</b></p>':'')+'<p class="sub">'+G[g].d+'</p><div class="card" style="text-align:center"><div class="sub">Playing as</div><div style="font-size:30px;font-weight:700">'+esc(pn(me))+'</div></div><button id="st">I’m ready!</button><button class="alt" id="bk">Back</button>';
+ A.innerHTML='<h1 style="text-align:center">'+G[g].n+'</h1>'+(pr?'<p class="sub" style="text-align:center"><b>Practice round: 1 try only, not scored.</b></p>':'')+'<p class="sub">'+G[g].d+'</p><div class="card" style="text-align:center"><div class="sub">Playing as</div><div style="font-size:var(--text-feature);font-weight:700">'+esc(pn(me))+'</div></div><button id="st">I’m ready!</button><button class="alt" id="bk">Back</button>';
  document.getElementById("st").onclick=function(){if(pr)ls(practiceKey(g),"1");g=="tap"?tapG(g):g=="react"?reactG(g):stopG(g)};
  document.getElementById("bk").onclick=home}
+function arenaInput(node,label){if(window.JialatUI)JialatUI.arena(node,label,node.onpointerdown)}
 function tapG(g){
  var n=0,t0=0,over=false;
  A.innerHTML='<div class="arena tap-ar" id="ar"><div class="big" id="c">0</div><small id="tl">Tap to start!</small></div>';
  document.getElementById("ar").onpointerdown=function(e){e.preventDefault();if(over||(t0&&Date.now()-t0>=10000))return;
   if(!t0){t0=Date.now();tm=setInterval(function(){var l=10-(Date.now()-t0)/1000;
    if(l<=0){clearInterval(tm);over=true;fin(g,n)}else document.getElementById("tl").textContent=l.toFixed(1)+"s left"},50)}
-  n++;var cc=document.getElementById("c");cc.textContent=n;ani(cc,"pop")}}
+  n++;var cc=document.getElementById("c");cc.textContent=n;ani(cc,"pop")};arenaInput(document.getElementById("ar"),"Tap Rush. Press Space or Enter to tap.")}
 function reactG(g){
  var ar,go=false,t0=0;
- A.innerHTML='<div class="arena react-ar" id="ar" style="background:#a8262c"><span id="m">Wait for green…</span></div>';
+ A.innerHTML='<div class="arena react-ar" id="ar" style="background:#a8262c"><span id="m" role="status" aria-live="assertive" aria-atomic="true">Wait for green…</span></div>';
  ar=document.getElementById("ar");
- function arm(){go=false;ar.style.background="#a8262c";document.getElementById("m").textContent="Wait for green…";
-  tm=setTimeout(function(){ar.style.background="#2f9e5b";ani(ar,"glow");document.getElementById("m").textContent="TAP NOW!";requestAnimationFrame(function(){requestAnimationFrame(function(){t0=performance.now();go=true})})},2000+Math.random()*3500)}
+ function arm(){go=false;ar.style.background="#a8262c";ar.style.setProperty("--reaction-ink","var(--color-text)");document.getElementById("m").textContent="Wait for green…";
+  tm=setTimeout(function(){ar.style.background="#2f9e5b";ar.style.setProperty("--reaction-ink","#0a0a0a");ani(ar,"glow");document.getElementById("m").textContent="TAP NOW!";requestAnimationFrame(function(){requestAnimationFrame(function(){t0=performance.now();go=true})})},2000+Math.random()*3500)}
  ar.onpointerdown=function(e){e.preventDefault();
   if(go){go=false;fin(g,performance.now()-t0)}
   else{clearTimeout(tm);ani(ar,"shake");document.getElementById("m").innerHTML='Too early!<small>Wait again…</small>';tm=setTimeout(arm,900)}};
- arm()}
+ arenaInput(ar,"Reaction game. Wait for TAP NOW, then press Space or Enter.");arm()}
 function stopG(g){
  var t0=Date.now();
  A.innerHTML='<div class="arena stop-ar" id="ar"><div class="big" id="c">0.00</div><small>Tap when you hit 10.00 seconds</small></div>';
  var c=document.getElementById("c");
  tm=setInterval(function(){var s=(Date.now()-t0)/1000;if(s>=2)c.textContent="?";else c.textContent=s.toFixed(2)},30);
- var d=false;document.getElementById("ar").onpointerdown=function(e){e.preventDefault();if(d)return;d=true;clearInterval(tm);var v=Math.abs((Date.now()-t0)/1000-10),ar=document.getElementById("ar");c.textContent="LOCKED";ani(ar,"glow");ani(c,"pop");tm=setTimeout(function(){fin(g,v)},400)}}
+ var d=false;document.getElementById("ar").onpointerdown=function(e){e.preventDefault();if(d)return;d=true;clearInterval(tm);var v=Math.abs((Date.now()-t0)/1000-10),ar=document.getElementById("ar");c.textContent="LOCKED";ani(ar,"glow");ani(c,"pop");tm=setTimeout(function(){fin(g,v)},400)};arenaInput(document.getElementById("ar"),"Stop the timer. Press Space or Enter when you estimate ten seconds.")}
 var rawHash=location.hash.slice(1),sep=rawHash.indexOf("~"),parts=[sep<0?rawHash:rawHash.slice(0,sep),sep<0?"":rawHash.slice(sep+1)];code=(parts[0]||"").replace(/[^a-z0-9]/gi,"").toLowerCase();
-if(code){host=ls("rwh-"+code)=="1";var m=ls("rwm-"+code);me=m===null?null:+m;
- if(parts[1])try{var names=namesFromInvite(parts[1]);if(strs(names,10))S.names=names.map(function(x){return friendName(x.slice(0,20))})}catch(e){}
- restoreRoomResult();
+if(code&&roomFilesMatch){host=ls("rwh-"+code)=="1";var m=ls("rwm-"+code);me=m===null?null:+m;
+ wantedRoomHost=host;var restored=restoreSnapshot();
+ if(!restored&&parts[1])try{var names=namesFromInvite(parts[1]);if(strs(names,10))S.names=names.map(function(x){return friendName(x.slice(0,20))})}catch(e){}
+ if(!restored)restoreRoomResult();
  try{var saved=JSON.parse(ls("rwq-"+code)||"[]");if(Array.isArray(saved)){out=saved.filter(function(x){return x&&typeof x.t=="string"});out.forEach(function(x){mark(x.mid);apply(x)})}}catch(e){}
- connect();post()}
-render();
+ if(host&&window.JialatUI&&JialatUI.hostGuard){host=false;roomHostTab=JialatUI.hostGuard('roomwars-'+code,function(active){host=active;render();if(active){if(!es||es.readyState===2)connect();post()}});roomHostTab.acquire()}else{connect();post()}}
+['click','pointerdown','keydown'].forEach(function(type){A.addEventListener(type,function(event){if(roomHostTab&&!roomHostTab.active&&event.target.closest('button,input,select,textarea,[role="button"]')){event.preventDefault();event.stopImmediatePropagation()}},true)});
+if(roomFilesMatch){render();JialatUI.ready()}else{var title=document.getElementById('boot-title'),message=document.getElementById('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 22 files together, then reload this page.';}
 </script></body></html>

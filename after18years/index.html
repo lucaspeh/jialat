@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex">
+<html lang="en"><head><meta name="jialat-build" content="22"><meta charset="utf-8"><meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a"><meta name="description" content="AFTER 18 YEARS… Presentation night. One shared draw for 11 friends."><title>AFTER 18 YEARS…</title>
 
@@ -81,7 +81,7 @@ button:active:not(:disabled) {
   align-items:center;
   justify-content:space-between;
   gap:15px;
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   color:var(--muted)
 }
 .topbar a {
@@ -101,7 +101,7 @@ button:active:not(:disabled) {
 }
 .eyebrow {
   color:var(--muted);
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   letter-spacing:.15em;
   text-transform:uppercase;
   margin:0 0 5px
@@ -118,7 +118,7 @@ button:active:not(:disabled) {
   margin:8px 0 0;
   color:var(--muted);
   font-weight:400;
-  font-size:14px
+  font-size:calc(14 * var(--font-unit))
 }
 .sync {
   display:flex;
@@ -127,7 +127,7 @@ button:active:not(:disabled) {
   gap:8px;
   min-height:26px;
   color:var(--muted);
-  font-size:14px;
+  font-size:calc(14 * var(--font-unit));
   text-align:center;
   margin:7px 0 12px;
   font-weight:400
@@ -168,7 +168,7 @@ button:active:not(:disabled) {
   color:var(--light)
 }
 .button.small {
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   min-height:44px;
   padding:9px 12px
 }
@@ -199,14 +199,14 @@ button:active:not(:disabled) {
   }
 }
 .landing .masthead h1 {
-  font-size:30px
+  font-size:calc(30 * var(--font-unit))
 }
 .landing .button {
   width:100%;
   margin-top:12px
 }
 .landing .intro-text {
-  font-size:14px;
+  font-size:calc(14 * var(--font-unit));
   color:var(--muted);
   font-weight:400;
   margin:12px 0 16px
@@ -221,7 +221,7 @@ button:active:not(:disabled) {
 .join-card label {
   display:block;
   color:var(--light);
-  font-size:13px;
+  font-size:calc(13 * var(--font-unit));
   margin-bottom:10px
 }
 .join-card input,.pair-link,.manual-copy {
@@ -231,7 +231,7 @@ button:active:not(:disabled) {
   color:var(--text);
   padding:12px;
   font:inherit;
-  font-size:16px;
+  font-size:calc(16 * var(--font-unit));
   min-height:48px
 }
 .join-card input {
@@ -240,7 +240,7 @@ button:active:not(:disabled) {
 }
 .join-error {
   color:var(--coral);
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   font-weight:400;
   min-height:18px;
   margin:10px 0 0
@@ -251,7 +251,7 @@ button:active:not(:disabled) {
   border:2px solid var(--edge);
   background:var(--card);
   padding:10px 13px;
-  font-size:14px
+  font-size:calc(14 * var(--font-unit))
 }
 .pairing summary {
   cursor:pointer;
@@ -264,7 +264,7 @@ button:active:not(:disabled) {
   font-weight:400;
   color:var(--muted);
   line-height:1.6;
-  font-size:14px;
+  font-size:calc(14 * var(--font-unit));
   margin:8px 0
 }
 .room-code {
@@ -274,11 +274,11 @@ button:active:not(:disabled) {
 }
 .pairing .room-code {
   display:block;
-  font-size:24px;
+  font-size:calc(24 * var(--font-unit));
   margin:6px 0
 }
 .pair-link {
-  font-size:16px;
+  font-size:calc(16 * var(--font-unit));
   letter-spacing:0;
   min-height:44px
 }
@@ -341,14 +341,14 @@ button:active:not(:disabled) {
 }
 .result p {
   color:var(--muted);
-  font-size:14px;
+  font-size:calc(14 * var(--font-unit));
   margin:8px 0 0;
   font-weight:400
 }
 .result .eyebrow {
   color:var(--light);
   font-weight:700;
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   margin:0
 }
 .result .last-name {
@@ -363,7 +363,7 @@ button:active:not(:disabled) {
 .spin-button {
   width:100%;
   min-height:76px;
-  font-size:18px;
+  font-size:calc(18 * var(--font-unit));
   border-color:var(--gold);
   background:#2a2108;
   color:var(--light)
@@ -371,7 +371,7 @@ button:active:not(:disabled) {
 .host-hint {
   color:var(--muted);
   font-weight:400;
-  font-size:14px;
+  font-size:calc(14 * var(--font-unit));
   line-height:1.5;
   min-height:18px;
   margin:10px 0 0
@@ -384,7 +384,7 @@ button:active:not(:disabled) {
   align-self:center
 }
 .order-panel h2 {
-  font-size:13px;
+  font-size:calc(13 * var(--font-unit));
   color:var(--light);
   margin:0 0 3px;
   letter-spacing:.06em
@@ -392,7 +392,7 @@ button:active:not(:disabled) {
 .order-count {
   font-weight:400;
   color:var(--muted);
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   margin:0 0 13px
 }
 .order-list {
@@ -407,13 +407,13 @@ button:active:not(:disabled) {
   gap:12px;
   border-top:1px solid #2e291d;
   min-height:36px;
-  font-size:16px;
+  font-size:calc(16 * var(--font-unit));
   padding:5px 0;
   counter-increment:picks
 }
 .order-list li::before {
   content:counter(picks,decimal-leading-zero);
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   min-width:20px;
   color:var(--gold)
 }
@@ -430,7 +430,7 @@ button:active:not(:disabled) {
   color:var(--teal)
 }
 .options {
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   color:var(--muted);
   margin-top:18px;
   border-top:1px solid #383021;
@@ -444,7 +444,7 @@ button:active:not(:disabled) {
 }
 .options p {
   font-weight:400;
-  font-size:14px;
+  font-size:calc(14 * var(--font-unit));
   line-height:1.6;
   margin:5px 0 10px
 }
@@ -454,19 +454,19 @@ button:active:not(:disabled) {
 .footer {
   text-align:center;
   color:var(--muted);
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   margin:24px 0 0;
   font-weight:400
 }
 .manual-copy {
   margin-top:8px;
-  font-size:16px
+  font-size:calc(16 * var(--font-unit))
 }
 .storage-warning {
   border:1px solid var(--coral);
   color:var(--coral);
   font-weight:400;
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   padding:10px;
   max-width:740px;
   margin:0 auto 12px
@@ -532,7 +532,7 @@ button:active:not(:disabled) {
     margin-top:12px
   }
   .masthead h1 {
-    font-size:27px
+    font-size:calc(27 * var(--font-unit))
   }
   .host-controls {
     margin-bottom:13px
@@ -547,7 +547,7 @@ button:active:not(:disabled) {
     margin-top:14px
   }
   .result h2 {
-    font-size:32px
+    font-size:calc(32 * var(--font-unit))
   }
   .pairing {
     margin-bottom:20px
@@ -581,10 +581,10 @@ button:active:not(:disabled) {
   }
   .spin-button {
     min-height:76px;
-    font-size:17px
+    font-size:calc(17 * var(--font-unit))
   }
   .topbar {
-    font-size:12px
+    font-size:calc(12 * var(--font-unit))
   }
   .footer {
     line-height:1.6
@@ -623,19 +623,19 @@ button:active:not(:disabled) {
   .shell {
   }
   .masthead h1 {
-    font-size:24px
+    font-size:calc(24 * var(--font-unit))
   }
   .landing .masthead h1 {
-    font-size:25px
+    font-size:calc(25 * var(--font-unit))
   }
   .room-code {
-    font-size:12px
+    font-size:calc(12 * var(--font-unit))
   }
   .pairing {
     padding:9px
   }
   .spin-button {
-    font-size:15px
+    font-size:calc(15 * var(--font-unit))
   }
 }
 @media(max-height:740px) and (min-width:900px) {
@@ -824,11 +824,11 @@ button:active:not(:disabled) {
   padding:12px 0;
   cursor:pointer;
   color:#f3d77a;
-  font-size:12px
+  font-size:calc(12 * var(--font-unit))
 }
 .relay-details p {
   white-space:pre-line;
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   line-height:1.6;
   font-weight:400;
   margin:8px 0
@@ -841,7 +841,7 @@ button:active:not(:disabled) {
 .relay-actions button {
   min-height:44px;
   padding:9px 11px;
-  font-size:12px;
+  font-size:calc(12 * var(--font-unit));
   letter-spacing:0;
   box-shadow:none;
   margin:0;
@@ -870,7 +870,7 @@ a[href="../"]  {
   align-items: center;
   min-height: 44px;
   color: #b9b6a8;
-  font-size: 12px;
+  font-size:calc(12 * var(--font-unit));
   line-height: 1.4;
   text-decoration: none;
   touch-action: manipulation;
@@ -895,7 +895,7 @@ a[href="../"]:active  {
 }
 @media (max-width: 760px)  {
   input, select, textarea  {
-    font-size: 16px;
+    font-size:calc(16 * var(--font-unit));
   }
 }
 /* Original group artwork, kept separate from the game controls. */
@@ -926,23 +926,26 @@ a[href="../"]:active  {
 .display-controls-panel .button{width:100%}.display-controls-panel>a{display:flex;align-items:center;min-height:44px;margin-top:8px;padding-top:8px;border-top:1px solid var(--edge)}
 
 .join-error:empty{display:none}body:not(.host):not(.tv) .shell{padding-bottom:max(16px,env(safe-area-inset-bottom,0px))}
-</style><link rel="stylesheet" href="../assets/layout.css?v=17">
+</style><link rel="stylesheet" href="../assets/layout.css?v=22">
 <link rel="stylesheet" href="../assets/festive.css?v=retro-xmas-1">
-</head><body data-page="presentation"><div class="shell" id="app"></div>
-<script src="../assets/ui.js?v=17"></script>
+</head><body data-page="presentation"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section><div class="shell" id="app"></div>
+<script src="../assets/ui.js?v=22"></script>
+<script src="../assets/reliability.js?v=22"></script>
 <script>
 (function(){
 'use strict';
 
 // Connection state is shared by the three apps on this browser. No game data is stored here.
+var relayFetch=window.JialatUI&&JialatUI.relayFetch?JialatUI.relayFetch:fetch;
 var relayMemory={until:0,reason:'Relay busy (429)'},relayQuotaPromise=null,relayDetailsOpen=false;
 function relayRead(key){try{return JSON.parse(localStorage.getItem(key)||'null')}catch(e){return null}}
 function relayWrite(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch(e){}}
 function relayInfo(){var x=relayRead('jialat-relay-hold');if(x&&typeof x.until==='number'&&isFinite(x.until)&&x.until>relayMemory.until)relayMemory=x;return relayMemory}
 function relayWait(){return Math.max(0,relayInfo().until-Date.now())}
 function relayLocalTime(at){try{return new Date(at).toLocaleString([],{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}catch(e){return new Date(at).toLocaleString()}}
-function relayWaitLabel(){var x=relayInfo(),wait=Math.ceil(relayWait()/1000);var label={42901:'Connection busy',42903:'Too many game tabs open',42905:'Daily data limit reached',42908:'Daily connection limit reached',42911:'Too many games started'}[x.code]||(/daily/i.test(x.reason||'')?'Daily connection limit reached':'Connection busy');return label+(x.resetKnown&&x.code===42908?' · resets '+relayLocalTime(x.until):' · next check in '+wait+'s')}
+function relayWaitLabel(){var x=relayInfo(),wait=Math.ceil(relayWait()/1000);var label={42901:'Connection busy',42903:'Too many game tabs open',42905:'Daily data limit reached',42908:'Daily message limit reached',42911:'Too many games started'}[x.code]||(/daily/i.test(x.reason||'')?'Daily message limit reached':'Connection busy');return label+(x.resetKnown&&x.code===42908?' · resets '+relayLocalTime(x.until):' · next check in '+wait+'s')}
 function relayLater(fn,ms){return setTimeout(fn,Math.min(2147483000,Math.max(0,ms)))}
+function relayRetryDelay(failures){return Math.min(60000,5000*Math.pow(2,Math.min(4,Math.max(0,failures-1))))}
 function relayWaitingError(){var e=Error('HTTP 429');e.status=429;e.retryAfterMs=relayWait();e.ntfyCode=relayInfo().code||0;return e}
 function relayReason(code,detail){return {42901:'Too many requests (42901)',42903:'Too many open game tabs (42903)',42905:'Daily data allowance reached (42905)',42908:'Daily relay allowance reached (42908)',42911:'Too many new games (42911)'}[code]||(/daily/i.test(detail)?'Daily relay allowance reached (429)':'Relay busy (429)')}
 function relayQuota(){var q=relayRead('jialat-relay-quota');return q&&Number.isFinite(q.limit)&&q.limit>0&&Number.isFinite(q.remaining)&&q.remaining>=0&&Number.isFinite(q.checkedAt)&&Number.isFinite(q.resetAt)?q:null}
@@ -953,7 +956,7 @@ async function relayQuotaCheck(){
  var cached=relayQuota();if(cached&&Date.now()-cached.checkedAt<60000){relayUseQuota(cached);return cached}
  if(relayQuotaPromise)return relayQuotaPromise;
  relayQuotaPromise=(async function(){var c=new AbortController(),timer=setTimeout(function(){c.abort()},8000);try{
-  var r=await fetch('https://ntfy.sh/v1/account',{cache:'no-store',credentials:'omit',signal:c.signal});if(!r.ok)return null;
+  var r=await relayFetch('https://ntfy.sh/v1/account',{cache:'no-store',credentials:'omit',signal:c.signal});if(!r.ok)return null;
   var x=await r.json(),l=x&&x.limits,s=x&&x.stats;if(!l||!s||l.basis!=='ip'||!Number.isFinite(l.messages)||l.messages<=0||!Number.isFinite(s.messages_remaining)||s.messages_remaining<0||!Number.isFinite(s.reset_at))return null;
   var q={limit:l.messages,remaining:Math.min(l.messages,s.messages_remaining),used:Number.isFinite(s.messages)?s.messages:l.messages-s.messages_remaining,resetAt:s.reset_at*1000,checkedAt:Date.now(),basis:'ip'};
   relayWrite('jialat-relay-quota',q);relayUseQuota(q);return q;
@@ -973,7 +976,7 @@ async function relayResponseError(response){
  relayWrite('jialat-relay-diagnostic',{http:429,code:code,reason:relayReason(code,detail),at:at,retryAt:relayInfo().until,retryHeaderVisible:raw!==null,resetKnown:known});
  e.ntfyCode=code;e.retryAfterMs=relayWait();relayPanelUpdate();return e;
 }
-function relayPanelHTML(){return '<details class="relay-details"'+(relayDetailsOpen?' open':'')+'><summary>CONNECTION STATUS</summary><p id="relay-allowance" role="status">Check this network’s remaining allowance and reset time.</p><div class="relay-actions"><button type="button" id="relay-check">Check allowance</button><button type="button" id="relay-copy">Copy connection details</button></div><p id="relay-note" role="status"></p></details>'}
+function relayPanelHTML(){return '<details class="relay-details"'+(relayDetailsOpen?' open':'')+'><summary>CONNECTION STATUS</summary><p id="relay-allowance" role="status">Check this network’s remaining allowance and reset time.</p><div class="relay-actions"><button type="button" id="relay-check">Check allowance</button><button type="button" id="relay-copy">Copy connection details</button></div><p id="relay-traffic"></p><p id="relay-note" role="status"></p></details>'}
 function relayPanelUpdate(){
  var box=document.getElementById('relay-allowance');if(!box)return;var q=relayQuota(),d=relayRead('jialat-relay-diagnostic'),lines=[];
  if(q){lines.push(q.remaining+' / '+q.limit+' messages left when checked.');lines.push('Resets '+relayLocalTime(q.resetAt)+' (your device time).');lines.push('Checked '+relayLocalTime(q.checkedAt)+'. Devices on the same network may share this allowance.')}
@@ -985,19 +988,19 @@ function relayPanelBind(){
  var check=document.getElementById('relay-check'),copy=document.getElementById('relay-copy'),panel=document.querySelector('.relay-details');if(!check)return;
  panel.ontoggle=function(){relayDetailsOpen=panel.open};
  check.onclick=async function(){check.disabled=true;var note=document.getElementById('relay-note');if(note)note.textContent='Checking allowance…';var q=await relayQuotaCheck();check.disabled=false;relayPanelUpdate();window.dispatchEvent(new Event('jialat-relay-status'));note=document.getElementById('relay-note');if(note)note.textContent=q?'Allowance checked. It does not reset by refreshing the page.':'Could not check the allowance. Saved game results are kept.';};
- copy.onclick=async function(){var d=relayRead('jialat-relay-diagnostic'),q=relayQuota(),text=JSON.stringify({app:document.title,checkedAt:new Date().toISOString(),lastLimit:d||null,allowance:q||null},null,2),note=document.getElementById('relay-note');try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error('Clipboard unavailable');await navigator.clipboard.writeText(text);if(note)note.textContent='Connection details copied. No names, room links or results are included.'}catch(e){var old=document.getElementById('relay-manual');if(old)old.remove();var field=document.createElement('textarea');field.id='relay-manual';field.readOnly=true;field.setAttribute('aria-label','Connection details to copy');field.value=text;panel.appendChild(field);field.focus();field.select();if(note)note.textContent='Select and copy the connection details below.'}};
- relayPanelUpdate();
+ copy.onclick=async function(){var d=relayRead('jialat-relay-diagnostic'),q=relayQuota(),text=JSON.stringify({app:document.title,build:window.JialatUI?JialatUI.build:null,traffic:window.JialatUI?JialatUI.traffic():null,checkedAt:new Date().toISOString(),lastLimit:d||null,allowance:q||null},null,2),note=document.getElementById('relay-note');try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error('Clipboard unavailable');await navigator.clipboard.writeText(text);if(note)note.textContent='Connection details copied. No names, room links or results are included.'}catch(e){var old=document.getElementById('relay-manual');if(old)old.remove();var field=document.createElement('textarea');field.id='relay-manual';field.readOnly=true;field.setAttribute('aria-label','Connection details to copy');field.value=text;panel.appendChild(field);field.focus();field.select();if(note)note.textContent='Select and copy the connection details below.'}};
+ relayPanelUpdate();if(window.JialatUI&&JialatUI.showTraffic)JialatUI.showTraffic();
 }
 // Try a second persistent connection before entering a deliberately slow standby mode.
 function relayStream(url){
  var api={readyState:0,kind:'',onopen:null,onerror:null,onmessage:null,onconnecting:null},listeners=[],source=null,socket=null,timer=0,closed=false,failed=false,generation=0,lastMessageId='';
- function emit(e){if(closed||failed)return;try{var packet=JSON.parse(e.data);if(packet.event==='message'&&typeof packet.id==='string')lastMessageId=packet.id}catch(ignore){}if(api.onmessage)api.onmessage(e);listeners.forEach(function(f){f(e)})}
+ function emit(e){if(closed||failed)return;try{var packet=JSON.parse(e.data);if(packet.event==='message'&&typeof packet.id==='string'){var transient=false;try{var body=JSON.parse(packet.message);transient=body&&((body._jialat==='control')||['hello','host-online','probe','ready','ack'].includes(body.t))}catch(ignore){}if(!transient)lastMessageId=packet.id}}catch(ignore){}if(api.onmessage)api.onmessage(e);listeners.forEach(function(f){f(e)})}
  function stopCurrent(){generation++;clearTimeout(timer);timer=0;if(source){source.onopen=source.onerror=source.onmessage=null;source.close();source=null}if(socket){socket.onopen=socket.onerror=socket.onclose=socket.onmessage=null;try{socket.close()}catch(e){}socket=null}}
  function fail(){if(closed||failed)return;failed=true;api.readyState=2;stopCurrent();if(api.onerror)api.onerror({type:'error'})}
- function opened(kind){if(closed||failed)return;clearTimeout(timer);timer=0;api.kind=kind;api.readyState=1;if(api.onopen)api.onopen({type:'open'})}
+ function opened(kind){if(closed||failed||api.readyState===1&&api.kind===kind)return;if(window.JialatUI&&JialatUI.recordTraffic)JialatUI.recordTraffic('streamOpens');clearTimeout(timer);timer=0;api.kind=kind;api.readyState=1;if(api.onopen)api.onopen({type:'open'})}
  function webSocket(){if(closed||failed)return;stopCurrent();api.readyState=0;if(api.onconnecting)api.onconnecting({type:'connecting'});if(relayWait()>0){fail();return}try{if(!window.WebSocket)throw Error('WebSocket unavailable');var token=generation,u=new URL(url);u.protocol=u.protocol==='https:'?'wss:':'ws:';u.pathname=u.pathname.replace(/\/sse$/,'/ws');if(lastMessageId)u.searchParams.set('since',lastMessageId);socket=new WebSocket(u.href);socket.onopen=function(){if(token===generation)opened('websocket')};socket.onmessage=function(e){if(token===generation)emit(e)};socket.onerror=socket.onclose=function(){if(token===generation)fail()};timer=setTimeout(fail,8000)}catch(e){fail()}}
- timer=setTimeout(function(){if(closed)return;try{if(relayWait()>0){fail();return}if(!window.EventSource)throw Error('EventSource unavailable');var token=++generation;source=new EventSource(url);source.onopen=function(){if(token===generation)opened('sse')};source.onerror=function(){if(token===generation)webSocket()};source.addEventListener('message',function(e){if(token===generation)emit(e)});timer=setTimeout(webSocket,8000)}catch(e){webSocket()}},0);
- api.addEventListener=function(type,fn){if(type==='message')listeners.push(fn)};api.close=function(){closed=true;api.readyState=2;stopCurrent();listeners=[];window.removeEventListener('pagehide',api.close)};window.addEventListener('pagehide',api.close);return api;
+ timer=setTimeout(function(){if(closed)return;try{if(relayWait()>0){fail();return}if(!window.EventSource)throw Error('EventSource unavailable');var token=++generation;source=new EventSource(url);source.onopen=function(e){if(token===generation){opened('sse');if(e&&e.data)emit(e)}};source.onerror=function(){if(token===generation)webSocket()};source.addEventListener('message',function(e){if(token===generation)emit(e)});timer=setTimeout(webSocket,8000)}catch(e){webSocket()}},0);
+ api.addEventListener=function(type,fn){if(type==='message')listeners.push(fn)};api.close=function(){if(closed)return;if(window.JialatUI&&JialatUI.recordTraffic)JialatUI.recordTraffic('streamCloses');closed=true;api.readyState=2;stopCurrent();listeners=[];window.removeEventListener('pagehide',api.close)};window.addEventListener('pagehide',api.close);return api;
 }
 // End shared relay.
 
@@ -1010,8 +1013,11 @@ const TROPHY_DATA='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAFoCAYAAAB
 // One shared event, with separate Host and TV roles. The event identity is not a password.
 const BASE='https://ntfy.sh/',PREFIX='jialat18-',NS='j18-v1-',EVENT_ROOM='jialat26',EVENT_OWNER='18ea2026a11f0001';
 const app=document.getElementById('app');
+const BUILD='22',hostIdentity=window.JialatUI&&/^[a-f0-9]{16}$/.test(JialatUI.deviceId||'')?JialatUI.deviceId:uid();
+let hostTab=null,localHostBlocked=false,remoteHostBlocked=false,takeoverRequested=false,controllerHost='',tvPermit=null,revisionFloor=0;
+function hostLocked(){if(hostTab&&!hostTab.active)localHostBlocked=true;return blocked||localHostBlocked||remoteHostBlocked}
 let mode='',room='',owner='',S=null,pending=null,stream=null,streamOpen=false,pollOK=false,cursor='',polling=false,sending=false;
-let retryTimer=0,retryAt=0,pollTimer=0,probe=null,peer=null,waitingDisplay='',errorText='',storageOK=true,blocked=false;
+let retryTimer=0,retryAt=0,sendFailures=0,pollTimer=0,probe=null,peer=null,waitingDisplay='',errorText='',storageOK=true,blocked=false,controlSince=0;
 let raf=0,wheelKey='',viewKey='',displayId=uid(),seen=new Set(),helloTimer=0,relayWake=0;
 let readyViewSeen=false,lastReadyDraw='',revealArmed='',revealedDraw='';
 let helloChallenge=uid(),answeredChallenges=new Set(),ackTimer=0;
@@ -1028,6 +1034,7 @@ function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;',
 function tvLink(){const u=new URL(location.href);u.search='';u.hash=room===EVENT_ROOM?'tv':'tv='+room;return u.href}
 function finite(n){return typeof n==='number'&&Number.isFinite(n)}
 function valid(x){
+ if(x&&x.writer!==undefined&&!(/^[a-f0-9]{16}$/).test(x.writer))return false;
  if(x&&x.screen!==undefined&&!['title','draw'].includes(x.screen))return false;
  if(!x||x.v!==1||x.room!==room||!(/^[a-f0-9]{16}$/).test(x.id)||!(/^[a-f0-9]{16}$/).test(x.owner)||!Number.isSafeInteger(x.rev)||x.rev<1||!Array.isArray(x.order)||x.order.length>11)return false;
  if(x.order.some(i=>!Number.isInteger(i)||i<0||i>10)||new Set(x.order).size!==x.order.length)return false;
@@ -1043,13 +1050,13 @@ function valid(x){
  if(d.position===10&&x.order.length===11&&!d.players.includes(x.order[10]))return false;
  return true;
 }
-function save(){if(S)write('state-'+room,S);if(mode==='host')write('host-'+room,{owner,pending});if(!storageOK&&$('storage-warning'))$('storage-warning').hidden=false}
+function save(){if(S)write('state-'+room,S);if(mode==='host')write('host-'+room,{owner,pending,floor:revisionFloor});if(!storageOK&&$('storage-warning'))$('storage-warning').hidden=false}
 function now(){return Date.now()+(mode==='tv'&&S&&finite(S.clocks[displayId])?S.clocks[displayId]:0)}
 function calibrated(){return mode!=='tv'||!!(S&&finite(S.clocks[displayId]))}
 function spinning(){return !!(S&&S.draw&&now()<S.draw.endAt)}
 function announcedOrder(){return S?(S.draw&&S.draw.position===10&&S.order.length===11?S.order.slice(0,10):S.order):[]}
-function emptyState(){return {v:1,room,owner,id:uid(),rev:1,order:[],draw:null,clocks:{},screen:'draw'}}
-function snapshot(changes){return Object.assign({},S,{id:uid(),rev:S.rev+1},changes)}
+function emptyState(){return {v:1,room,owner,id:uid(),rev:1,order:[],draw:null,clocks:{},screen:'draw',writer:hostIdentity,build:BUILD}}
+function snapshot(changes){return Object.assign({},S,{id:uid(),rev:Math.max(S.rev,revisionFloor)+1,writer:hostIdentity,build:BUILD},changes)}
 function wheelIcon(){return '<svg viewBox="0 0 60 60" aria-hidden="true"><g class="icon-disc"><circle cx="30" cy="30" r="25" fill="#111" stroke="#d4af37" stroke-width="3"/><g stroke="#111" stroke-width="2"><path d="M30 30V7A23 23 0 0 1 53 30Z" fill="#ca5364"/><path d="M30 30H53A23 23 0 0 1 30 53Z" fill="#f0d47a"/><path d="M30 30V53A23 23 0 0 1 7 30Z" fill="#68ad83"/><path d="M30 30H7A23 23 0 0 1 30 7Z" fill="#f6f0de"/></g><circle cx="30" cy="30" r="6" fill="#d4af37" stroke="#111" stroke-width="2"/></g><path d="M25 0h10l-5 12z" fill="#ff8b78"/></svg>'}
 function eventHolidayIcon(kind){
  const tree=['.......Y.......','......GGG......','.....GGGGG.....','....GGIGGGG....','...GGGGGGGGG...','.....GGGGG.....','....GGGGGGG....','...GGGGGYGGG...','..GGGGGGGGGGG..','....GGGGGGG....','...GGGGGGGGG...','..GGIGGGGGGGG..','.GGGGGGGGGRGGG.','GGGGGGGGGGGGGGG','......BBB......','......BBB......','.....BBBBB.....'];
@@ -1064,14 +1071,22 @@ function eventScreenIcon(){const rows=['BBBBBBBBBBBB','B..........B','B.II..Y...
 function eventCover(){return '<section class="event-cover" id="event-title" aria-label="Event title">'+eventFestiveIcons('<div class="bob">'+eventScreenIcon()+'</div>')+'<h1>JIALAT CHRISTMAS 2026</h1><div class="event-tag">18 YEARS · 11 FRIENDS</div><p class="event-subtitle">PRESENTATION NIGHT</p></section>'}
 function landing(){
  document.body.className='';
- app.innerHTML='<div class="topbar site-utility"><a href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="landing"><div class="landing-mark">'+wheelIcon()+'</div><header class="masthead"><p class="eyebrow">18 YEARS · 11 FRIENDS</p><h1>AFTER 18 YEARS…</h1><p>PRESENTATION NIGHT</p></header><p class="intro-text">Control the draw on your phone or iPad.<br>Open the TV display on the MacBook.</p><div class="role-actions"><button class="button primary" id="host-start">Phone / iPad · Host</button><button class="button primary" id="tv-start">MacBook · TV</button></div></div>';
+ app.innerHTML='<div class="topbar site-utility"><a href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="landing"><div class="landing-mark">'+wheelIcon()+'</div><header class="masthead"><p class="eyebrow">18 YEARS · 11 FRIENDS</p><h1>AFTER 18 YEARS…</h1><p>PRESENTATION NIGHT</p></header><p class="intro-text">Control the draw on your phone or iPad.<br>Open the TV display on the MacBook.</p><div class="role-actions"><button class="button primary" id="host-start"><strong>Host controls</strong><small>Phone, tablet or desktop</small></button><button class="button primary" id="tv-start"><strong>TV display</strong><small>Open on the MacBook</small></button></div></div>';
  $('host-start').onclick=()=>{location.hash='host'};
  $('tv-start').onclick=()=>{history.replaceState(null,'','#tv');route(true)};
 }
 function layout(){
  document.body.className=mode;
- app.innerHTML='<div class="topbar site-utility">'+(mode==='host'?'<a href="../">← MAIN MENU</a>':'')+'<img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div>'+(mode==='host'?'<header class="activity-header"><span class="activity-icon">'+wheelIcon()+'</span><h1>AFTER 18 YEARS…</h1><span class="role-label">HOST</span></header>':'<header class="masthead"><p class="eyebrow">18 YEARS · 11 FRIENDS</p><h1>AFTER 18 YEARS…</h1><p>PRESENTATION NIGHT</p></header>')+'<div class="sync host-status" id="sync" role="status">Connecting…</div><p class="storage-warning" id="storage-warning" hidden>This browser cannot save the draw. Keep this page open until the order is complete.</p>'+(mode==='host'?'<details class="pairing" id="pairing" open><summary>TV CONNECTION</summary><p>On the MacBook, open Presentation and choose MacBook · TV.</p><input class="pair-link" id="tv-link" readonly aria-label="TV display link" value="'+esc(tvLink())+'"><div class="pair-actions"><button class="button small" id="copy-tv">Copy TV link</button><button class="button small" id="reconnect">Reconnect</button></div><p class="copy-note" id="copy-note" role="status"></p></details>':'')+(mode==='host'?'<div class="tv-screen-controls" role="group" aria-label="TV screen"><span class="control-label">TV SHOWS</span><button class="button small" id="show-event-title" aria-pressed="false">Event title</button><button class="button small" id="show-wheel" aria-pressed="true">Wheel</button></div>':eventCover())+'<main class="stage"><div class="wheel-area"><div class="wheel-wrap"><svg class="wheel-svg" id="wheel-svg" viewBox="0 0 1000 1000" role="img" aria-label="Presentation wheel"><circle cx="500" cy="500" r="492" fill="#0a0a0a" stroke="#6b5a22" stroke-width="12"/><circle cx="500" cy="500" r="479" fill="#111" stroke="#f3d77a" stroke-width="6"/><g id="wheel-disc"></g><circle cx="500" cy="500" r="117" fill="#0a0a0a" stroke="#f3d77a" stroke-width="9"/><image id="wheel-trophy" x="420" y="388" width="160" height="224" href="'+TROPHY_DATA+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true"/></svg><svg class="wheel-pointer" viewBox="0 0 32 45" aria-hidden="true"><path d="M3 0h26v13h-5v9h-5v10h-6V22H8v-9H3z" fill="#ff8b78" stroke="#0a0a0a" stroke-width="3"/></svg></div><div class="result" aria-live="polite" aria-atomic="true"><p class="eyebrow" id="position-label">NEXT · 1ST PRESENTER</p><h2 id="picked-name">Who goes first?</h2><p id="result-hint">11 friends. One presentation order.</p></div>'+(mode==='host'?'<div class="host-controls"><button class="button spin-button" id="spin" disabled>Connect TV to spin</button><p class="host-hint" id="host-hint">On the MacBook, open Presentation and choose TV.</p></div>':'')+'</div><aside class="order-panel" aria-label="Presentation order"><h2>PRESENTATION ORDER</h2><p class="order-count" id="order-count">0 / 11 picked</p><ol class="order-list" id="order-list"></ol>'+(mode==='host'?'<details class="options"><summary>DRAW OPTIONS</summary><p>Restart clears the order on both screens. The same 11 names stay in the draw.</p><button class="button small" id="restart" disabled>Start a new draw</button></details>':'')+'</aside></main>'+(mode==='tv'?'<button class="tv-sound-start" id="presentation-sound-start" hidden>Turn on sound</button><details class="display-controls" id="display-controls"><summary id="display-sound-status">Sound off</summary><div class="display-controls-panel"><button class="button tv-sound" id="presentation-sound" aria-pressed="false">Turn on TV sound</button><button class="button" id="presentation-sound-test">Test sound</button><a href="../">← MAIN MENU</a></div></details>':'');
- if(mode==='host'){document.querySelector('.order-panel').insertAdjacentHTML('beforeend',relayPanelHTML());relayPanelBind();$('spin').onclick=startSpin;$('show-event-title').onclick=()=>setTvScreen('title');$('show-wheel').onclick=()=>setTvScreen('draw');$('restart').onclick=restart;$('reconnect').onclick=()=>resume(true);$('copy-tv').onclick=copyTV}else $('presentation-sound').onclick=async()=>{await togglePresentationSound();const a=presentationCtx;const panel=document&&$('display-controls');if(panel&&(a&&a.state==='running'||!presentationSoundOn)){panel.open=false;$('display-sound-status').focus({preventScroll:true})}};
+ app.innerHTML='<div class="topbar site-utility">'+(mode==='host'?'<a href="../">← MAIN MENU</a>':'')+'<img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div>'+(mode==='host'?'<header class="activity-header"><span class="activity-icon">'+wheelIcon()+'</span><h1>AFTER 18 YEARS…</h1><span class="role-label">HOST</span></header>':'<header class="masthead"><p class="eyebrow">18 YEARS · 11 FRIENDS</p><h1>AFTER 18 YEARS…</h1><p>PRESENTATION NIGHT</p></header>')+'<div class="sync host-status" id="sync" role="status">Connecting…</div><p class="storage-warning" id="storage-warning" hidden>This browser cannot save the draw. Keep this page open until the order is complete.</p>'+(mode==='host'?'<details class="pairing" id="pairing" open><summary>TV CONNECTION</summary><p>On the MacBook, open Presentation and choose TV display.</p><input class="pair-link" id="tv-link" readonly aria-label="TV display link" value="'+esc(tvLink())+'"><div class="pair-actions"><button class="button small" id="copy-tv">Copy TV link</button><button class="button small" id="reconnect">Reconnect</button></div><p class="copy-note" id="copy-note" role="status"></p></details>':'')+(mode==='host'?'<div class="tv-screen-controls" role="group" aria-label="TV screen"><span class="control-label">TV SHOWS</span><button class="button small" id="show-event-title" aria-pressed="false">Event title</button><button class="button small" id="show-wheel" aria-pressed="true">Wheel</button></div>':eventCover())+'<main class="stage"><div class="wheel-area"><div class="wheel-wrap"><svg class="wheel-svg" id="wheel-svg" viewBox="0 0 1000 1000" role="img" aria-label="Presentation wheel"><circle cx="500" cy="500" r="492" fill="#0a0a0a" stroke="#6b5a22" stroke-width="12"/><circle cx="500" cy="500" r="479" fill="#111" stroke="#f3d77a" stroke-width="6"/><g id="wheel-disc"></g><circle cx="500" cy="500" r="117" fill="#0a0a0a" stroke="#f3d77a" stroke-width="9"/><image id="wheel-trophy" x="420" y="388" width="160" height="224" href="'+TROPHY_DATA+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true"/></svg><svg class="wheel-pointer" viewBox="0 0 32 45" aria-hidden="true"><path d="M3 0h26v13h-5v9h-5v10h-6V22H8v-9H3z" fill="#ff8b78" stroke="#0a0a0a" stroke-width="3"/></svg></div><div class="result" aria-live="polite" aria-atomic="true"><p class="eyebrow" id="position-label">NEXT · 1ST PRESENTER</p><h2 id="picked-name">Who goes first?</h2><p id="result-hint">11 friends. One presentation order.</p></div>'+(mode==='host'?'<div class="host-controls"><button class="button spin-button" id="spin" disabled>Connect TV to spin</button><p class="host-hint" id="host-hint">On the MacBook, open Presentation and choose TV display.</p></div>':'')+'</div><aside class="order-panel" aria-label="Presentation order"><h2>PRESENTATION ORDER</h2><p class="order-count" id="order-count">0 / 11 picked</p><ol class="order-list" id="order-list"></ol>'+(mode==='host'?'<details class="options"><summary>DRAW OPTIONS</summary><p>Restart clears the order on both screens. The same 11 names stay in the draw.</p><button class="button small" id="restart" disabled>Start a new draw</button></details>':'')+'</aside></main>'+(mode==='tv'?'<button class="tv-sound-start" id="presentation-sound-start" hidden>Turn on sound</button><details class="display-controls" id="display-controls"><summary id="display-sound-status">Sound off</summary><div class="display-controls-panel"><button type="button" data-fullscreen>Full screen</button><p data-display-note role="status"></p><button class="button tv-sound" id="presentation-sound">Turn on TV sound</button><button class="button" id="presentation-sound-test">Test sound</button><a href="../">← MAIN MENU</a></div></details>':'');
+ if(mode==='host'){
+  const work=document.querySelector('.host-controls'),switches=document.querySelector('.tv-screen-controls'),stage=document.querySelector('.stage'),pairing=$('pairing'),panel=document.querySelector('.order-panel');
+  work.appendChild(switches);
+  const reconnect=document.createElement('button');reconnect.id='quick-reconnect';reconnect.className='button small';reconnect.textContent='Reconnect';reconnect.hidden=true;reconnect.onclick=()=>resume(true);work.insertBefore(reconnect,switches);
+  panel.classList.add('host-order');
+  stage.insertAdjacentElement('beforebegin',pairing);
+ }
+ if(window.JialatUI)JialatUI.bind(document);
+ if(mode==='host'){document.querySelector('.order-panel').insertAdjacentHTML('beforeend',relayPanelHTML());relayPanelBind();$('spin').onclick=startSpin;$('show-event-title').onclick=()=>setTvScreen('title');$('show-wheel').onclick=()=>setTvScreen('draw');$('restart').onclick=restart;$('reconnect').onclick=reconnectHost;$('copy-tv').onclick=copyTV}else $('presentation-sound').onclick=async()=>{await togglePresentationSound();const a=presentationCtx;const panel=document&&$('display-controls');if(panel&&(a&&a.state==='running'||!presentationSoundOn)){panel.open=false;$('display-sound-status').focus({preventScroll:true})}};
  if(mode==='tv'){
   $('presentation-sound-start').onclick=enablePresentationSound;$('presentation-sound-test').onclick=enablePresentationSound;
   $('display-controls').addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();$('display-controls').open=false;$('display-sound-status').focus()}});
@@ -1097,8 +1112,8 @@ function paint(){
  let progress=d&&ready?Math.max(0,Math.min(1,(now()-d.startAt)/(d.endAt-d.startAt))):0;
  const angle=d?(reduced?(progress===1?d.to:0):d.to*(1-Math.pow(1-progress,4))):0;
  $('wheel-disc').setAttribute('transform','rotate('+angle+' 500 500)');
- const busy=!!pending||!!probe||relayWait()>0,noLive=!streamOpen||!!(peer&&peer.live!==true),order=S?(active?S.order.slice(0,d.position-1):announcedOrder()):[],complete=order.length===11;
- const key=[S&&S.id,active,ready,busy,!!peer,noLive,!!errorText,blocked].join('|');
+ const busy=!!pending||!!probe||relayWait()>0,noLive=!streamOpen||!!(peer&&peer.live!==true),order=S?(active?S.order.slice(0,d.position-1):announcedOrder()):[],complete=order.length===11,locked=hostLocked();
+ const key=[S&&S.id,active,ready,busy,!!peer,noLive,!!errorText,locked].join('|');
  if(key!==viewKey){viewKey=key;
   const label=!ready?'CONNECTING TO HOST':active?(d.position===11?'REVEALING THE FINAL PRESENTER':'CHOOSING THE '+ordinal(d.position).toUpperCase()+' PRESENTER'):d?(d.position===11?'11TH · FINAL PRESENTER':ordinal(d.position).toUpperCase()+' PRESENTER'):'NEXT · 1ST PRESENTER';
   $('position-label').textContent=label;
@@ -1108,11 +1123,14 @@ function paint(){
   $('order-count').textContent=order.length+' / 11 picked';
   $('order-list').innerHTML=Array.from({length:11},(_,i)=>'<li class="'+(order[i]===undefined?'waiting':i===10&&complete?'last':d&&i===d.position-1?'latest':'')+'">'+(order[i]===undefined?'—':esc(NAMES[order[i]]))+'</li>').join('');
   if(mode==='host'){
-   for(const [id,screen]of [['show-event-title','title'],['show-wheel','draw']]){const button=$(id),selected=(S&&S.screen||'draw')===screen;button.setAttribute('aria-pressed',String(selected));button.disabled=busy||active||blocked||!S;}
-   $('spin').disabled=!peer||noLive||busy||active||complete||blocked;
-   $('spin').textContent=blocked?'Host open on another device':pending?'Sending draw…':probe?'Checking TV…':relayWait()>0?'Waiting for relay…':active?(d.position===11?'Revealing…':'Spinning…'):complete?'Draw complete':!streamOpen?'Reconnect to spin':peer&&peer.live!==true?'Reconnect TV to spin':!peer?'Connect TV to spin':order.length===10?'Reveal final presenter':'Spin for '+ordinal(order.length+1)+' presenter';
-   $('host-hint').textContent=blocked?'Use the original host link, or create a new draw.':pending?'This name is saved. Reconnecting will keep the same pick.':probe?'Checking that the TV is on screen before drawing.':relayWait()>0?relayWaitLabel():active?'The result is shared with the TV.':complete?'All 11 names are in the list.':!streamOpen?'Connection lost. Tap Reconnect. Your order is saved.':peer&&peer.live!==true?'Reconnect or refresh the TV before drawing.':order.length===10?'Give the last presenter their own reveal.':peer?'Each picked name leaves the wheel before the next spin.':'On the MacBook, open Presentation and choose TV.';
-   $('restart').disabled=busy||active||!S||S.order.length===0||blocked;
+   for(const [id,screen]of [['show-event-title','title'],['show-wheel','draw']]){const button=$(id),selected=(S&&S.screen||'draw')===screen;button.setAttribute('aria-pressed',String(selected));button.disabled=busy||active||locked||!S;}
+   $('spin').disabled=!peer||noLive||busy||active||complete||locked;
+   $('spin').textContent=locked?'Host controls in use':pending?'Sending draw…':probe?'Checking TV…':relayWait()>0?'Waiting for relay…':active?(d.position===11?'Revealing…':'Spinning…'):complete?'Draw complete':!streamOpen?'Reconnect to spin':peer&&peer.live!==true?'Reconnect TV to spin':!peer?'Connect TV to spin':order.length===10?'Reveal final presenter':'Spin for '+ordinal(order.length+1)+' presenter';
+   $('host-hint').textContent=localHostBlocked?'Close the other Presentation host tab, then reconnect.':remoteHostBlocked?'Another device is hosting. You can move control here in TV connection without clearing the order.':blocked?'Use the original host link.':pending?'This name is saved. Reconnecting will keep the same pick.':probe?'Checking that the TV is on screen before drawing.':relayWait()>0?relayWaitLabel():active?'The result is shared with the TV.':complete?'All 11 names are in the list.':!streamOpen?'Connection lost. Tap Reconnect. Your order is saved.':peer&&peer.live!==true?'Reconnect or refresh the TV before drawing.':order.length===10?'Give the last presenter their own reveal.':peer?'Each picked name leaves the wheel before the next spin.':'On the MacBook, open Presentation and choose TV display.';
+   $('restart').disabled=busy||active||!S||S.order.length===0||locked;
+   const reconnect=$('quick-reconnect');if(reconnect)reconnect.hidden=blocked||remoteHostBlocked||!localHostBlocked&&!!(peer&&!noLive);
+   const control=$('reconnect');if(control)control.textContent=remoteHostBlocked?'Use this device as host':'Reconnect';
+   const pairing=$('pairing');if(pairing&&peer&&peer.authorized===true&&!locked&&!noLive&&!pairing.dataset.paired){pairing.open=false;pairing.dataset.paired='true';}
   }
  }
  if(discWinner()!==String(d&&!active?d.winner:'')){
@@ -1132,7 +1150,7 @@ function presentationTone(hz,length,volume,delay=0){
  const a=presentationCtx;if(!presentationSoundOn||!a||a.state!=='running'||document.hidden)return;
  try{const o=a.createOscillator(),g=a.createGain(),at=a.currentTime+.015+delay,v={o,g};o.type='triangle';o.frequency.setValueAtTime(hz,at);g.gain.setValueAtTime(.0001,at);g.gain.exponentialRampToValueAtTime(volume,at+.006);g.gain.exponentialRampToValueAtTime(.0001,at+length);o.connect(g);g.connect(a.destination);presentationVoices.add(v);o.onended=()=>{presentationVoices.delete(v);o.disconnect();g.disconnect()};o.start(at);o.stop(at+length+.02)}catch(e){}
 }
-function updatePresentationSound(){const b=$('presentation-sound');if(!b)return;const available=!!(window.AudioContext||window.webkitAudioContext),ready=presentationSoundOn&&presentationCtx&&presentationCtx.state==='running',muted=read('tv-muted')===true,text=!available?'Sound unavailable':ready?'Mute TV sound':presentationSoundOn?'Resume TV sound':'Turn on TV sound';if(b.textContent!==text)b.textContent=text;b.disabled=!available;b.setAttribute('aria-pressed',String(!!ready));const summary=$('display-sound-status');if(summary)summary.textContent=!available?'Sound unavailable':ready?'Sound on':muted?'Sound off':'Turn on sound';const start=$('presentation-sound-start');if(start){const recovering=start===document.activeElement;start.hidden=!!ready||muted||!available;if(recovering&&ready&&summary)summary.focus({preventScroll:true})}const panel=$('display-controls');if(panel)panel.hidden=!ready&&!muted&&available;}
+function updatePresentationSound(){const b=$('presentation-sound');if(!b)return;const available=!!(window.AudioContext||window.webkitAudioContext),ready=presentationSoundOn&&presentationCtx&&presentationCtx.state==='running',muted=read('tv-muted')===true,text=!available?'Sound unavailable':ready?'Mute TV sound':presentationSoundOn?'Resume TV sound':'Turn on TV sound';if(b.textContent!==text)b.textContent=text;b.disabled=!available;b.removeAttribute('aria-pressed');b.classList.toggle('sound-on',!!ready);const summary=$('display-sound-status');if(summary)summary.textContent=!available?'Sound unavailable':ready?'Sound on':muted?'Sound off':'Turn on sound';const start=$('presentation-sound-start');if(start){const recovering=start===document.activeElement;start.hidden=!!ready||muted||!available;if(recovering&&ready&&summary)summary.focus({preventScroll:true})}const panel=$('display-controls');if(panel)panel.hidden=!ready&&!muted&&available;}
 async function preparePresentationSound(confirm=false){
  if(read('tv-muted')===true){presentationSoundOn=false;updatePresentationSound();return false}
  presentationSoundOn=true;const a=presentationAudioContext(),until=performance.now()+1000;updatePresentationSound();if(!a)return false;
@@ -1159,100 +1177,146 @@ function presentationAudio(d,ready,progress,active){
 }
 function status(){
  if(!$('sync'))return;const e=$('sync');let text='',kind='';
- if(blocked){text='Another host controls this draw';kind='error'}
+ if(localHostBlocked){text=hostTab&&hostTab.requesting?'Opening host controls…':'Host controls are open in another tab';kind='error'}
+ else if(remoteHostBlocked){text='Another device is hosting this draw';kind='error'}
+ else if(blocked){text='Another host controls this draw';kind='error'}
  else if(pending){text=errorText?'Saved · '+errorText+' · retrying':'Sending the saved draw…';kind=errorText?'error':''}
  else if(relayWait()>0){text=relayWaitLabel();kind='error'}
- else if(probe)text='Checking the TV connection…';
+  else if(probe)text=probe.purpose==='recover'?'Restoring the TV’s saved draw…':'Checking the TV connection…';
  else if(errorText){text=errorText;kind='error'}
  else if(mode==='host'&&!streamOpen){text=stream&&stream.readyState===0?'Connecting…':'Connection lost. Your order is saved. Tap Reconnect.';kind=stream&&stream.readyState===0?'':'error'}
  else if(mode==='host'){text=peer?'TV connected':'Waiting for the TV display';kind=peer?'ok':''}
  else{ text=!calibrated()?'Connecting to the host…':streamOpen?'Connected to host':pollOK?'Connected · checking for updates':'Reconnecting · saved order kept';kind=calibrated()&&(streamOpen||pollOK)?'ok':''}
- if(e.textContent!==text)e.textContent=text;const className='sync'+(kind?' '+kind:'');if(e.className!==className)e.className=className;if(!storageOK)$('storage-warning').hidden=false;
+ if(window.JialatUI)JialatUI.status(e,text);else if(e.textContent!==text)e.textContent=text;const className='sync host-status'+(kind?' '+kind:'');if(e.className!==className)e.className=className;if(!storageOK)$('storage-warning').hidden=false;
 }
 async function publish(message){
  if(relayWait()>0){clearTimeout(relayWake);relayWake=relayLater(resume,relayWait());throw relayWaitingError()}
  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
- try{const response=await fetch(BASE+PREFIX+room,{method:'POST',body:JSON.stringify(message),signal:controller.signal});if(!response.ok){const e=await relayResponseError(response);if(e.status===429){errorText=relayWaitLabel();clearTimeout(relayWake);relayWake=relayLater(resume,relayWait());status()}throw e}return response}
+ try{const response=await relayFetch(BASE+PREFIX+room+(message.t==='state'?'':'?cache=no'),{method:'POST',body:JSON.stringify(message),signal:controller.signal});if(!response.ok){const e=await relayResponseError(response);if(e.status===429){errorText=relayWaitLabel();clearTimeout(relayWake);relayWake=relayLater(resume,relayWait());status()}throw e}return response}
  finally{clearTimeout(timer)}
 }
-function control(type,data){return publish(Object.assign({t:type,room,nonce:uid(),at:Date.now()},data)).catch(e=>{if(type==='hello'||type==='host-online')return;throw e})}
-function stage(packet){if(pending)return;pending=packet;errorText='';save();paint();flush()}
+function control(type,data){return publish(Object.assign({t:type,room,nonce:uid(),at:Date.now(),build:BUILD,host:mode==='host'?hostIdentity:undefined},data)).catch(e=>{if(type==='hello'||type==='host-online')return;throw e})}
+function stage(packet){if(pending||hostLocked())return;pending=packet;errorText='';save();paint();flush()}
 function accepted(packet){
- if(!pending||packet.id!==pending.id)return;S=packet;pending=null;errorText='';clearTimeout(retryTimer);retryTimer=0;retryAt=0;save();paint();
+ if(!pending||packet.id!==pending.id)return;S=packet;pending=null;sendFailures=0;errorText='';clearTimeout(retryTimer);retryTimer=0;retryAt=0;save();paint();
  if(waitingDisplay){const target=waitingDisplay;waitingDisplay='';beginProbe('sync',target)}
 }
 async function flush(){
- if(mode!=='host'||sending||!pending||blocked)return;sending=true;const packet=pending;
+ if(mode!=='host'||sending||!pending||hostLocked()||!peer||peer.authorized!==true||Date.now()<retryAt||navigator.onLine===false)return;sending=true;const packet=pending;
  try{await publish({t:'state',room,state:packet});accepted(packet)}
- catch(e){if(pending&&pending.id===packet.id){const delay=e.status===429?Math.max(1,relayWait()):5000;errorText=e.status===429?relayWaitLabel():e.status?'relay HTTP '+e.status:'connection unavailable';retryAt=Date.now()+delay;clearTimeout(retryTimer);retryTimer=relayLater(flush,delay);paint()}}
+ catch(e){if(pending&&pending.id===packet.id){sendFailures++;const delay=e.status===429?Math.max(1,relayWait()):relayRetryDelay(sendFailures);errorText=e.status===429?relayWaitLabel():e.status?'relay HTTP '+e.status:'connection unavailable';retryAt=Date.now()+delay;clearTimeout(retryTimer);retryTimer=relayLater(flush,delay);paint()}}
  finally{sending=false;if(pending&&pending.id!==packet.id&&!retryTimer)flush()}
 }
 function cancelProbe(message){if(!probe)return;clearTimeout(probe.timer);probe=null;if(message)errorText=message;paint()}
 function beginProbe(purpose,target){
- if(mode!=='host'||pending||blocked||!streamOpen)return;if(probe){if(purpose==='sync')waitingDisplay=target;return}
+ if(mode!=='host'||pending&&purpose==='spin'||blocked||localHostBlocked||!streamOpen)return;if(probe){if(purpose==='sync')waitingDisplay=target;return}
  const p={id:uid(),purpose,target:target||'*',sentAt:Date.now(),timer:0};probe=p;errorText='';paint();
  p.timer=setTimeout(()=>{if(probe===p)cancelProbe('TV not responding. Open or refresh the TV display, then try again.')},20000);
- control('probe',{probe:p.id,target:p.target,hostAt:p.sentAt}).then(()=>{if(!streamOpen)poll()}).catch(e=>{if(probe===p)cancelProbe(e.status===429?'Relay busy (429). Wait a moment, then try again.':'Could not reach the TV. Check the connection and try again.')});schedulePoll();
+ control('probe',{probe:p.id,target:p.target,hostAt:p.sentAt,purpose,takeover:takeoverRequested}).then(()=>{if(!streamOpen)poll()}).catch(e=>{if(probe===p)cancelProbe(e.status===429?'Relay busy (429). Wait a moment, then try again.':'Could not reach the TV. Check the connection and try again.')});schedulePoll();
 }
-function startSpin(){if(mode!=='host'||!streamOpen||!peer||peer.live!==true||pending||probe||spinning()||announcedOrder().length===11||blocked||relayWait()>0)return;beginProbe('spin',peer.id)}
+function startSpin(){if(mode!=='host'||!streamOpen||!peer||peer.live!==true||pending||probe||spinning()||announcedOrder().length===11||hostLocked()||relayWait()>0)return;beginProbe('spin',peer.id)}
 function makeDraw(){
  const previous=announcedOrder(),players=NAMES.map((_,i)=>i).filter(i=>!previous.includes(i)),index=players.length===1?0:randomIndex(players.length),winner=players[index],position=previous.length+1;
  const norm=players.length===1?0:((-(index+.5)*360/players.length)%360+360)%360,startAt=Date.now()+700,order=previous.concat(winner);
  const clocks=Object.assign({},S.clocks,{[peer.id]:peer.offset});
  return snapshot({order,clocks,screen:'draw',draw:{id:uid(),position,players,winner,startAt,endAt:startAt+(position===11?1800:6500),to:360*(position===11?1:5+randomIndex(3))+norm}});
 }
-function setTvScreen(screen){if(mode!=='host'||!S||pending||probe||spinning()||blocked||relayWait()>0||(S.screen||'draw')===screen)return;stage(snapshot({screen}))}
-function restart(confirmed=false){if(mode!=='host'||pending||probe||spinning()||blocked||!S.order.length)return;if(confirmed!==true){const options={title:'Start a new draw?',message:'Clear the presentation order on the host and TV? Both screens stay connected and the same 11 names return to the wheel.',label:'Start new draw'};if(window.JialatUI)JialatUI.confirm(options,()=>restart(true));else if(confirm(options.message))restart(true);return}stage(snapshot({order:[],draw:null}))}
+function setTvScreen(screen){if(mode!=='host'||!S||pending||probe||spinning()||hostLocked()||!peer||relayWait()>0||(S.screen||'draw')===screen)return;stage(snapshot({screen}))}
+function restart(confirmed=false){if(mode!=='host'||pending||probe||spinning()||hostLocked()||!S.order.length)return;if(confirmed!==true){const options={title:'Start a new draw?',message:'Clear the presentation order on the host and TV? Both screens stay connected and the same 11 names return to the wheel.',label:'Start new draw'};if(window.JialatUI)JialatUI.confirm(options,()=>restart(true));else if(confirm(options.message))restart(true);return}stage(snapshot({order:[],draw:null}))}
+async function recoverNewerDraw(message){
+ const recovery={id:uid(),purpose:'recover',target:message.display,timer:0};probe=recovery;peer=null;errorText='';paint();
+ if(valid(message.state)&&message.state.rev===message.rev){
+  if(message.state.owner!==owner){blocked=true;probe=null;paint();return}
+  revisionFloor=Math.max(revisionFloor,S?S.rev:0);S=message.state;save();paint();
+ }else await poll(true);
+ if(probe!==recovery||mode!=='host')return;
+ probe=null;
+ if(blocked){paint();return}
+ if(S&&S.rev>=message.rev&&!pending){errorText='';beginProbe('sync',message.display)}
+ else{errorText='Could not restore the newer TV draw. Keep the TV open and tap Reconnect.';paint()}
+}
 function onMessage(envelope){
- if(!envelope||envelope.event!=='message')return;if(envelope.id)cursor=envelope.id;
+ if(!envelope)return;if(envelope.event==='open'){if(finite(envelope.time))controlSince=Math.max(controlSince,envelope.time);return}if(envelope.event!=='message')return;
  if(envelope.id&&seen.has(envelope.id))return;if(envelope.id){seen.add(envelope.id);if(seen.size>400)seen.delete(seen.values().next().value)}
  let m;try{m=JSON.parse(envelope.message)}catch(e){return}if(!m||m.room!==room)return;
- if(m.t!=='state'&&Math.abs(Date.now()-(envelope.time*1000||m.at))>25000)return;
+ if(m.t!=='state'&&(finite(envelope.time)&&envelope.time<controlSince||Math.abs(Date.now()-(envelope.time*1000||m.at))>25000))return;
  if(m.t==='state'){
+  if(envelope.id)cursor=envelope.id;
   const x=m.state;if(!valid(x))return;
+  if(mode==='tv'&&controllerHost){
+   if(x.writer!==controllerHost||x.build!==BUILD)return;
+   const newPick=!!x.draw&&(!S||!S.draw||x.draw.id!==S.draw.id);
+   if(newPick&&(!tvPermit||tvPermit.host!==x.writer||tvPermit.probe!==x.grant||tvPermit.until<Date.now()))return;
+  }
   if(mode==='host'&&x.owner!==owner){if(!S||x.rev>=S.rev){blocked=true;errorText='Another host controls this draw';paint()}return}
+  if(mode==='host'&&x.writer&&x.writer!==hostIdentity&&!takeoverRequested&&(!S||x.rev>=S.rev))remoteHostBlocked=true;
   if(mode==='host'&&pending&&pending.id===x.id){accepted(x);return}
   if(mode==='host'&&pending&&x.rev>=pending.rev&&x.id!==pending.id){pending=null;clearTimeout(retryTimer);retryTimer=0;S=x;save();paint();return}
-  if(!S||x.rev>S.rev){S=x;save();paint()}
-  if(mode==='tv'&&streamOpen&&calibrated()&&S&&x.id===S.id){clearTimeout(ackTimer);ackTimer=setTimeout(()=>{if(mode==='tv'&&streamOpen&&calibrated()&&S)control('ack',{display:displayId,stateId:S.id}).catch(()=>{})},120);}
+  if(!S||x.rev>S.rev){S=x;if(mode==='tv'&&tvPermit&&x.grant===tvPermit.probe)tvPermit=null;save();paint()}
   return;
  }
  if(mode==='tv'){
   if(m.t==='host-online'&&(!m.target||m.target===displayId)&&(/^[a-f0-9]{16}$/).test(m.challenge)){schedulePoll();announce(m.challenge);return}
   if(m.t==='probe'&&(m.target==='*'||m.target===displayId)&&typeof m.probe==='string'&&finite(m.hostAt)){
-   schedulePoll();control('ready',{display:displayId,probe:m.probe,hostAt:m.hostAt,tvAt:Date.now(),visible:!document.hidden,live:streamOpen,rev:S?S.rev:0}).catch(()=>{});
+   const compatible=m.build===BUILD&&(/^[a-f0-9]{16}$/).test(m.host||'');
+   if(!controllerHost&&S&&S.writer)controllerHost=S.writer;
+   if(compatible&&m.takeover===true&&(!spinning()||controllerHost===m.host))controllerHost=m.host;
+   if(compatible&&!controllerHost)controllerHost=m.host;
+   const authorized=compatible&&controllerHost===m.host;
+   if(authorized)tvPermit={host:m.host,probe:m.probe,until:Date.now()+30000};
+   schedulePoll();control('ready',{display:displayId,probe:m.probe,hostAt:m.hostAt,tvAt:Date.now(),visible:!document.hidden,live:streamOpen,rev:S?S.rev:0,state:S,authorized,controller:controllerHost}).catch(()=>{});
   }
   return;
  }
+ if(m.t==='ready'&&m.build===BUILD&&peer&&m.display===peer.id&&m.authorized===true&&m.controller!==hostIdentity){remoteHostBlocked=true;cancelProbe();paint();return}
  if(m.t==='hello'&&(/^[a-f0-9]{16}$/).test(m.display)&&Math.abs(Date.now()-(envelope.time*1000||m.at))<25000){
   if(probe&&probe.target===m.display||peer&&peer.id===m.display&&Date.now()-peer.seen<10000)return;
   if(m.challenge!==helloChallenge){schedulePoll();control('host-online',{challenge:helloChallenge,target:m.display}).catch(()=>{});return}
-  if(pending){waitingDisplay=m.display;return}
   if(probe){const purpose=probe.purpose;cancelProbe();beginProbe(purpose,m.display)}else beginProbe('sync',m.display);return;
  }
  if(m.t==='ready'&&probe&&m.probe===probe.id&&(probe.target==='*'||probe.target===m.display)&&(/^[a-f0-9]{16}$/).test(m.display)&&finite(m.tvAt)){
   const p=probe;clearTimeout(p.timer);probe=null;
+  if(m.build!==BUILD){peer=null;errorText='Update the host and TV to Build '+BUILD+', then reconnect.';paint();return}
+  if(m.authorized!==true){remoteHostBlocked=true;peer={id:m.display,live:true,authorized:false};if(valid(m.state)){S=m.state;save()}if($('pairing'))$('pairing').open=true;errorText='Another device is hosting. Move control here only when the current draw has finished.';paint();return}
+  remoteHostBlocked=false;
   if(m.live!==true){errorText='The TV needs a live connection. Reconnect or refresh the TV, then try again.';paint();return}
   if(!m.visible){errorText='The TV tab is in the background. Bring it on screen before spinning.';paint();return}
-  if(m.rev>S.rev){errorText='The TV has a newer draw. Reconnect the host before spinning.';poll();paint();return}
+  if(pending&&m.state&&pending.id===m.state.id)accepted(m.state);
+  if(pending&&valid(m.state)){
+   const kept=m.state.order,picked=pending.order,disagrees=kept.some((n,i)=>picked[i]!==n)||pending.draw&&m.state.draw&&pending.draw.position<=m.state.draw.position&&pending.draw.id!==m.state.draw.id;
+   if(disagrees){write('conflict-'+room,{saved:pending,tv:m.state});revisionFloor=Math.max(revisionFloor,pending.rev,S.rev);pending=null;clearTimeout(retryTimer);retryTimer=0;retryAt=0;S=m.state;save()}
+  }
+  if(m.rev>S.rev||m.rev===S.rev&&m.state&&m.state.id!==S.id||valid(m.state)&&m.state.order.some((n,i)=>S.order[i]!==n)){recoverNewerDraw(m);return}
   const roundTrip=Date.now()-p.sentAt,offset=roundTrip<3000?(p.sentAt+Date.now())/2-m.tvAt:0;
-  peer={id:m.display,offset,seen:Date.now(),live:true};errorText='';if($('pairing'))$('pairing').open=false;
-  if(p.purpose==='spin'){stage(makeDraw())}
-  else{const clocks=Object.assign({},S.clocks,{[peer.id]:peer.offset});while(Object.keys(clocks).length>8)delete clocks[Object.keys(clocks)[0]];stage(snapshot({clocks}))}
+  peer={id:m.display,offset,seen:Date.now(),live:true,authorized:true};errorText='';takeoverRequested=false;if($('pairing'))$('pairing').open=false;
+  if(pending){pending=Object.assign({},pending,{writer:hostIdentity,build:BUILD,grant:p.id,clocks:Object.assign({},pending.clocks,{[peer.id]:peer.offset})});save();flush()}
+  else if(p.purpose==='spin'&&m.rev<S.rev){stage(snapshot({grant:p.id,clocks:Object.assign({},S.clocks,{[peer.id]:peer.offset})}))}
+  else if(p.purpose==='spin'){stage(Object.assign(makeDraw(),{grant:p.id}))}
+  else{const clocks=Object.assign({},S.clocks,{[peer.id]:peer.offset});while(Object.keys(clocks).length>8)delete clocks[Object.keys(clocks)[0]];stage(snapshot({clocks,grant:p.id}))}
   return;
  }
- if(m.t==='ack'&&typeof m.display==='string'&&S&&m.stateId===S.id){if(peer&&peer.id===m.display)peer.seen=Date.now();status()}
 }
 function announce(challenge=''){if(mode!=='tv'||!streamOpen||document.hidden||challenge&&answeredChallenges.has(challenge))return;if(challenge){answeredChallenges.add(challenge);if(answeredChallenges.size>40)answeredChallenges.delete(answeredChallenges.values().next().value)}control('hello',{display:displayId,challenge}).catch(()=>{})}
 function schedulePoll(){clearTimeout(pollTimer);pollTimer=0;if(!mode||streamOpen)return;pollTimer=setTimeout(async()=>{await poll();schedulePoll()},60000)}
-async function poll(){
- if(polling||!mode||document.hidden||relayWait()>0)return;polling=true;const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
- try{const r=await fetch(BASE+PREFIX+room+'/json?poll=1&since='+encodeURIComponent(cursor||'all'),{cache:'no-store',signal:controller.signal});if(!r.ok){if((r.status===400||r.status===404)&&cursor)cursor='';const e=await relayResponseError(r);if(e.status===429){if(stream)stream.close();streamOpen=false;clearTimeout(relayWake);relayWake=relayLater(resume,relayWait())}throw e}(await r.text()).trim().split('\n').forEach(line=>{if(line)try{onMessage(JSON.parse(line))}catch(e){}});pollOK=true}
- catch(e){pollOK=false}finally{clearTimeout(timer);polling=false;status()}
+function poll(replay=false){
+ if(polling)return replay===true?polling.then(()=>poll(true)):polling;
+ if(!mode||document.hidden||relayWait()>0)return Promise.resolve();
+ const pollRoom=room,pollMode=mode,controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);
+ const task=Promise.resolve().then(async()=>{
+  try{
+   const r=await relayFetch(BASE+PREFIX+pollRoom+'/json?poll=1&since='+encodeURIComponent(replay===true?'all':cursor||'all'),{cache:'no-store',signal:controller.signal});
+   if(room!==pollRoom||mode!==pollMode)return;
+   if(!r.ok){if((r.status===400||r.status===404)&&cursor){cursor='';if(!streamOpen)connect()}const e=await relayResponseError(r);if(e.status===429){if(stream)stream.close();streamOpen=false;clearTimeout(relayWake);relayWake=relayLater(resume,relayWait())}throw e}
+   const text=await r.text();if(room!==pollRoom||mode!==pollMode)return;
+   text.trim().split('\n').forEach(line=>{if(line)try{onMessage(JSON.parse(line))}catch(e){}});pollOK=true;
+  }catch(e){if(room===pollRoom&&mode===pollMode)pollOK=false}
+  finally{clearTimeout(timer);if(polling===task)polling=false;if(room===pollRoom&&mode===pollMode)status()}
+ });
+ polling=task;return task;
 }
 function connect(){
  if(relayWait()>0){if(stream)stream.close();streamOpen=false;clearTimeout(relayWake);relayWake=relayLater(resume,relayWait());status();return}
- if(stream)stream.close();streamOpen=false;if(mode==='host')helloChallenge=uid();
+ if(stream)stream.close();streamOpen=false;controlSince=0;if(mode==='host')helloChallenge=uid();
  try{stream=relayStream(BASE+PREFIX+room+'/sse?since='+encodeURIComponent(cursor||'all'));
   stream.onconnecting=()=>{streamOpen=false;paint()};
   stream.onopen=()=>{streamOpen=true;pollOK=true;clearTimeout(pollTimer);pollTimer=0;paint();if(mode==='host'){helloChallenge=uid();flush();control('host-online',{challenge:helloChallenge}).catch(()=>{})}else announce()};
@@ -1260,25 +1324,37 @@ function connect(){
   stream.addEventListener('message',e=>{try{onMessage(JSON.parse(e.data))}catch(err){}});
  }catch(e){streamOpen=false;poll();schedulePoll()}
 }
-function resume(force){if(!mode||document.hidden)return;errorText='';if(force===true||!stream||stream.readyState===2)connect();if(mode==='host')flush();else if(streamOpen)announce();paint()}
+function resume(force){
+ if(!mode||document.hidden)return;
+ if(mode==='host'&&hostTab&&!hostTab.active){hostTab.acquire().then(()=>paint());return}
+ errorText='';if(force&&force.type==='online'){clearTimeout(retryTimer);retryTimer=0;retryAt=0;sendFailures=0}
+ if(force&&force.takeover)takeoverRequested=true;
+ if((force===true||force&&force.takeover)&&mode==='host'){cancelProbe();peer=null;waitingDisplay=''}
+ if(force===true||force&&force.takeover||!stream||stream.readyState===2)connect();
+ if(mode==='host')flush();else if(streamOpen&&!calibrated())announce();paint();
+}
+function reconnectHost(){if(remoteHostBlocked){const options={title:'Move host control here?',message:'Keep the saved presentation order and move control to this device. The other host becomes read-only.',label:'Use this device'};if(window.JialatUI)JialatUI.confirm(options,()=>resume({takeover:true}));else if(confirm(options.message))resume({takeover:true})}else resume(true)}
 async function copyTV(){try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error('Clipboard unavailable');await navigator.clipboard.writeText(tvLink());$('copy-note').textContent='TV link copied. Open it on the MacBook or TV.'}catch(e){$('tv-link').focus();$('tv-link').select();$('copy-note').textContent='Select and copy the TV link above.'}}
-function cleanup(){clearTimeout(ackTimer);stopPresentationAudio();soundDraw='';soundEligible=false;soundRevealed.clear();clearTimeout(relayWake);if(stream)stream.close();stream=null;clearTimeout(pollTimer);clearTimeout(retryTimer);clearTimeout(helloTimer);if(probe)clearTimeout(probe.timer);if(raf)cancelAnimationFrame(raf);raf=0;probe=null;peer=null;waitingDisplay='';seen=new Set();cursor='';streamOpen=false;pollOK=false;wheelKey='';viewKey='';sending=false;polling=false;blocked=false;errorText='';readyViewSeen=false;lastReadyDraw='';revealArmed='';revealedDraw='';helloChallenge=uid();answeredChallenges=new Set()}
+function cleanup(){if(hostTab){hostTab.dispose();hostTab=null}localHostBlocked=false;remoteHostBlocked=false;takeoverRequested=false;controllerHost='';tvPermit=null;revisionFloor=0;clearTimeout(ackTimer);stopPresentationAudio();soundDraw='';soundEligible=false;soundRevealed.clear();clearTimeout(relayWake);if(stream)stream.close();stream=null;clearTimeout(pollTimer);clearTimeout(retryTimer);clearTimeout(helloTimer);if(probe)clearTimeout(probe.timer);if(raf)cancelAnimationFrame(raf);raf=0;probe=null;peer=null;waitingDisplay='';seen=new Set();cursor='';controlSince=0;retryAt=0;sendFailures=0;streamOpen=false;pollOK=false;wheelKey='';viewKey='';sending=false;polling=false;blocked=false;errorText='';readyViewSeen=false;lastReadyDraw='';revealArmed='';revealedDraw='';helloChallenge=uid();answeredChallenges=new Set()}
 function route(fromEntry=false){
  cleanup();mode='';room='';owner='';S=null;pending=null;
  const direct=/^#(host|tv)$/.exec(location.hash),legacy=/^#(host|tv)=([a-z2-9]{8})(?:\.([a-f0-9]{16}))?$/.exec(location.hash);
  if(!direct&&(!legacy||legacy[1]==='host'&&!legacy[3])){landing();return}
  mode=direct?direct[1]:legacy[1];room=direct?EVENT_ROOM:legacy[2];owner=mode==='host'?(direct?EVENT_OWNER:legacy[3]):'';displayId=uid();const saved=read('state-'+room);if(valid(saved))S=saved;
  if(mode==='host'){
-  write('last',{room,owner});const h=read('host-'+room);if(h&&h.owner===owner&&valid(h.pending))pending=h.pending;
+  write('last',{room,owner});const h=read('host-'+room);if(h&&h.owner===owner){if(valid(h.pending))pending=h.pending;if(Number.isSafeInteger(h.floor)&&h.floor>=0&&h.floor<1000000000)revisionFloor=h.floor;}
   if(!S)S=emptyState();if(S.owner!==owner)blocked=true;
-  if(!pending&&!blocked)pending=S;save();
+  if(S.writer&&S.writer!==hostIdentity)remoteHostBlocked=true;save();
  }
- layout();connect();if(mode==='host')flush();else preparePresentationSound(fromEntry===true)
+ layout();if(mode==='host'&&window.JialatUI&&JialatUI.hostGuard){localHostBlocked=true;hostTab=JialatUI.hostGuard('presentation-'+room,active=>{localHostBlocked=!active;if(active)connect();else{if(stream)stream.close();streamOpen=false;peer=null;cancelProbe();paint()}});const tab=hostTab;tab.acquire().then(()=>{if(hostTab===tab)paint()})}else{connect();if(mode==='tv')preparePresentationSound(fromEntry===true)}
 }
 window.addEventListener('jialat-relay-status',()=>{if(pending&&relayWait()>0)errorText=relayWaitLabel();paint()});
 window.addEventListener('hashchange',route);window.addEventListener('online',resume);window.addEventListener('pageshow',e=>{if(e.persisted)resume()});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){soundEligible=false;stopPresentationAudio()}else resume()});
 window.addEventListener('pagehide',()=>{soundEligible=false;stopPresentationAudio()});
+if(window.JialatUI&&JialatUI.build===BUILD){
 route();
+if(window.JialatUI)JialatUI.ready();
+}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 22 files together, then reload this page.';}
 })();
 </script></body></html>

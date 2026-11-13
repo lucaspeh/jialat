@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head><meta name="jialat-build" content="22">
   <meta charset="utf-8">
   <meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -80,7 +80,7 @@ h1  {
 .friendship  {
   margin: 6px 0 8px;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size:calc(14 * var(--font-unit));
   letter-spacing: .035em;
 }
 .trip-dates  {
@@ -89,7 +89,7 @@ h1  {
   padding: 5px 11px;
   border: 1px solid var(--gold-deep);
   color: var(--gold-light);
-  font-size: 12px;
+  font-size:calc(12 * var(--font-unit));
   letter-spacing: .04em;
 }
 .menu-grid  {
@@ -137,7 +137,7 @@ h1  {
 .destination-title  {
   margin: 0 0 4px;
   color: var(--gold-light);
-  font-size: 17px;
+  font-size:calc(17 * var(--font-unit));
   font-weight: 700;
   line-height: 1.35;
   letter-spacing: .025em;
@@ -147,7 +147,7 @@ h1  {
 .destination-description  {
   margin: 0;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size:calc(14 * var(--font-unit));
   font-weight: 400;
   line-height: 1.4;
   letter-spacing: 0;
@@ -263,13 +263,13 @@ h1  {
 @media (max-width: 759px) and (max-height: 700px) {
   .christmas-mark { width: 24px; height: 27px; margin-bottom: 4px; }
   .menu-header { margin-bottom: 12px; }
-  h1 { font-size: 28px; }
+  h1 { font-size:calc(28 * var(--font-unit)); }
   .friendship { margin: 4px 0 6px; }
   .trip-dates { padding: 3px 9px; }
   .menu-grid { gap: 8px; }
   .destination-card { padding: 8px 10px; gap: 10px; grid-template-columns: 34px minmax(0, 1fr) 10px; }
   .card-icon { width: 34px; height: 34px; }
-  .destination-title { font-size: 16px; }
+  .destination-title { font-size:calc(16 * var(--font-unit)); }
   .brand-signature { padding-top: 12px; }
 }
 @media (max-width: 759px) and (max-height: 600px) {
@@ -285,12 +285,12 @@ h1  {
   .menu-shell { padding-top:max(10px,env(safe-area-inset-top,0px)); padding-bottom:max(10px,env(safe-area-inset-bottom,0px)); }
   .menu-header { margin-bottom:12px; }
   .christmas-mark { width:20px; height:23px; margin-bottom:4px; }
-  h1 { font-size:28px; }
+  h1 { font-size:calc(28 * var(--font-unit)); }
   .friendship { margin:4px 0; }
   .trip-dates { padding:2px 9px; }
   .menu-grid { gap:12px; }
   .destination-card { min-height:88px; padding:8px 12px; gap:12px; }
-  .destination-title { font-size:16px; }
+  .destination-title { font-size:calc(16 * var(--font-unit)); }
   .brand-signature { padding-top:8px; }
 }
 @media (hover: hover) and (pointer: fine)  {
@@ -328,7 +328,7 @@ h1  {
   height: auto;
 }
 </style>
-<link rel="stylesheet" href="assets/layout.css?v=17">
+<link rel="stylesheet" href="assets/layout.css?v=22">
 <link rel="stylesheet" href="assets/festive.css?v=retro-xmas-1">
 </head>
 <body data-page="menu">
@@ -371,7 +371,7 @@ h1  {
         </li>
       </ul>
     </nav>
-    <footer class="brand-signature"><img src="assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></footer>
+    <footer class="brand-signature"><img src="assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></footer><p class="build-stamp site-build" data-jialat-build="22">Build 22</p>
 
 
   </main>
