@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta name="jialat-build" content="23"><meta charset="utf-8"><meta name="robots" content="noindex">
+<html lang="en"><head><meta name="jialat-build" content="24"><meta charset="utf-8"><meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a">
 <meta name="description" content="Nine Christmas games. One overall champion. S$18 for the winner. Choose the host controls or the TV display.">
@@ -1639,8 +1639,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 #tvAudio .display-controls-panel>button{width:100%;margin-bottom:8px}#tvAudio .display-controls-panel>a{display:flex;align-items:center;min-height:44px;margin-top:8px;border-top:1px solid var(--d);padding-top:8px}
 #tvAudio .tone-tests{padding:8px 0;border:0}
 
-</style><link rel="stylesheet" href="../assets/layout.css?v=23">
-<link rel="stylesheet" href="../assets/festive.css?v=23">
+</style><link rel="stylesheet" href="../assets/layout.css?v=24">
+<link rel="stylesheet" href="../assets/festive.css?v=24">
 </head><body data-page="scoreboard"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section>
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
@@ -1649,8 +1649,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <img class="tv-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async">
 <main id="H"></main>
 <div id="T"><div id="msg"></div><div id="bd"><h1 id="th"></h1><p id="boardHint"></p><div id="ban"></div><div id="rows"></div><div id="lg"><span style="color:var(--l)">1ST · S$18 CASH PRIZE</span><span>2–6 SAFE</span><span>7–9 NEXT YEAR’S ORGANISERS</span><span>10TH · THE JIALAT TROPHY</span></div></div></div>
-<script src="../assets/ui.js?v=23"></script>
-<script src="../assets/reliability.js?v=23"></script>
+<script src="../assets/ui.js?v=24"></script>
+<script src="../assets/reliability.js?v=24"></script>
 <script>
 
 // Connection state is shared by the three apps on this browser. No game data is stored here.
@@ -1670,8 +1670,8 @@ function relayQuota(){var q=relayRead('jialat-relay-quota');return q&&Number.isF
 function relayUseQuota(q){
  if(q&&q.remaining===0&&q.resetAt>Date.now()&&q.resetAt>relayInfo().until){relayMemory={until:q.resetAt,reason:'Daily relay allowance used up',code:42908,resetKnown:true,source:'quota-status'};relayWrite('jialat-relay-hold',relayMemory)}
 }
-async function relayQuotaCheck(){
- var cached=relayQuota();if(cached&&Date.now()-cached.checkedAt<60000){relayUseQuota(cached);return cached}
+async function relayQuotaCheck(force=false){
+ var cached=relayQuota();if(force!==true&&cached&&Date.now()-cached.checkedAt<60000){relayUseQuota(cached);return cached}
  if(relayQuotaPromise)return relayQuotaPromise;
  relayQuotaPromise=(async function(){var c=new AbortController(),timer=setTimeout(function(){c.abort()},8000);try{
   var r=await relayFetch('https://ntfy.sh/v1/account',{cache:'no-store',credentials:'omit',signal:c.signal});if(!r.ok)return null;
@@ -1687,8 +1687,8 @@ async function relayResponseError(response){
  var delay=isFinite(seconds)?Math.max(0,seconds*1000):Date.parse(raw)-Date.now(),known=Number.isFinite(delay),detail='',code=0;
  try{var body=await response.json();detail=body&&typeof body.error==='string'?body.error:'';code=body&&Number.isSafeInteger(body.code)?body.code:0}catch(ignore){}
  // Some cross-origin services do not expose Retry-After. Their JSON usage response exposes the reset time.
- if(!known&&(code===42908||/daily.*message|message.*daily/i.test(detail))){var q=await relayQuotaCheck();if(q&&q.remaining===0&&q.resetAt>Date.now()){delay=q.resetAt-Date.now();known=true}}
- if(!known)delay=code===42908?1800000:30000;
+ if(!known&&(code===42908||code===42905||/daily.*message|message.*daily/i.test(detail))){var q=await relayQuotaCheck(true);if(q&&(code===42905||code===42908||q.remaining===0)&&q.resetAt>Date.now()){delay=q.resetAt-Date.now();known=true}}
+ if(!known)delay=(code===42908||code===42905)?1800000:30000;
  var at=Date.now(),until=at+Math.max(5000,delay),previous=relayInfo();
  if(until>=previous.until){relayMemory={until:until,reason:relayReason(code,detail),code:code,resetKnown:known,source:'server-response'};relayWrite('jialat-relay-hold',relayMemory)}
  relayWrite('jialat-relay-diagnostic',{http:429,code:code,reason:relayReason(code,detail),at:at,retryAt:relayInfo().until,retryHeaderVisible:raw!==null,resetKnown:known});
@@ -1711,14 +1711,30 @@ function relayPanelBind(){
 }
 // Try a second persistent connection before entering a deliberately slow standby mode.
 function relayStream(url){
- var api={readyState:0,kind:'',onopen:null,onerror:null,onmessage:null,onconnecting:null},listeners=[],source=null,socket=null,timer=0,closed=false,failed=false,generation=0,lastMessageId='';
+ var api={readyState:0,kind:'',onopen:null,onerror:null,onmessage:null,onconnecting:null},listeners=[],source=null,socket=null,timer=0,retryTimer=0,failures=0,closed=false,failed=false,generation=0,lastMessageId='';
  function emit(e){if(closed||failed)return;try{var packet=JSON.parse(e.data);if(packet.event==='message'&&typeof packet.id==='string'){var transient=false;try{var body=JSON.parse(packet.message);transient=body&&((body._jialat==='control')||['hello','host-online','probe','ready','ack'].includes(body.t))}catch(ignore){}if(!transient)lastMessageId=packet.id}}catch(ignore){}if(api.onmessage)api.onmessage(e);listeners.forEach(function(f){f(e)})}
  function stopCurrent(){generation++;clearTimeout(timer);timer=0;if(source){source.onopen=source.onerror=source.onmessage=null;source.close();source=null}if(socket){socket.onopen=socket.onerror=socket.onclose=socket.onmessage=null;try{socket.close()}catch(e){}socket=null}}
- function fail(){if(closed||failed)return;failed=true;api.readyState=2;stopCurrent();if(api.onerror)api.onerror({type:'error'})}
- function opened(kind){if(closed||failed||api.readyState===1&&api.kind===kind)return;if(window.JialatUI&&JialatUI.recordTraffic)JialatUI.recordTraffic('streamOpens');clearTimeout(timer);timer=0;api.kind=kind;api.readyState=1;if(api.onopen)api.onopen({type:'open'})}
- function webSocket(){if(closed||failed)return;stopCurrent();api.readyState=0;if(api.onconnecting)api.onconnecting({type:'connecting'});if(relayWait()>0){fail();return}try{if(!window.WebSocket)throw Error('WebSocket unavailable');var token=generation,u=new URL(url);u.protocol=u.protocol==='https:'?'wss:':'ws:';u.pathname=u.pathname.replace(/\/sse$/,'/ws');if(lastMessageId)u.searchParams.set('since',lastMessageId);socket=new WebSocket(u.href);socket.onopen=function(){if(token===generation)opened('websocket')};socket.onmessage=function(e){if(token===generation)emit(e)};socket.onerror=socket.onclose=function(){if(token===generation)fail()};timer=setTimeout(fail,8000)}catch(e){fail()}}
- timer=setTimeout(function(){if(closed)return;try{if(relayWait()>0){fail();return}if(!window.EventSource)throw Error('EventSource unavailable');var token=++generation;source=new EventSource(url);source.onopen=function(e){if(token===generation){opened('sse');if(e&&e.data)emit(e)}};source.onerror=function(){if(token===generation)webSocket()};source.addEventListener('message',function(e){if(token===generation)emit(e)});timer=setTimeout(webSocket,8000)}catch(e){webSocket()}},0);
- api.addEventListener=function(type,fn){if(type==='message')listeners.push(fn)};api.close=function(){if(closed)return;if(window.JialatUI&&JialatUI.recordTraffic)JialatUI.recordTraffic('streamCloses');closed=true;api.readyState=2;stopCurrent();listeners=[];window.removeEventListener('pagehide',api.close)};window.addEventListener('pagehide',api.close);return api;
+ function fail(){
+  if(closed||failed)return;failed=true;failures++;api.readyState=2;stopCurrent();
+  if(api.onerror)api.onerror({type:'error'});
+  if(!closed&&!retryTimer)retryTimer=relayLater(function(){retryTimer=0;if(!closed&&!document.hidden)eventSource()},Math.max(relayWait(),relayRetryDelay(failures)));
+ }
+ function opened(kind){if(closed||failed||api.readyState===1&&api.kind===kind)return;failures=0;if(window.JialatUI&&JialatUI.recordTraffic)JialatUI.recordTraffic('streamOpens');clearTimeout(timer);timer=0;api.kind=kind;api.readyState=1;if(api.onopen)api.onopen({type:'open'})}
+ function streamURL(kind){var u=new URL(url);if(kind==='websocket'){u.protocol=u.protocol==='https:'?'wss:':'ws:';u.pathname=u.pathname.replace(/\/sse$/,'/ws')}if(lastMessageId)u.searchParams.set('since',lastMessageId);return u.href}
+ function webSocket(){
+  if(closed||failed)return;stopCurrent();api.readyState=0;if(api.onconnecting)api.onconnecting({type:'connecting'});
+  if(relayWait()>0){fail();return}
+  try{if(!window.WebSocket)throw Error('WebSocket unavailable');var token=generation;socket=new WebSocket(streamURL('websocket'));socket.onopen=function(){if(token===generation)opened('websocket')};socket.onmessage=function(e){if(token===generation)emit(e)};socket.onerror=socket.onclose=function(){if(token===generation)fail()};timer=setTimeout(fail,8000)}catch(e){fail()}
+ }
+ function eventSource(){
+  if(closed)return;stopCurrent();failed=false;api.readyState=0;if(api.onconnecting)api.onconnecting({type:'connecting'});
+  if(relayWait()>0){fail();return}
+  try{if(!window.EventSource)throw Error('EventSource unavailable');var token=generation;source=new EventSource(streamURL('sse'));source.onopen=function(e){if(token===generation){opened('sse');if(e&&e.data)emit(e)}};source.onerror=function(){if(token===generation)webSocket()};source.addEventListener('message',function(e){if(token===generation)emit(e)});timer=setTimeout(webSocket,8000)}catch(e){webSocket()}
+ }
+ timer=setTimeout(eventSource,0);
+ api.addEventListener=function(type,fn){if(type==='message')listeners.push(fn)};
+ api.close=function(){if(closed)return;if(window.JialatUI&&JialatUI.recordTraffic)JialatUI.recordTraffic('streamCloses');closed=true;clearTimeout(retryTimer);retryTimer=0;api.readyState=2;stopCurrent();listeners=[];window.removeEventListener('pagehide',api.close)};
+ window.addEventListener('pagehide',api.close);return api;
 }
 // End shared relay.
 
@@ -1827,9 +1843,9 @@ const rn=i=>S.nm[i]||'P'+(i+1),nm=i=>esc(rn(i));
 let ROLE=(location.hash.match(/host|tv/)||[''])[0];
 const save=()=>{try{localStorage.setItem('jialat26',JSON.stringify(S))}catch(e){if(window.JialatUI)JialatUI.storageFailure()}};
 const status=(kind,label)=>{if(ROLE==='host'&&localHostBlocked){kind='bad';label='Host controls open in another tab'}else if(ROLE==='host'&&remoteHostBlocked){kind='bad';label='Read-only · another device is hosting'}$('dot').className='dot '+kind;if(window.JialatUI)JialatUI.status($('sync'),label);else $('sync').textContent=label};
-const BOARD_BUILD='23',hostIdentity=window.JialatUI&&/^[a-f0-9]{16}$/.test(JialatUI.deviceId||'')?JialatUI.deviceId:boardToken(),displayIdentity=boardToken();
+const BOARD_BUILD='24',hostIdentity=window.JialatUI&&/^[a-f0-9]{16}$/.test(JialatUI.deviceId||'')?JialatUI.deviceId:boardToken(),displayIdentity=boardToken();
 let hostTab=null,localHostBlocked=false,remoteHostBlocked=false,boardAuthorized=false,boardController='',boardTV='',boardNonce='',boardTakeover=false,boardProbeTimer=0,boardControlSince=0,boardTVGranted=false,boardCursor='';
-let pt,retryTimer=null,retryAt=0,sendFailures=0,sending=false,queued=null,inFlightBody=null,stream=null,pollTimer=null,streamOpen=false,polling=false;
+let pt,retryTimer=null,retryAt=0,sendFailures=0,sending=false,queued=null,inFlightBody=null,stream=null,pollTimer=null,streamOpen=false,polling=false,pollTask=null;
 const deliveredStates=new Set(),handledControls=new Set();
 function boardHostLocked(){if(hostTab&&!hostTab.active)localHostBlocked=true;return localHostBlocked||remoteHostBlocked}
 function boardToken(){const a=new Uint8Array(8);crypto.getRandomValues(a);return Array.from(a,n=>n.toString(16).padStart(2,'0')).join('')}
@@ -1898,7 +1914,7 @@ async function sendLatest(){
  const ctrl=new AbortController(),limit=setTimeout(()=>ctrl.abort(),8000);
  try{const r=await relayFetch(URL_,{method:'POST',body,signal:ctrl.signal});if(!r.ok)throw await relayResponseError(r);
   clearTimeout(retryTimer);retryTimer=null;retryAt=0;sendFailures=0;if(!queued){pending(null);status('ok','Update sent')}
- }catch(e){if(deliveredStates.has(key)){if(!queued)pending(null);status('ok','Update confirmed by relay');return}if(localHostBlocked||remoteHostBlocked){if(!queued)queued=body;retainBoardConflict();return}if(!queued)queued=body;pending(queued);
+ }catch(e){if(!e.status)await poll(true);if(deliveredStates.has(key)){if(!queued)pending(null);status('ok','Update confirmed by relay');return}if(localHostBlocked||remoteHostBlocked){if(!queued)queued=body;retainBoardConflict();return}if(!queued)queued=body;pending(queued);
   const detail=e.status===429?relayWaitLabel():e.status?'Relay HTTP '+e.status:'Connection lost';status('bad',detail+' · retrying');
   sendFailures++;const delay=e.status===429?Math.max(1,relayWait()):relayRetryDelay(sendFailures);retryAt=Date.now()+delay;clearTimeout(retryTimer);retryTimer=relayLater(sendLatest,delay);
  }finally{clearTimeout(limit);inFlightBody=null;sending=false;if(queued&&!retryTimer){clearTimeout(pt);pt=setTimeout(sendLatest,250)}}
@@ -1912,13 +1928,13 @@ function receive(j){try{
  if(ROLE==='host'&&x.writer===hostIdentity){const key=boardStateKey(x);deliveredStates.add(key);if(deliveredStates.size>200)deliveredStates.delete(deliveredStates.values().next().value);if(queued&&boardStateKey(JSON.parse(queued))===key){queued=null;pending(null);clearTimeout(retryTimer);retryTimer=null;retryAt=0;sendFailures=0;status('ok','Update confirmed by relay')}}
  if(x.v>S.v){if(ROLE==='host'&&x.writer&&x.writer!==hostIdentity){remoteHostBlocked=true;boardAuthorized=false;retainBoardConflict()}adoptBoard(x,true)}
  }catch(e){}}
-async function poll(){if(polling||document.hidden||relayWait()>0)return;polling=true;
+function poll(confirmPending=false){if(pollTask)return confirmPending===true?pollTask.then(()=>poll(true)):pollTask;if(document.hidden&&confirmPending!==true||relayWait()>0)return Promise.resolve();polling=true;const task=(async()=>{
  try{const ctrl=new AbortController(),limit=setTimeout(()=>ctrl.abort(),8000);let r;
   try{r=await relayFetch(URL_+'/json?poll=1&since='+encodeURIComponent(boardCursor||'all'),{cache:'no-store',signal:ctrl.signal})}finally{clearTimeout(limit)}
   if(!r.ok){if((r.status===400||r.status===404)&&boardCursor){boardCursor='';if(!streamOpen)conn()}throw await relayResponseError(r)}
   (await r.text()).trim().split('\n').forEach(line=>{if(line)try{receive(JSON.parse(line))}catch(e){}});if(!streamOpen)status('ok','Connected · checking for updates');
  }catch(e){if(e.status===429){if(stream)stream.close();streamOpen=false;conn()}if(!streamOpen)status('bad',relayWait()>0?relayWaitLabel():'Connection lost · retrying')}
- finally{polling=false}}
+ finally{polling=false}})();pollTask=task;task.then(()=>{if(pollTask===task)pollTask=null},()=>{if(pollTask===task)pollTask=null});return task}
 function conn(){
  if(!window.JialatUI||JialatUI.build!==BOARD_BUILD||!ROLE||ROLE==='host'&&localHostBlocked)return;
  if(relayWait()>0){if(stream)stream.close();streamOpen=false;clearInterval(pollTimer);pollTimer=relayLater(()=>{pollTimer=null;conn()},relayWait());status('bad',relayWaitLabel());return}
@@ -2290,7 +2306,7 @@ if(window.JialatUI&&JialatUI.build===BOARD_BUILD){
 if(!validBoard(S)){S=D();JialatUI.storageFailure()}
 enterRole(ROLE,false);
 JialatUI.ready();
-}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 23 files together, then reload this page.';document.body.className='landing';}
+}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 24 files together, then reload this page.';document.body.className='landing';}
 function followRoleLink(){const role=(location.hash.match(/host|tv/)||[''])[0];if(role!==ROLE)enterRole(role,false)}
 window.addEventListener('hashchange',followRoleLink);window.addEventListener('popstate',followRoleLink);
 for(const id of ['tvAudio','tvAudioTests'])$(id).addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();$(id).open=false;$(id).querySelector('summary').focus()}});

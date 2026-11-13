@@ -447,4 +447,4 @@ body[data-page="presentation"].host #quick-reconnect { min-width:0; max-width:10
   .large-text .activity-header .role-label { flex-basis:100%; }
 }
 
-.build-stamp{font-size:.8125rem;color:var(--color-muted,#b9b6a8);margin-block:.75rem}.site-build{text-align:center;max-width:100%;overflow-wrap:anywhere}.storage-save-warning,.host-control-note{color:var(--color-text,#f2ead3);background:#241c0b;border:1px solid #d4af37;padding:.75rem;margin:.75rem;overflow-wrap:anywhere}.host-control-note:empty{display:none}.host-control-note button{margin-top:.5rem}
+.storage-save-warning,.host-control-note{color:var(--color-text,#f2ead3);background:#241c0b;border:1px solid #d4af37;padding:.75rem;margin:.75rem;overflow-wrap:anywhere}.host-control-note:empty{display:none}.host-control-note button{margin-top:.5rem}

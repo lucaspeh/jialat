@@ -1,7 +1,7 @@
 /* Local host coordination and traffic accounting. No background network traffic. */
 (function () {
   'use strict';
-  var ui = window.JialatUI || {}, build = '23';
+  var ui = window.JialatUI || {}, build = '24';
   var complete = ['ready', 'bind', 'status', 'arena'].every(function (key) { return typeof ui[key] === 'function'; });
   function token() {
     var bytes = new Uint8Array(8); crypto.getRandomValues(bytes);
@@ -99,10 +99,7 @@
     var ready = ui.ready;
     ui.ready = function () {
       ready(); showTraffic();
-      var panel = document.querySelector('.display-controls-panel, #tvAudio > div');
-      if (panel && !panel.querySelector('[data-jialat-build]')) {
-        var stamp = document.createElement('p'); stamp.className = 'build-stamp'; stamp.dataset.jialatBuild = build; stamp.textContent = 'Build ' + build; panel.appendChild(stamp);
-      }
+
     };
   }
   window.JialatUI = ui;
