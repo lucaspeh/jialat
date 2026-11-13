@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta name="jialat-build" content="22"><meta charset="utf-8"><meta name="robots" content="noindex">
+<html lang="en"><head><meta name="jialat-build" content="23"><meta charset="utf-8"><meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a"><meta name="description" content="AFTER 18 YEARS… Presentation night. One shared draw for 11 friends."><title>AFTER 18 YEARS…</title>
 
@@ -926,11 +926,11 @@ a[href="../"]:active  {
 .display-controls-panel .button{width:100%}.display-controls-panel>a{display:flex;align-items:center;min-height:44px;margin-top:8px;padding-top:8px;border-top:1px solid var(--edge)}
 
 .join-error:empty{display:none}body:not(.host):not(.tv) .shell{padding-bottom:max(16px,env(safe-area-inset-bottom,0px))}
-</style><link rel="stylesheet" href="../assets/layout.css?v=22">
-<link rel="stylesheet" href="../assets/festive.css?v=retro-xmas-1">
+</style><link rel="stylesheet" href="../assets/layout.css?v=23">
+<link rel="stylesheet" href="../assets/festive.css?v=23">
 </head><body data-page="presentation"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section><div class="shell" id="app"></div>
-<script src="../assets/ui.js?v=22"></script>
-<script src="../assets/reliability.js?v=22"></script>
+<script src="../assets/ui.js?v=23"></script>
+<script src="../assets/reliability.js?v=23"></script>
 <script>
 (function(){
 'use strict';
@@ -1013,7 +1013,7 @@ const TROPHY_DATA='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAFoCAYAAAB
 // One shared event, with separate Host and TV roles. The event identity is not a password.
 const BASE='https://ntfy.sh/',PREFIX='jialat18-',NS='j18-v1-',EVENT_ROOM='jialat26',EVENT_OWNER='18ea2026a11f0001';
 const app=document.getElementById('app');
-const BUILD='22',hostIdentity=window.JialatUI&&/^[a-f0-9]{16}$/.test(JialatUI.deviceId||'')?JialatUI.deviceId:uid();
+const BUILD='23',hostIdentity=window.JialatUI&&/^[a-f0-9]{16}$/.test(JialatUI.deviceId||'')?JialatUI.deviceId:uid();
 let hostTab=null,localHostBlocked=false,remoteHostBlocked=false,takeoverRequested=false,controllerHost='',tvPermit=null,revisionFloor=0;
 function hostLocked(){if(hostTab&&!hostTab.active)localHostBlocked=true;return blocked||localHostBlocked||remoteHostBlocked}
 let mode='',room='',owner='',S=null,pending=null,stream=null,streamOpen=false,pollOK=false,cursor='',polling=false,sending=false;
@@ -1071,7 +1071,7 @@ function eventScreenIcon(){const rows=['BBBBBBBBBBBB','B..........B','B.II..Y...
 function eventCover(){return '<section class="event-cover" id="event-title" aria-label="Event title">'+eventFestiveIcons('<div class="bob">'+eventScreenIcon()+'</div>')+'<h1>JIALAT CHRISTMAS 2026</h1><div class="event-tag">18 YEARS · 11 FRIENDS</div><p class="event-subtitle">PRESENTATION NIGHT</p></section>'}
 function landing(){
  document.body.className='';
- app.innerHTML='<div class="topbar site-utility"><a href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="landing"><div class="landing-mark">'+wheelIcon()+'</div><header class="masthead"><p class="eyebrow">18 YEARS · 11 FRIENDS</p><h1>AFTER 18 YEARS…</h1><p>PRESENTATION NIGHT</p></header><p class="intro-text">Control the draw on your phone or iPad.<br>Open the TV display on the MacBook.</p><div class="role-actions"><button class="button primary" id="host-start"><strong>Host controls</strong><small>Phone, tablet or desktop</small></button><button class="button primary" id="tv-start"><strong>TV display</strong><small>Open on the MacBook</small></button></div></div>';
+ app.innerHTML='<div class="seasonal-snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="topbar site-utility"><a href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="landing"><div class="landing-mark">'+wheelIcon()+'</div><header class="masthead"><p class="eyebrow">18 YEARS · 11 FRIENDS</p><h1>AFTER 18 YEARS…</h1><p>PRESENTATION NIGHT</p></header><p class="intro-text">Control the draw on your phone or iPad.<br>Open the TV display on the MacBook.</p><div class="role-actions"><button class="button primary" id="host-start"><strong>Host controls</strong><small>Phone, tablet or desktop</small></button><button class="button primary" id="tv-start"><strong>TV display</strong><small>Open on the MacBook</small></button></div><label class="seasonal-motion"><input type="checkbox"><span>Pause animation</span></label></div>';
  $('host-start').onclick=()=>{location.hash='host'};
  $('tv-start').onclick=()=>{history.replaceState(null,'','#tv');route(true)};
 }
@@ -1355,6 +1355,6 @@ window.addEventListener('pagehide',()=>{soundEligible=false;stopPresentationAudi
 if(window.JialatUI&&JialatUI.build===BUILD){
 route();
 if(window.JialatUI)JialatUI.ready();
-}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 22 files together, then reload this page.';}
+}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 23 files together, then reload this page.';}
 })();
 </script></body></html>

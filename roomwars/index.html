@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta name="jialat-build" content="22"><meta charset="utf-8">
+<html lang="en"><head><meta name="jialat-build" content="23"><meta charset="utf-8">
 <meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a">
@@ -685,13 +685,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .import-results span { font-size:calc(14 * var(--font-unit)); font-weight:400; color:var(--m); }
 .import-results strong { color:var(--teal); }
 .import-error { color:var(--coral); font-size:calc(14 * var(--font-unit)); font-weight:400; line-height:1.6; }
-</style><link rel="stylesheet" href="../assets/layout.css?v=22">
+</style><link rel="stylesheet" href="../assets/layout.css?v=23">
 </head><body data-page="roomwars"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section>
 <i id="dot" class="dot"></i>
 <header class="site-navigation site-utility"><a id="site-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></header>
 <main id="app"></main>
-<script src="../assets/ui.js?v=22"></script>
-<script src="../assets/reliability.js?v=22"></script>
+<script src="../assets/ui.js?v=23"></script>
+<script src="../assets/reliability.js?v=23"></script>
 <script>
 
 // Connection state is shared by the three apps on this browser. No game data is stored here.
@@ -816,7 +816,7 @@ function namesFromInvite(raw){
  if(raw.charAt(0)==='n')return raw.slice(1).split(',').map(function(n){return decodeURIComponent(n)});
  return JSON.parse(decodeURIComponent(raw));
 }
-function link(){var u=new URL(location.href);u.hash="";u.search='?v=22';
+function link(){var u=new URL(location.href);u.hash="";u.search='?v=23';
  return u.toString()+"#"+code+(S.names?"~"+namesForInvite(S.names):"")}
 function I(x,a,b){return typeof x=="number"&&x%1===0&&x>=a&&x<=b}
 function F(x){return typeof x=="number"&&isFinite(x)}
@@ -857,7 +857,7 @@ function apply(m){
 var rt=null,RV=["home","wait","who","final","picking"];
 function rq(){if(rt)return;rt=setTimeout(function(){rt=null;if(view=="home"&&host&&document.activeElement&&["mg","mp","mv","bc"].indexOf(document.activeElement.id)>=0)return;if(RV.indexOf(view)>=0)render()},80)}
 var out=[],posting=false,postRetry=null,postRetryAt=0,postFailures=0,pollTimer=null,polling=false,pollOk=false,cursor="",seen={},seenOrder=[],postFailed=false,postError="";
-var roomHostTab=null,wantedRoomHost=false,roomFilesMatch=!!(window.JialatUI&&JialatUI.build==='22');
+var roomHostTab=null,wantedRoomHost=false,roomFilesMatch=!!(window.JialatUI&&JialatUI.build==='23');
 function roomHostAccess(){
  var locked=!!(roomHostTab&&!roomHostTab.active),note=document.getElementById('room-host-note');
  if(locked&&!note){note=document.createElement('section');note.id='room-host-note';note.className='host-control-note';var text=document.createElement('p');text.textContent='Host controls are open in another tab. Close that tab before using this one.';var retry=document.createElement('button');retry.type='button';retry.textContent='Retry host controls';retry.onclick=function(){roomHostTab.acquire()};note.append(text,retry);A.before(note)}
@@ -1163,5 +1163,5 @@ if(code&&roomFilesMatch){host=ls("rwh-"+code)=="1";var m=ls("rwm-"+code);me=m===
  try{var saved=JSON.parse(ls("rwq-"+code)||"[]");if(Array.isArray(saved)){out=saved.filter(function(x){return x&&typeof x.t=="string"});out.forEach(function(x){mark(x.mid);apply(x)})}}catch(e){}
  if(host&&window.JialatUI&&JialatUI.hostGuard){host=false;roomHostTab=JialatUI.hostGuard('roomwars-'+code,function(active){host=active;render();if(active){if(!es||es.readyState===2)connect();post()}});roomHostTab.acquire()}else{connect();post()}}
 ['click','pointerdown','keydown'].forEach(function(type){A.addEventListener(type,function(event){if(roomHostTab&&!roomHostTab.active&&event.target.closest('button,input,select,textarea,[role="button"]')){event.preventDefault();event.stopImmediatePropagation()}},true)});
-if(roomFilesMatch){render();JialatUI.ready()}else{var title=document.getElementById('boot-title'),message=document.getElementById('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 22 files together, then reload this page.';}
+if(roomFilesMatch){render();JialatUI.ready()}else{var title=document.getElementById('boot-title'),message=document.getElementById('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 23 files together, then reload this page.';}
 </script></body></html>

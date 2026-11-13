@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta name="jialat-build" content="22"><meta charset="utf-8"><meta name="robots" content="noindex">
+<html lang="en"><head><meta name="jialat-build" content="23"><meta charset="utf-8"><meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a">
 <meta name="description" content="Nine Christmas games. One overall champion. S$18 for the winner. Choose the host controls or the TV display.">
@@ -1639,8 +1639,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 #tvAudio .display-controls-panel>button{width:100%;margin-bottom:8px}#tvAudio .display-controls-panel>a{display:flex;align-items:center;min-height:44px;margin-top:8px;border-top:1px solid var(--d);padding-top:8px}
 #tvAudio .tone-tests{padding:8px 0;border:0}
 
-</style><link rel="stylesheet" href="../assets/layout.css?v=22">
-<link rel="stylesheet" href="../assets/festive.css?v=retro-xmas-1">
+</style><link rel="stylesheet" href="../assets/layout.css?v=23">
+<link rel="stylesheet" href="../assets/festive.css?v=23">
 </head><body data-page="scoreboard"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section>
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
@@ -1649,8 +1649,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <img class="tv-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async">
 <main id="H"></main>
 <div id="T"><div id="msg"></div><div id="bd"><h1 id="th"></h1><p id="boardHint"></p><div id="ban"></div><div id="rows"></div><div id="lg"><span style="color:var(--l)">1ST · S$18 CASH PRIZE</span><span>2–6 SAFE</span><span>7–9 NEXT YEAR’S ORGANISERS</span><span>10TH · THE JIALAT TROPHY</span></div></div></div>
-<script src="../assets/ui.js?v=22"></script>
-<script src="../assets/reliability.js?v=22"></script>
+<script src="../assets/ui.js?v=23"></script>
+<script src="../assets/reliability.js?v=23"></script>
 <script>
 
 // Connection state is shared by the three apps on this browser. No game data is stored here.
@@ -1827,7 +1827,7 @@ const rn=i=>S.nm[i]||'P'+(i+1),nm=i=>esc(rn(i));
 let ROLE=(location.hash.match(/host|tv/)||[''])[0];
 const save=()=>{try{localStorage.setItem('jialat26',JSON.stringify(S))}catch(e){if(window.JialatUI)JialatUI.storageFailure()}};
 const status=(kind,label)=>{if(ROLE==='host'&&localHostBlocked){kind='bad';label='Host controls open in another tab'}else if(ROLE==='host'&&remoteHostBlocked){kind='bad';label='Read-only · another device is hosting'}$('dot').className='dot '+kind;if(window.JialatUI)JialatUI.status($('sync'),label);else $('sync').textContent=label};
-const BOARD_BUILD='22',hostIdentity=window.JialatUI&&/^[a-f0-9]{16}$/.test(JialatUI.deviceId||'')?JialatUI.deviceId:boardToken(),displayIdentity=boardToken();
+const BOARD_BUILD='23',hostIdentity=window.JialatUI&&/^[a-f0-9]{16}$/.test(JialatUI.deviceId||'')?JialatUI.deviceId:boardToken(),displayIdentity=boardToken();
 let hostTab=null,localHostBlocked=false,remoteHostBlocked=false,boardAuthorized=false,boardController='',boardTV='',boardNonce='',boardTakeover=false,boardProbeTimer=0,boardControlSince=0,boardTVGranted=false,boardCursor='';
 let pt,retryTimer=null,retryAt=0,sendFailures=0,sending=false,queued=null,inFlightBody=null,stream=null,pollTimer=null,streamOpen=false,polling=false;
 const deliveredStates=new Set(),handledControls=new Set();
@@ -2265,15 +2265,16 @@ function advanceResultFocus(event){
  if(next)next.focus();
 }
 // ---- boot ----
-function render(){document.body.className=ROLE||'landing';if(ROLE=='host')host();else if(ROLE=='tv'){tv();tvRevealAudio()}else $('H').innerHTML=`<div class="chooser-topbar site-utility"><a class="back-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="chooser"><div class="title-icons"><div class="title-middle"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-label="Animated pixel abacus" role="img">
+function render(){document.body.className=ROLE||'landing';if(ROLE=='host')host();else if(ROLE=='tv'){tv();tvRevealAudio()}else $('H').innerHTML=`<div class="seasonal-snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="chooser-topbar site-utility"><a class="back-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="chooser"><div class="title-icons"><div class="title-middle"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-label="Animated pixel abacus" role="img">
 <path fill="#d4af37" d="M1 1h16v1H1zM1 2h1v10H1zM16 2h1v10h-1zM1 12h16v1H1z"/>
 <path fill="#6b5a22" d="M3 4h12v1H3zM3 7h12v1H3zM3 10h12v1H3z"/>
 <g class="bead-one"><path fill="#65d9cb" d="M4 3h2v3H4z"/></g>
 <g class="bead-two"><path fill="#86baff" d="M5 6h2v3H5z"/></g>
 <g class="bead-three"><path fill="#ff8b78" d="M7 9h2v3H7z"/></g>
-</svg></div></div><h1>SCOREBOARD</h1><div class="prize-label">${PRIZE_TAG}</div><p class="chooser-intro">Control the games on your phone or iPad.<br>Open the TV display on the MacBook.</p><div class="role-actions"><button class="go" onclick="enterRole('host')"><strong>Host controls</strong><small>Phone, tablet or desktop</small></button><button class="go" onclick="enterRole('tv')"><strong>TV display</strong><small>Open on the MacBook</small></button></div></div>`}
+</svg></div></div><h1>SCOREBOARD</h1><div class="prize-label">${PRIZE_TAG}</div><p class="chooser-intro">Control the games on your phone or iPad.<br>Open the TV display on the MacBook.</p><div class="role-actions"><button class="go" onclick="enterRole('host')"><strong>Host controls</strong><small>Phone, tablet or desktop</small></button><button class="go" onclick="enterRole('tv')"><strong>TV display</strong><small>Open on the MacBook</small></button></div><label class="seasonal-motion"><input type="checkbox"><span>Pause animation</span></label></div>`}
 function enterRole(role,fromEntry=true){
  if(!['host','tv',''].includes(role))return;
+ if(role)$('H').querySelectorAll('.seasonal-snow,.seasonal-motion').forEach(node=>node.remove())
  if(hostTab){hostTab.dispose();hostTab=null}localHostBlocked=false;remoteHostBlocked=false;boardAuthorized=false;boardTV='';boardNonce='';boardController='';boardTVGranted=false;clearTimeout(boardProbeTimer);boardProbeTimer=0;if(stream)stream.close();stream=null;streamOpen=false;clearInterval(pollTimer);pollTimer=null;clearTimeout(pt);clearTimeout(retryTimer);retryTimer=null;retryAt=0;sendFailures=0;queued=null;stopCue();
  tvLastFrame=null;tvCountdownFrame=null;tvAudioFrame++;
  ROLE=role;if(fromEntry)history.replaceState(null,'',role?'#'+role:location.pathname+location.search);
@@ -2289,7 +2290,7 @@ if(window.JialatUI&&JialatUI.build===BOARD_BUILD){
 if(!validBoard(S)){S=D();JialatUI.storageFailure()}
 enterRole(ROLE,false);
 JialatUI.ready();
-}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 22 files together, then reload this page.';document.body.className='landing';}
+}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 23 files together, then reload this page.';document.body.className='landing';}
 function followRoleLink(){const role=(location.hash.match(/host|tv/)||[''])[0];if(role!==ROLE)enterRole(role,false)}
 window.addEventListener('hashchange',followRoleLink);window.addEventListener('popstate',followRoleLink);
 for(const id of ['tvAudio','tvAudioTests'])$(id).addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();$(id).open=false;$(id).querySelector('summary').focus()}});
