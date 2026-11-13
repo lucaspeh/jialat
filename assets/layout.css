@@ -10,7 +10,7 @@
   --font-unit:.0625rem; --root-reference:16; --display-text-scale:1;
   --text-body:calc(16 * var(--font-unit));
   --text-secondary:calc(14 * var(--font-unit));
-  --text-label:calc(12 * var(--font-unit));
+  --text-label:var(--text-secondary);
   --text-section:calc(20 * var(--font-unit));
   --text-feature:calc(30 * var(--font-unit));
   --entry-heading:calc(36 * var(--font-unit));
@@ -20,6 +20,7 @@
   --site-width:880px; --entry-width:720px; --site-gutter:24px;
 }
 html { -webkit-text-size-adjust:100%; text-size-adjust:100%; color-scheme:dark; }
+html:has(body[data-page]:not(.tv)) { scrollbar-gutter:stable; }
 /* The system text style supplies iOS's preferred size; the family remains retro. */
 @supports (font:-apple-system-body) {
   html { font:-apple-system-body; }
@@ -59,6 +60,7 @@ body[data-page]:not(.tv) .site-utility a { font-size:inherit; }
 body[data-page] .site-utility { display:flex; align-items:center; justify-content:space-between; width:100%; min-height:44px; gap:16px; margin:0 0 16px; color:var(--color-muted); }
 body[data-page] .site-utility a { display:inline-flex; align-items:center; min-height:44px; margin:0; color:var(--color-muted); text-decoration:none; }
 body[data-page]:not(.tv) .page-wordmark { width:104px; max-width:30vw; height:auto; flex:none; }
+body[data-page]:not(.tv) .site-utility .page-wordmark { margin-inline-start:auto; }
 body[data-page] .activity-header { display:flex; align-items:center; gap:12px; min-height:44px; margin:0 0 8px; text-align:left; }
 body[data-page] .activity-header h1 { flex:1; min-width:0; margin:0; font-size:var(--host-heading); line-height:1.2; letter-spacing:.035em; color:var(--color-gold-light); text-shadow:2px 2px 0 var(--color-edge); }
 body[data-page] .activity-icon { display:grid; place-items:center; width:44px; height:44px; flex:none; }
@@ -117,7 +119,7 @@ body[data-page="roomwars"].is-host:not(.is-name-entry) #app { max-width:none; ma
 [data-page="roomwars"] .final-summary .brand h1 { font-size:var(--entry-heading); }
 [data-page="roomwars"] .final-actions .row { gap:12px; }
 body[data-page="roomwars"].is-host:not(:has(.arena)) > .dot { display:none; }
-body[data-page="roomwars"].is-host #stat { font-size:var(--text-secondary); font-weight:400; }
+body[data-page="roomwars"] #stat { font-size:var(--text-secondary); font-weight:400; }
 body[data-page="roomwars"].is-host #stat::before { content:""; display:inline-block; width:8px; height:8px; margin-right:8px; background:var(--connection-color,var(--color-gold)); }
 body[data-page="roomwars"].is-host #app > .host-status #chg { display:inline-flex; min-height:44px; align-items:center; }
 
@@ -127,7 +129,6 @@ body[data-page="presentation"]:not(.host):not(.tv) .shell,body[data-page="scoreb
 [data-page="presentation"] .landing,[data-page="scoreboard"] .chooser { width:100%; max-width:var(--entry-width); margin:auto; flex:none; display:flex; flex-direction:column; gap:24px; }
 [data-page="presentation"] .landing .masthead { margin:0; }
 [data-page="presentation"] .landing .masthead h1 { margin:0; }
-:is([data-page="presentation"] .landing,[data-page="scoreboard"] .chooser) .seasonal-motion { margin:0 auto; }
 [data-page="presentation"] .landing-mark { width:64px; height:64px; margin:0 auto; }
 [data-page="presentation"] .landing .masthead h1,[data-page="scoreboard"] .chooser h1,[data-page="itinerary"] .intro h1 { font-size:var(--entry-heading); line-height:1.2; }
 [data-page="scoreboard"] .chooser-topbar { margin:0; flex:none; }
@@ -234,7 +235,7 @@ body[data-page] .confirmation form { display:flex; flex-wrap:wrap; gap:12px; }
 body[data-page] .confirmation button { flex:1 1 120px; width:auto; min-height:48px; margin:0; padding:10px 12px; font-size:var(--text-body); border:2px solid var(--color-input-edge); background:var(--color-bg); color:var(--color-text); text-transform:none; }
 body[data-page] .confirmation .confirm-action { border-color:var(--color-gold); color:var(--color-gold-light); background:#2a2108; }
 body[data-page].tv { overflow-wrap:anywhere; }
-body[data-page].tv :is(#tvAudio,.display-controls,.tv-sound-start) { font:400 calc(clamp(12px,1.4vh,16px) * var(--display-text-scale))/1.5 var(--font-ui); }
+body[data-page].tv :is(#tvAudio,.display-controls,.tv-sound-start) { font:400 calc(clamp(14px,1.4vh,16px) * var(--display-text-scale))/1.5 var(--font-ui); }
 body[data-page].tv :is(#tvAudio,.display-controls) :is(button,summary,a) { font:inherit; min-height:44px; }
 body[data-page].tv .display-controls-panel { max-height:min(70vh,560px); overflow:auto; overscroll-behavior:contain; }
 body[data-page].tv .display-controls-panel button { width:100%; margin-bottom:8px; padding:10px 12px; text-transform:none; letter-spacing:normal; font-weight:400; border:1px solid var(--color-input-edge); background:var(--color-surface); color:var(--color-text); box-shadow:none; }
@@ -378,7 +379,7 @@ body[data-page="presentation"].tv .masthead { padding-top:22px; }
 }
 @media(max-width:359px) {
   .host-overview { gap:8px; padding:8px; }
-  .host-overview span { font-size:calc(13 * var(--font-unit)); }
+  .host-overview span { font-size:var(--text-secondary); }
   body[data-page="scoreboard"].host .active-game { padding:12px; }
   body[data-page="scoreboard"].host .result { grid-template-columns:minmax(0,1fr) 88px 2.5em; }
 }
@@ -416,7 +417,7 @@ body[data-page="presentation"].host .host-order h2 { font-size:var(--text-sectio
 [data-page="scoreboard"].tv .rk { font-size:calc(clamp(20px,4vh,48px) * var(--display-text-scale)); }
 [data-page="scoreboard"].tv .pt { font-size:calc(clamp(20px,4.4vh,52px) * var(--display-text-scale)); }
 [data-page="scoreboard"].tv .nm small { font-size:calc(clamp(14px,1.8vh,22px) * var(--display-text-scale)); }
-[data-page="scoreboard"].tv .cash-amount { font-size:calc(clamp(13px,2.2vh,25px) * var(--display-text-scale)); }
+[data-page="scoreboard"].tv .cash-amount { font-size:calc(clamp(14px,2.2vh,25px) * var(--display-text-scale)); }
 [data-page="scoreboard"].tv .spot-prize .cash-amount { font-size:calc(clamp(28px,5vh,65px) * var(--display-text-scale)); }
 [data-page="scoreboard"].tv .prize-label { font-size:calc(clamp(16px,2.6vh,32px) * var(--display-text-scale)); }
 .large-text [data-page="scoreboard"].tv #T { height:auto; min-height:100svh; }

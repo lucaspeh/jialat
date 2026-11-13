@@ -1,7 +1,7 @@
 /* Local host coordination and traffic accounting. No background network traffic. */
 (function () {
   'use strict';
-  var ui = window.JialatUI || {}, build = '25';
+  var ui = window.JialatUI || {}, build = '26';
   var complete = ['ready', 'bind', 'status', 'arena'].every(function (key) { return typeof ui[key] === 'function'; });
   function token() {
     var bytes = new Uint8Array(8); crypto.getRandomValues(bytes);

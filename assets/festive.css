@@ -35,42 +35,41 @@ body[data-page].tv .event-title .seasonal-snow { display:block; }
 .seasonal-snow i {
   position:absolute; top:-16px; left:var(--snow-x); width:var(--snow-size,3px); height:var(--snow-size,3px);
   background:#f2ead3; opacity:var(--snow-opacity,.8);
-  animation:seasonal-fall var(--snow-time,24s) var(--snow-delay,0s) linear infinite;
+  animation:seasonal-fall var(--snow-time,5s) var(--snow-delay,0s) linear infinite;
 }
-.seasonal-snow i:nth-child(3n) { box-shadow:0 -2px #f2ead3,0 2px #f2ead3,-2px 0 #f2ead3,2px 0 #f2ead3; }
-.seasonal-snow i:nth-child(1) { --snow-x:3%; --snow-time:24s; --snow-delay:-4s; --snow-size:3px; }
-.seasonal-snow i:nth-child(2) { --snow-x:94%; --snow-time:28s; --snow-delay:-19s; --snow-size:2px; }
-.seasonal-snow i:nth-child(3) { --snow-x:12%; --snow-time:22s; --snow-delay:-13s; --snow-size:2px; }
-.seasonal-snow i:nth-child(4) { --snow-x:83%; --snow-time:26s; --snow-delay:-7s; --snow-size:3px; }
-.seasonal-snow i:nth-child(5) { --snow-x:22%; --snow-time:30s; --snow-delay:-24s; --snow-size:2px; }
-.seasonal-snow i:nth-child(6) { --snow-x:74%; --snow-time:21s; --snow-delay:-9s; --snow-size:2px; }
-.seasonal-snow i:nth-child(7) { --snow-x:32%; --snow-time:27s; --snow-delay:-18s; --snow-size:3px; }
-.seasonal-snow i:nth-child(8) { --snow-x:64%; --snow-time:23s; --snow-delay:-2s; --snow-size:2px; }
-.seasonal-snow i:nth-child(9) { --snow-x:42%; --snow-time:29s; --snow-delay:-26s; --snow-size:2px; }
-.seasonal-snow i:nth-child(10) { --snow-x:54%; --snow-time:25s; --snow-delay:-12s; --snow-size:3px; }
-.seasonal-snow i:nth-child(11) { --snow-x:7%; --snow-time:31s; --snow-delay:-29s; --snow-size:2px; }
-.seasonal-snow i:nth-child(12) { --snow-x:88%; --snow-time:24s; --snow-delay:-15s; --snow-size:2px; }
-.seasonal-snow i:nth-child(13) { --snow-x:17%; --snow-time:26s; --snow-delay:-3s; --snow-size:3px; }
-.seasonal-snow i:nth-child(14) { --snow-x:79%; --snow-time:32s; --snow-delay:-16s; --snow-size:2px; }
-.seasonal-snow i:nth-child(15) { --snow-x:27%; --snow-time:23s; --snow-delay:-20s; --snow-size:2px; }
-.seasonal-snow i:nth-child(16) { --snow-x:69%; --snow-time:28s; --snow-delay:-9s; --snow-size:3px; }
-.seasonal-snow i:nth-child(17) { --snow-x:37%; --snow-time:25s; --snow-delay:-6s; --snow-size:2px; }
-.seasonal-snow i:nth-child(18) { --snow-x:59%; --snow-time:30s; --snow-delay:-21s; --snow-size:2px; }
-@keyframes seasonal-fall { from { transform:translate3d(-10px,0,0); } to { transform:translate3d(16px,var(--snow-distance),0); } }
+/* Larger flakes are twice the previous 6–7px cross footprint, with six branched arms. */
+.seasonal-snow i:nth-child(3n) { background:transparent url("pixel-snowflake.svg?v=26") center / contain no-repeat; --snow-opacity:1; }
+.seasonal-snow i:nth-child(1) { --snow-x:3%; --snow-time:5s; --snow-delay:-0.8s; --snow-size:3px; }
+.seasonal-snow i:nth-child(2) { --snow-x:94%; --snow-time:4.8s; --snow-delay:-3.4s; --snow-size:2px; }
+.seasonal-snow i:nth-child(3) { --snow-x:12%; --snow-time:5s; --snow-delay:-2.2s; --snow-size:14px; }
+.seasonal-snow i:nth-child(4) { --snow-x:83%; --snow-time:4.6s; --snow-delay:-1.2s; --snow-size:3px; }
+.seasonal-snow i:nth-child(5) { --snow-x:22%; --snow-time:4.9s; --snow-delay:-4.1s; --snow-size:2px; }
+.seasonal-snow i:nth-child(6) { --snow-x:74%; --snow-time:5s; --snow-delay:-3s; --snow-size:12px; }
+.seasonal-snow i:nth-child(7) { --snow-x:32%; --snow-time:4.7s; --snow-delay:-2.8s; --snow-size:3px; }
+.seasonal-snow i:nth-child(8) { --snow-x:64%; --snow-time:4.8s; --snow-delay:-0.3s; --snow-size:2px; }
+.seasonal-snow i:nth-child(9) { --snow-x:42%; --snow-time:5s; --snow-delay:-4.3s; --snow-size:14px; }
+.seasonal-snow i:nth-child(10) { --snow-x:54%; --snow-time:4.6s; --snow-delay:-2s; --snow-size:3px; }
+.seasonal-snow i:nth-child(11) { --snow-x:7%; --snow-time:4.9s; --snow-delay:-4.6s; --snow-size:2px; }
+.seasonal-snow i:nth-child(12) { --snow-x:88%; --snow-time:5s; --snow-delay:-2.5s; --snow-size:12px; }
+.seasonal-snow i:nth-child(13) { --snow-x:17%; --snow-time:4.7s; --snow-delay:-0.5s; --snow-size:3px; }
+.seasonal-snow i:nth-child(14) { --snow-x:79%; --snow-time:4.8s; --snow-delay:-2.7s; --snow-size:2px; }
+.seasonal-snow i:nth-child(15) { --snow-x:27%; --snow-time:5s; --snow-delay:-3.6s; --snow-size:14px; }
+.seasonal-snow i:nth-child(16) { --snow-x:69%; --snow-time:4.6s; --snow-delay:-1.6s; --snow-size:3px; }
+.seasonal-snow i:nth-child(17) { --snow-x:37%; --snow-time:4.9s; --snow-delay:-0.9s; --snow-size:2px; }
+.seasonal-snow i:nth-child(18) { --snow-x:59%; --snow-time:5s; --snow-delay:-3.9s; --snow-size:12px; }
+@keyframes seasonal-fall {
+  0% { transform:translate3d(-10px,0,0); opacity:0; }
+  4%,94% { opacity:var(--snow-opacity,.8); }
+  100% { transform:translate3d(16px,var(--snow-distance),0); opacity:0; }
+}
 @keyframes festive-light-glimmer { 0%,79%,83%,100% { opacity:.85; } 80%,82% { opacity:.6; } 81% { opacity:1; } }
-.seasonal-motion { display:flex; align-items:center; justify-content:center; gap:8px; width:max-content; max-width:100%; min-height:44px; margin:12px auto 0; padding:8px; color:var(--color-muted,#b9b6a8); font:400 var(--text-secondary,14px)/1.5 var(--font-ui,monospace); cursor:pointer; }
-body[data-page] .seasonal-motion input { flex:none; width:16px; height:16px; min-height:16px; margin:0; accent-color:var(--color-gold,#d4af37); }
-body[data-page]:has(.seasonal-motion input:checked) :is(.seasonal-snow i,.seasonal-art,.seasonal-art *),
-body[data-page]:has(.seasonal-motion input:checked) .seasonal-art::before,
-body[data-page]:has(.seasonal-motion input:checked) .seasonal-art::after { animation-play-state:paused!important; }
-body[data-page].tv .display-controls-panel .seasonal-motion { justify-content:flex-start; width:100%; margin:0; }
 [data-page="scoreboard"] .cf { pointer-events:none; }
 @media(max-width:619px) { .seasonal-snow i:nth-child(n+13) { display:none; } }
 @media(max-height:600px) {
   .event-title::before { top:16px; height:20px; }
 }
 @media(prefers-reduced-motion:reduce) {
-  .seasonal-snow,.seasonal-motion { display:none!important; }
+  .seasonal-snow { display:none!important; }
   .seasonal-snow i,
   .seasonal-art,.seasonal-art *,
   [data-page="presentation"].tv .masthead::before,

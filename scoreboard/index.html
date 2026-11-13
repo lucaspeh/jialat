@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta name="jialat-build" content="25"><meta charset="utf-8"><meta name="robots" content="noindex">
+<html lang="en"><head><meta name="jialat-build" content="26"><meta charset="utf-8"><meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a">
 <meta name="description" content="Nine Christmas games. One overall champion. S$18 for the winner. Choose the host controls or the TV display.">
@@ -126,7 +126,7 @@ body:not(.tv) #tvAudio {
   display:block;
   gap:6px;
   align-items:flex-start;
-  font:clamp(12px,1.4vh,16px)/1.4 system-ui,sans-serif;
+  font:clamp(14px,1.4vh,16px)/1.4 system-ui,sans-serif;
   text-align:left
 }
 #tvAudio button,#tvAudio summary {
@@ -160,16 +160,17 @@ body:not(.tv) #tvAudio {
   gap:6px
 }
 #tvAudio .tone-tests small {
-  color:var(--muted)
+  color:var(--muted);
+  font-size:inherit
 }
 /* chooser */
 body.landing #H {
-  max-width:none;
+  max-width:var(--site-width,880px);
   min-height:100vh;
   min-height:100svh;
   display:grid;
   place-items:center;
-  padding:calc(24px + env(safe-area-inset-top,0px)) max(24px,env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) max(24px,env(safe-area-inset-left,0px))
+  padding:max(24px,env(safe-area-inset-top,0px)) max(var(--site-gutter,24px),env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(var(--site-gutter,24px),env(safe-area-inset-left,0px))
 }
 body.landing .dot {
   display:none
@@ -200,7 +201,7 @@ body.landing .dot {
   display:inline-flex;
   align-items:center;
   color:var(--muted);
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   margin-bottom:20px;
   text-decoration:none;
   min-height:44px
@@ -354,12 +355,12 @@ body.landing .dot {
   background:#211b0c;
   padding:8px 10px;
   color:var(--l);
-  font-size:calc(13 * var(--font-unit))
+  font-size:var(--text-secondary)
 }
 .champion-prize small {
   display:block;
   color:var(--muted);
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   font-weight:400;
   margin-top:2px
 }
@@ -401,7 +402,7 @@ body.landing .dot {
 }
 .lb {
   color:var(--muted);
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   margin:12px 0 6px
 }
 .sm {
@@ -499,7 +500,7 @@ summary {
 }
 .turn .rw button.timer-reset {
   flex:0 1 auto;
-  font-size:calc(13 * var(--font-unit));
+  font-size:var(--text-secondary);
   min-height:44px
 }
 .results {
@@ -1260,7 +1261,7 @@ summary {
   overflow-wrap:anywhere
 }
 #msg.rules .tag {
-  font-size:2.2vh;
+  font-size:calc(clamp(16px,2.2vh,26px) * var(--display-text-scale));
   padding:.5vh 1.5vw
 }
 @media(max-height:700px) {
@@ -1383,7 +1384,7 @@ summary {
   overflow:visible
 }
 .cash-amount {
-  font-size:clamp(13px,2.2vh,25px);
+  font-size:clamp(14px,2.2vh,25px);
   color:#fff8df;
   text-shadow:2px 2px 0 #082b20;
   white-space:nowrap
@@ -1499,11 +1500,11 @@ summary {
   padding:12px 0;
   cursor:pointer;
   color:#f3d77a;
-  font-size:calc(12 * var(--font-unit))
+  font-size:var(--text-secondary)
 }
 .relay-details p {
   white-space:pre-line;
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   line-height:1.6;
   font-weight:400;
   margin:8px 0
@@ -1516,7 +1517,7 @@ summary {
 .relay-actions button {
   min-height:44px;
   padding:9px 11px;
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   letter-spacing:0;
   box-shadow:none;
   margin:0;
@@ -1545,7 +1546,7 @@ a[href="../"]  {
   align-items: center;
   min-height: 44px;
   color: #b9b6a8;
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   line-height: 1.4;
   text-decoration: none;
   touch-action: manipulation;
@@ -1591,7 +1592,7 @@ button, summary  {
   border-bottom:0
 }
 body.tv #sync {
-  font-size:clamp(12px,1.4vh,16px)
+  font-size:clamp(14px,1.4vh,16px)
 }
 @media(max-width:519px) {
   .chooser .rw {
@@ -1630,7 +1631,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 /* Event navigation and display controls. */
 
 .page-wordmark{display:block;width:104px;max-width:32vw;height:auto;flex:none}
-.host-brand{display:flex;align-items:center;gap:8px;min-width:0}.host-brand .page-wordmark{width:88px}.host-brand .host-icon{margin-right:0}.host-role{font-size:calc(12 * var(--font-unit))}
+.host-brand{display:flex;align-items:center;gap:8px;min-width:0}.host-brand .page-wordmark{width:88px}.host-brand .host-icon{margin-right:0}.host-role{font-size:var(--text-secondary)}
 .chooser-topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:24px}.chooser-topbar .back-menu{margin:0}
 .tv-wordmark{display:none}body.tv .tv-wordmark{display:block;position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(12px,env(safe-area-inset-bottom,0px));width:96px;height:auto;z-index:5;pointer-events:none}
 #tvAudio>summary{display:block;min-height:44px;min-width:96px;padding:10px 14px;border:1px solid var(--d);background:#111;color:var(--muted);cursor:pointer;list-style:none}
@@ -1639,18 +1640,18 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 #tvAudio .display-controls-panel>button{width:100%;margin-bottom:8px}#tvAudio .display-controls-panel>a{display:flex;align-items:center;min-height:44px;margin-top:8px;border-top:1px solid var(--d);padding-top:8px}
 #tvAudio .tone-tests{padding:8px 0;border:0}
 
-</style><link rel="stylesheet" href="../assets/layout.css?v=25">
-<link rel="stylesheet" href="../assets/festive.css?v=25">
+</style><link rel="stylesheet" href="../assets/layout.css?v=26">
+<link rel="stylesheet" href="../assets/festive.css?v=26">
 </head><body data-page="scoreboard"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section>
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
 <button class="tv-sound-start" id="tvAudioStart" onclick="enableTvSound()" hidden>Turn on sound</button>
-<details id="tvAudio"><summary id="tvControlSummary">Sound off</summary><div class="display-controls-panel"><button type="button" data-fullscreen>Full screen</button><p data-display-note role="status"></p><button id="tvAudioToggle" onclick="toggleTvSound()">Turn on TV sound</button><button id="tvSoundTest" onclick="previewTvCue('test')">Test sound</button><details id="tvAudioTests"><summary>Test tones</summary><div class="tone-tests"><small>Audio plays from this screen.</small><button onclick="previewTvCue('end')">Timer · Time’s up</button><button onclick="previewTvCue('happy')">2–6 · Happy</button><button onclick="previewTvCue('organiser')">7–9 · Oh no!</button><button onclick="previewTvCue('champion')">1st · Champion</button><button onclick="previewTvCue('cheeky')">10th · Cheeky</button></div></details><label class="seasonal-motion"><input type="checkbox"><span>Pause animation</span></label><a href="../">← MAIN MENU</a></div></details>
+<details id="tvAudio"><summary id="tvControlSummary">Sound off</summary><div class="display-controls-panel"><button type="button" data-fullscreen>Full screen</button><p data-display-note role="status"></p><button id="tvAudioToggle" onclick="toggleTvSound()">Turn on TV sound</button><button id="tvSoundTest" onclick="previewTvCue('test')">Test sound</button><details id="tvAudioTests"><summary>Test tones</summary><div class="tone-tests"><small>Audio plays from this screen.</small><button onclick="previewTvCue('end')">Timer · Time’s up</button><button onclick="previewTvCue('happy')">2–6 · Happy</button><button onclick="previewTvCue('organiser')">7–9 · Oh no!</button><button onclick="previewTvCue('champion')">1st · Champion</button><button onclick="previewTvCue('cheeky')">10th · Cheeky</button></div></details><a href="../">← MAIN MENU</a></div></details>
 <img class="tv-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async">
 <main id="H"></main>
 <div id="T"><div id="msg"></div><div id="bd"><h1 id="th"></h1><p id="boardHint"></p><div id="ban"></div><div id="rows"></div><div id="lg"><span style="color:var(--l)">1ST · S$18 CASH PRIZE</span><span>2–6 SAFE</span><span>7–9 NEXT YEAR’S ORGANISERS</span><span>10TH · THE JIALAT TROPHY</span></div></div></div>
-<script src="../assets/ui.js?v=25"></script>
-<script src="../assets/reliability.js?v=25"></script>
+<script src="../assets/ui.js?v=26"></script>
+<script src="../assets/reliability.js?v=26"></script>
 <script>
 
 // Connection state is shared by the three apps on this browser. No game data is stored here.
@@ -1844,7 +1845,7 @@ const rn=i=>S.nm[i]||'P'+(i+1),nm=i=>esc(rn(i));
 let ROLE=(location.hash.match(/host|tv/)||[''])[0];
 const save=()=>{try{localStorage.setItem('jialat26',JSON.stringify(S))}catch(e){if(window.JialatUI)JialatUI.storageFailure()}};
 const status=(kind,label)=>{if(ROLE==='host'&&localHostBlocked){kind='bad';label='Host controls open in another tab'}else if(ROLE==='host'&&remoteHostBlocked){kind='bad';label='Read-only · another device is hosting'}$('dot').className='dot '+kind;if(window.JialatUI)JialatUI.status($('sync'),label);else $('sync').textContent=label};
-const BOARD_BUILD='25',hostIdentity=window.JialatUI&&/^[a-f0-9]{16}$/.test(JialatUI.deviceId||'')?JialatUI.deviceId:boardToken(),displayIdentity=boardToken();
+const BOARD_BUILD='26',hostIdentity=window.JialatUI&&/^[a-f0-9]{16}$/.test(JialatUI.deviceId||'')?JialatUI.deviceId:boardToken(),displayIdentity=boardToken();
 let hostTab=null,localHostBlocked=false,remoteHostBlocked=false,boardAuthorized=false,boardController='',boardTV='',boardNonce='',boardTakeover=false,boardProbeTimer=0,boardControlSince=0,boardTVGranted=false,boardCursor='';
 let pt,retryTimer=null,retryAt=0,sendFailures=0,sending=false,queued=null,inFlightBody=null,stream=null,pollTimer=null,streamOpen=false,polling=false,pollTask=null;
 const deliveredStates=new Set(),handledControls=new Set();
@@ -2011,10 +2012,10 @@ async function prepareTvSound(confirm=false){
 }
 function enableTvSound(){tvMuted(false);return prepareTvSound(true)}
 function updateTvAudio(){
- if(ROLE!=='tv')return;const b=$('tvAudioToggle'),available=!!(window.AudioContext||window.webkitAudioContext),ready=tvSoundOn&&audioCtx&&audioCtx.state==='running',eventTitle=!!$('msg').querySelector('.event-title');
+ if(ROLE!=='tv')return;const b=$('tvAudioToggle'),available=!!(window.AudioContext||window.webkitAudioContext),ready=tvSoundOn&&audioCtx&&audioCtx.state==='running';
  b.textContent=!available?'Sound unavailable':ready?'Mute TV sound':tvSoundOn?'Resume TV sound':'Turn on TV sound';b.disabled=!available;b.removeAttribute('aria-pressed');b.classList.toggle('sound-on',!!ready);
- const start=$('tvAudioStart'),recovering=start===document.activeElement;if(start){start.hidden=!!ready||tvMuted()||!available||eventTitle;start.textContent='Turn on sound';}
- $('tvAudio').hidden=!ready&&!tvMuted()&&available&&!eventTitle;
+ const start=$('tvAudioStart'),recovering=start===document.activeElement;if(start){start.hidden=!!ready||tvMuted()||!available;start.textContent='Turn on sound';}
+ $('tvAudio').hidden=!ready&&!tvMuted()&&available;
  const performing=S.m[0]==='rev'||!!activeCountdown();$('tvAudioTests').hidden=performing;
  $('tvControlSummary').textContent=!available?'Sound unavailable':ready?'Sound on':tvMuted()?'Sound off':'Turn on sound';$('tvAudio').classList.toggle('sound-ready',!!ready);if(performing)$('tvAudio').open=false
  if(recovering&&ready)$('tvControlSummary').focus({preventScroll:true})
@@ -2288,10 +2289,10 @@ function render(){document.body.className=ROLE||'landing';if(ROLE=='host')host()
 <g class="bead-one"><path fill="#65d9cb" d="M4 3h2v3H4z"/></g>
 <g class="bead-two"><path fill="#86baff" d="M5 6h2v3H5z"/></g>
 <g class="bead-three"><path fill="#ff8b78" d="M7 9h2v3H7z"/></g>
-</svg></div></div><h1>SCOREBOARD</h1><div class="role-actions"><button class="go" onclick="enterRole('host')"><strong>Host controls</strong><small>Phone, tablet or desktop</small></button><button class="go" onclick="enterRole('tv')"><strong>TV display</strong><small>Open on the MacBook</small></button></div><label class="seasonal-motion"><input type="checkbox"><span>Pause animation</span></label></div>`}
+</svg></div></div><h1>SCOREBOARD</h1><div class="role-actions"><button class="go" onclick="enterRole('host')"><strong>Host controls</strong><small>Phone, tablet or desktop</small></button><button class="go" onclick="enterRole('tv')"><strong>TV display</strong><small>Open on the MacBook</small></button></div></div>`}
 function enterRole(role,fromEntry=true){
  if(!['host','tv',''].includes(role))return;
- if(role)$('H').querySelectorAll('.seasonal-snow,.seasonal-motion').forEach(node=>node.remove())
+ if(role)$('H').querySelectorAll('.seasonal-snow').forEach(node=>node.remove())
  if(hostTab){hostTab.dispose();hostTab=null}localHostBlocked=false;remoteHostBlocked=false;boardAuthorized=false;boardTV='';boardNonce='';boardController='';boardTVGranted=false;clearTimeout(boardProbeTimer);boardProbeTimer=0;if(stream)stream.close();stream=null;streamOpen=false;clearInterval(pollTimer);pollTimer=null;clearTimeout(pt);clearTimeout(retryTimer);retryTimer=null;retryAt=0;sendFailures=0;queued=null;stopCue();
  tvLastFrame=null;tvCountdownFrame=null;tvAudioFrame++;
  ROLE=role;if(fromEntry)history.replaceState(null,'',role?'#'+role:location.pathname+location.search);
@@ -2307,7 +2308,7 @@ if(window.JialatUI&&JialatUI.build===BOARD_BUILD){
 if(!validBoard(S)){S=D();JialatUI.storageFailure()}
 enterRole(ROLE,false);
 JialatUI.ready();
-}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 25 files together, then reload this page.';document.body.className='landing';}
+}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 26 files together, then reload this page.';document.body.className='landing';}
 function followRoleLink(){const role=(location.hash.match(/host|tv/)||[''])[0];if(role!==ROLE)enterRole(role,false)}
 window.addEventListener('hashchange',followRoleLink);window.addEventListener('popstate',followRoleLink);
 for(const id of ['tvAudio','tvAudioTests'])$(id).addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();$(id).open=false;$(id).querySelector('summary').focus()}});

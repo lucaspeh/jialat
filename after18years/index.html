@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta name="jialat-build" content="25"><meta charset="utf-8"><meta name="robots" content="noindex">
+<html lang="en"><head><meta name="jialat-build" content="26"><meta charset="utf-8"><meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a"><meta name="description" content="AFTER 18 YEARS… Presentation night. One shared draw for 11 friends."><title>AFTER 18 YEARS…</title>
 
@@ -81,7 +81,7 @@ button:active:not(:disabled) {
   align-items:center;
   justify-content:space-between;
   gap:15px;
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   color:var(--muted)
 }
 .topbar a {
@@ -101,7 +101,7 @@ button:active:not(:disabled) {
 }
 .eyebrow {
   color:var(--muted);
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   letter-spacing:.15em;
   text-transform:uppercase;
   margin:0 0 5px
@@ -168,7 +168,7 @@ button:active:not(:disabled) {
   color:var(--light)
 }
 .button.small {
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   min-height:44px;
   padding:9px 12px
 }
@@ -221,7 +221,7 @@ button:active:not(:disabled) {
 .join-card label {
   display:block;
   color:var(--light);
-  font-size:calc(13 * var(--font-unit));
+  font-size:var(--text-secondary);
   margin-bottom:10px
 }
 .join-card input,.pair-link,.manual-copy {
@@ -240,7 +240,7 @@ button:active:not(:disabled) {
 }
 .join-error {
   color:var(--coral);
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   font-weight:400;
   min-height:18px;
   margin:10px 0 0
@@ -348,7 +348,7 @@ button:active:not(:disabled) {
 .result .eyebrow {
   color:var(--light);
   font-weight:700;
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   margin:0
 }
 .result .last-name {
@@ -384,7 +384,7 @@ button:active:not(:disabled) {
   align-self:center
 }
 .order-panel h2 {
-  font-size:calc(13 * var(--font-unit));
+  font-size:var(--text-secondary);
   color:var(--light);
   margin:0 0 3px;
   letter-spacing:.06em
@@ -392,7 +392,7 @@ button:active:not(:disabled) {
 .order-count {
   font-weight:400;
   color:var(--muted);
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   margin:0 0 13px
 }
 .order-list {
@@ -413,7 +413,7 @@ button:active:not(:disabled) {
 }
 .order-list li::before {
   content:counter(picks,decimal-leading-zero);
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   min-width:20px;
   color:var(--gold)
 }
@@ -430,7 +430,7 @@ button:active:not(:disabled) {
   color:var(--teal)
 }
 .options {
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   color:var(--muted);
   margin-top:18px;
   border-top:1px solid #383021;
@@ -454,7 +454,7 @@ button:active:not(:disabled) {
 .footer {
   text-align:center;
   color:var(--muted);
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   margin:24px 0 0;
   font-weight:400
 }
@@ -466,7 +466,7 @@ button:active:not(:disabled) {
   border:1px solid var(--coral);
   color:var(--coral);
   font-weight:400;
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   padding:10px;
   max-width:740px;
   margin:0 auto 12px
@@ -503,16 +503,16 @@ button:active:not(:disabled) {
   min-height:3.6vh
 }
 .tv .order-panel h2 {
-  font-size:clamp(13px,1.8vh,24px)
+  font-size:clamp(14px,1.8vh,24px)
 }
 .tv .order-count {
-  font-size:clamp(12px,1.5vh,20px)
+  font-size:clamp(14px,1.5vh,20px)
 }
 .tv .footer {
   display:none
 }
 .tv .topbar {
-  font-size:clamp(12px,1.4vh,16px)
+  font-size:clamp(14px,1.4vh,16px)
 }
 .tv .sync {
   margin-bottom:8px
@@ -584,7 +584,7 @@ button:active:not(:disabled) {
     font-size:calc(17 * var(--font-unit))
   }
   .topbar {
-    font-size:calc(12 * var(--font-unit))
+    font-size:var(--text-secondary)
   }
   .footer {
     line-height:1.6
@@ -629,7 +629,7 @@ button:active:not(:disabled) {
     font-size:calc(25 * var(--font-unit))
   }
   .room-code {
-    font-size:calc(12 * var(--font-unit))
+    font-size:var(--text-secondary)
   }
   .pairing {
     padding:9px
@@ -649,7 +649,7 @@ button:active:not(:disabled) {
     font-size:30px
   }
   .tv .masthead .eyebrow {
-    font-size:12px
+    font-size:14px
   }
   .tv .wheel-wrap {
     width:59vh
@@ -667,7 +667,7 @@ button:active:not(:disabled) {
   }
   .tv .sync {
     min-height:20px;
-    font-size:12px
+    font-size:14px
   }
 }
 .result {
@@ -802,7 +802,7 @@ button:active:not(:disabled) {
 .tv-sound {
   min-height:44px!important;
   padding:6px 10px!important;
-  font-size:clamp(12px,1.4vh,16px)!important;
+  font-size:clamp(14px,1.4vh,16px)!important;
   white-space:nowrap
 }
 .tv-sound[aria-pressed="true"] {
@@ -824,11 +824,11 @@ button:active:not(:disabled) {
   padding:12px 0;
   cursor:pointer;
   color:#f3d77a;
-  font-size:calc(12 * var(--font-unit))
+  font-size:var(--text-secondary)
 }
 .relay-details p {
   white-space:pre-line;
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   line-height:1.6;
   font-weight:400;
   margin:8px 0
@@ -841,7 +841,7 @@ button:active:not(:disabled) {
 .relay-actions button {
   min-height:44px;
   padding:9px 11px;
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   letter-spacing:0;
   box-shadow:none;
   margin:0;
@@ -870,7 +870,7 @@ a[href="../"]  {
   align-items: center;
   min-height: 44px;
   color: #b9b6a8;
-  font-size:calc(12 * var(--font-unit));
+  font-size:var(--text-secondary);
   line-height: 1.4;
   text-decoration: none;
   touch-action: manipulation;
@@ -920,17 +920,17 @@ a[href="../"]:active  {
 
 .topbar{gap:8px}.page-wordmark{display:block;width:100px;max-width:30vw;height:auto;flex:none}
 .tv .topbar{justify-content:center}.tv .page-wordmark{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(12px,env(safe-area-inset-bottom,0px));width:96px;z-index:5;pointer-events:none}
-.display-controls{position:fixed;left:max(16px,env(safe-area-inset-left,0px));bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:8;font-size:clamp(12px,1.4vh,16px);font-weight:400}
+.display-controls{position:fixed;left:max(16px,env(safe-area-inset-left,0px));bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:8;font-size:clamp(14px,1.4vh,16px);font-weight:400}
 .display-controls>summary{display:block;min-width:96px;min-height:44px;padding:10px 14px;border:1px solid var(--edge);background:#111;color:var(--muted);cursor:pointer;list-style:none}.display-controls>summary::-webkit-details-marker{display:none}
 .display-controls-panel{position:absolute;bottom:calc(100% + 8px);left:0;width:min(290px,calc(100vw - 32px));padding:12px;border:2px solid var(--edge);background:#111;box-shadow:4px 4px 0 #000}
 .display-controls-panel .button{width:100%}.display-controls-panel>a{display:flex;align-items:center;min-height:44px;margin-top:8px;padding-top:8px;border-top:1px solid var(--edge)}
 
 .join-error:empty{display:none}body:not(.host):not(.tv) .shell{padding-bottom:max(16px,env(safe-area-inset-bottom,0px))}
-</style><link rel="stylesheet" href="../assets/layout.css?v=25">
-<link rel="stylesheet" href="../assets/festive.css?v=25">
+</style><link rel="stylesheet" href="../assets/layout.css?v=26">
+<link rel="stylesheet" href="../assets/festive.css?v=26">
 </head><body data-page="presentation"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section><div class="shell" id="app"></div>
-<script src="../assets/ui.js?v=25"></script>
-<script src="../assets/reliability.js?v=25"></script>
+<script src="../assets/ui.js?v=26"></script>
+<script src="../assets/reliability.js?v=26"></script>
 <script>
 (function(){
 'use strict';
@@ -1029,7 +1029,7 @@ const TROPHY_DATA='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAFoCAYAAAB
 // One shared event, with separate Host and TV roles. The event identity is not a password.
 const BASE='https://ntfy.sh/',PREFIX='jialat18-',NS='j18-v1-',EVENT_ROOM='jialat26',EVENT_OWNER='18ea2026a11f0001';
 const app=document.getElementById('app');
-const BUILD='25',hostIdentity=window.JialatUI&&/^[a-f0-9]{16}$/.test(JialatUI.deviceId||'')?JialatUI.deviceId:uid();
+const BUILD='26',hostIdentity=window.JialatUI&&/^[a-f0-9]{16}$/.test(JialatUI.deviceId||'')?JialatUI.deviceId:uid();
 let hostTab=null,localHostBlocked=false,remoteHostBlocked=false,takeoverRequested=false,controllerHost='',tvPermit=null,revisionFloor=0;
 function hostLocked(){if(hostTab&&!hostTab.active)localHostBlocked=true;return blocked||localHostBlocked||remoteHostBlocked}
 let mode='',room='',owner='',S=null,pending=null,stream=null,streamOpen=false,pollOK=false,cursor='',polling=false,sending=false;
@@ -1087,13 +1087,13 @@ function eventScreenIcon(){const rows=['BBBBBBBBBBBB','B..........B','B.II..Y...
 function eventCover(){return '<section class="event-cover event-title seasonal-art" id="event-title" aria-label="Event title"><div class="seasonal-snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>'+eventFestiveIcons('<div class="bob">'+eventScreenIcon()+'</div>')+'<h1>JIALAT CHRISTMAS 2026</h1></section>'}
 function landing(){
  document.body.className='';
- app.innerHTML='<div class="seasonal-snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="topbar site-utility"><a href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="landing"><div class="landing-mark seasonal-art">'+wheelIcon()+'</div><header class="masthead"><h1>AFTER 18 YEARS…</h1></header><div class="role-actions"><button class="button primary" id="host-start"><strong>Host controls</strong><small>Phone, tablet or desktop</small></button><button class="button primary" id="tv-start"><strong>TV display</strong><small>Open on the MacBook</small></button></div><label class="seasonal-motion"><input type="checkbox"><span>Pause animation</span></label></div>';
+ app.innerHTML='<div class="seasonal-snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="topbar site-utility"><a href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="landing"><div class="landing-mark seasonal-art">'+wheelIcon()+'</div><header class="masthead"><h1>AFTER 18 YEARS…</h1></header><div class="role-actions"><button class="button primary" id="host-start"><strong>Host controls</strong><small>Phone, tablet or desktop</small></button><button class="button primary" id="tv-start"><strong>TV display</strong><small>Open on the MacBook</small></button></div></div>';
  $('host-start').onclick=()=>{location.hash='host'};
  $('tv-start').onclick=()=>{history.replaceState(null,'','#tv');route(true)};
 }
 function layout(){
  document.body.className=mode;
- app.innerHTML='<div class="topbar site-utility">'+(mode==='host'?'<a href="../">← MAIN MENU</a>':'')+'<img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div>'+(mode==='host'?'<header class="activity-header"><span class="activity-icon">'+wheelIcon()+'</span><h1>AFTER 18 YEARS…</h1><span class="role-label">HOST</span></header>':'<header class="masthead seasonal-art"><h1>AFTER 18 YEARS…</h1></header>')+'<div class="sync host-status" id="sync" role="status">Connecting…</div><p class="storage-warning" id="storage-warning" hidden>This browser cannot save the draw. Keep this page open until the order is complete.</p>'+(mode==='host'?'<details class="pairing" id="pairing" open><summary>TV CONNECTION</summary><p>On the MacBook, open Presentation and choose TV display.</p><input class="pair-link" id="tv-link" readonly aria-label="TV display link" value="'+esc(tvLink())+'"><div class="pair-actions"><button class="button small" id="copy-tv">Copy TV link</button><button class="button small" id="reconnect">Reconnect</button></div><p class="copy-note" id="copy-note" role="status"></p></details>':'')+(mode==='host'?'<div class="tv-screen-controls" role="group" aria-label="TV screen"><span class="control-label">TV SHOWS</span><button class="button small" id="show-event-title" aria-pressed="false">Event title</button><button class="button small" id="show-wheel" aria-pressed="true">Wheel</button></div>':eventCover())+'<main class="stage"><div class="wheel-area"><div class="wheel-wrap"><svg class="wheel-svg" id="wheel-svg" viewBox="0 0 1000 1000" role="img" aria-label="Presentation wheel"><circle cx="500" cy="500" r="492" fill="#0a0a0a" stroke="#6b5a22" stroke-width="12"/><circle cx="500" cy="500" r="479" fill="#111" stroke="#f3d77a" stroke-width="6"/><g id="wheel-disc"></g><circle cx="500" cy="500" r="117" fill="#0a0a0a" stroke="#f3d77a" stroke-width="9"/><image id="wheel-trophy" x="420" y="388" width="160" height="224" href="'+TROPHY_DATA+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true"/></svg><svg class="wheel-pointer" viewBox="0 0 32 45" aria-hidden="true"><path d="M3 0h26v13h-5v9h-5v10h-6V22H8v-9H3z" fill="#ff8b78" stroke="#0a0a0a" stroke-width="3"/></svg></div><div class="result" aria-live="polite" aria-atomic="true"><p class="eyebrow" id="position-label">NEXT · 1ST PRESENTER</p><h2 id="picked-name">Who goes first?</h2><p id="result-hint">11 friends. One presentation order.</p></div>'+(mode==='host'?'<div class="host-controls"><button class="button spin-button" id="spin" disabled>Connect TV to spin</button><p class="host-hint" id="host-hint">On the MacBook, open Presentation and choose TV display.</p></div>':'')+'</div><aside class="order-panel" aria-label="Presentation order"><h2>PRESENTATION ORDER</h2><p class="order-count" id="order-count">0 / 11 picked</p><ol class="order-list" id="order-list"></ol>'+(mode==='host'?'<details class="options"><summary>DRAW OPTIONS</summary><p>Restart clears the order on both screens. The same 11 names stay in the draw.</p><button class="button small" id="restart" disabled>Start a new draw</button></details>':'')+'</aside></main>'+(mode==='tv'?'<button class="tv-sound-start" id="presentation-sound-start" hidden>Turn on sound</button><details class="display-controls" id="display-controls"><summary id="display-sound-status">Sound off</summary><div class="display-controls-panel"><button type="button" data-fullscreen>Full screen</button><p data-display-note role="status"></p><button class="button tv-sound" id="presentation-sound">Turn on TV sound</button><button class="button" id="presentation-sound-test">Test sound</button><label class="seasonal-motion"><input type="checkbox"><span>Pause animation</span></label><a href="../">← MAIN MENU</a></div></details>':'');
+ app.innerHTML='<div class="topbar site-utility">'+(mode==='host'?'<a href="../">← MAIN MENU</a>':'')+'<img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div>'+(mode==='host'?'<header class="activity-header"><span class="activity-icon">'+wheelIcon()+'</span><h1>AFTER 18 YEARS…</h1><span class="role-label">HOST</span></header>':'<header class="masthead seasonal-art"><h1>AFTER 18 YEARS…</h1></header>')+'<div class="sync host-status" id="sync" role="status">Connecting…</div><p class="storage-warning" id="storage-warning" hidden>This browser cannot save the draw. Keep this page open until the order is complete.</p>'+(mode==='host'?'<details class="pairing" id="pairing" open><summary>TV CONNECTION</summary><p>On the MacBook, open Presentation and choose TV display.</p><input class="pair-link" id="tv-link" readonly aria-label="TV display link" value="'+esc(tvLink())+'"><div class="pair-actions"><button class="button small" id="copy-tv">Copy TV link</button><button class="button small" id="reconnect">Reconnect</button></div><p class="copy-note" id="copy-note" role="status"></p></details>':'')+(mode==='host'?'<div class="tv-screen-controls" role="group" aria-label="TV screen"><span class="control-label">TV SHOWS</span><button class="button small" id="show-event-title" aria-pressed="false">Event title</button><button class="button small" id="show-wheel" aria-pressed="true">Wheel</button></div>':eventCover())+'<main class="stage"><div class="wheel-area"><div class="wheel-wrap"><svg class="wheel-svg" id="wheel-svg" viewBox="0 0 1000 1000" role="img" aria-label="Presentation wheel"><circle cx="500" cy="500" r="492" fill="#0a0a0a" stroke="#6b5a22" stroke-width="12"/><circle cx="500" cy="500" r="479" fill="#111" stroke="#f3d77a" stroke-width="6"/><g id="wheel-disc"></g><circle cx="500" cy="500" r="117" fill="#0a0a0a" stroke="#f3d77a" stroke-width="9"/><image id="wheel-trophy" x="420" y="388" width="160" height="224" href="'+TROPHY_DATA+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true"/></svg><svg class="wheel-pointer" viewBox="0 0 32 45" aria-hidden="true"><path d="M3 0h26v13h-5v9h-5v10h-6V22H8v-9H3z" fill="#ff8b78" stroke="#0a0a0a" stroke-width="3"/></svg></div><div class="result" aria-live="polite" aria-atomic="true"><p class="eyebrow" id="position-label">NEXT · 1ST PRESENTER</p><h2 id="picked-name">Who goes first?</h2><p id="result-hint">11 friends. One presentation order.</p></div>'+(mode==='host'?'<div class="host-controls"><button class="button spin-button" id="spin" disabled>Connect TV to spin</button><p class="host-hint" id="host-hint">On the MacBook, open Presentation and choose TV display.</p></div>':'')+'</div><aside class="order-panel" aria-label="Presentation order"><h2>PRESENTATION ORDER</h2><p class="order-count" id="order-count">0 / 11 picked</p><ol class="order-list" id="order-list"></ol>'+(mode==='host'?'<details class="options"><summary>DRAW OPTIONS</summary><p>Restart clears the order on both screens. The same 11 names stay in the draw.</p><button class="button small" id="restart" disabled>Start a new draw</button></details>':'')+'</aside></main>'+(mode==='tv'?'<button class="tv-sound-start" id="presentation-sound-start" hidden>Turn on sound</button><details class="display-controls" id="display-controls"><summary id="display-sound-status">Sound off</summary><div class="display-controls-panel"><button type="button" data-fullscreen>Full screen</button><p data-display-note role="status"></p><button class="button tv-sound" id="presentation-sound">Turn on TV sound</button><button class="button" id="presentation-sound-test">Test sound</button><a href="../">← MAIN MENU</a></div></details>':'');
  if(mode==='host'){
   const work=document.querySelector('.host-controls'),switches=document.querySelector('.tv-screen-controls'),stage=document.querySelector('.stage'),pairing=$('pairing'),panel=document.querySelector('.order-panel');
   work.appendChild(switches);
@@ -1166,7 +1166,7 @@ function presentationTone(hz,length,volume,delay=0){
  const a=presentationCtx;if(!presentationSoundOn||!a||a.state!=='running'||document.hidden)return;
  try{const o=a.createOscillator(),g=a.createGain(),at=a.currentTime+.015+delay,v={o,g};o.type='triangle';o.frequency.setValueAtTime(hz,at);g.gain.setValueAtTime(.0001,at);g.gain.exponentialRampToValueAtTime(volume,at+.006);g.gain.exponentialRampToValueAtTime(.0001,at+length);o.connect(g);g.connect(a.destination);presentationVoices.add(v);o.onended=()=>{presentationVoices.delete(v);o.disconnect();g.disconnect()};o.start(at);o.stop(at+length+.02)}catch(e){}
 }
-function updatePresentationSound(){const b=$('presentation-sound');if(!b)return;const available=!!(window.AudioContext||window.webkitAudioContext),ready=presentationSoundOn&&presentationCtx&&presentationCtx.state==='running',muted=read('tv-muted')===true,eventTitle=S&&S.screen==='title',text=!available?'Sound unavailable':ready?'Mute TV sound':presentationSoundOn?'Resume TV sound':'Turn on TV sound';if(b.textContent!==text)b.textContent=text;b.disabled=!available;b.removeAttribute('aria-pressed');b.classList.toggle('sound-on',!!ready);const summary=$('display-sound-status');if(summary)summary.textContent=!available?'Sound unavailable':ready?'Sound on':muted?'Sound off':'Turn on sound';const start=$('presentation-sound-start');if(start){const recovering=start===document.activeElement;start.hidden=!!ready||muted||!available||eventTitle;if(recovering&&ready&&summary)summary.focus({preventScroll:true})}const panel=$('display-controls');if(panel)panel.hidden=!ready&&!muted&&available&&!eventTitle;}
+function updatePresentationSound(){const b=$('presentation-sound');if(!b)return;const available=!!(window.AudioContext||window.webkitAudioContext),ready=presentationSoundOn&&presentationCtx&&presentationCtx.state==='running',muted=read('tv-muted')===true,text=!available?'Sound unavailable':ready?'Mute TV sound':presentationSoundOn?'Resume TV sound':'Turn on TV sound';if(b.textContent!==text)b.textContent=text;b.disabled=!available;b.removeAttribute('aria-pressed');b.classList.toggle('sound-on',!!ready);const summary=$('display-sound-status');if(summary)summary.textContent=!available?'Sound unavailable':ready?'Sound on':muted?'Sound off':'Turn on sound';const start=$('presentation-sound-start');if(start){const recovering=start===document.activeElement;start.hidden=!!ready||muted||!available;if(recovering&&ready&&summary)summary.focus({preventScroll:true})}const panel=$('display-controls');if(panel)panel.hidden=!ready&&!muted&&available;}
 async function preparePresentationSound(confirm=false){
  if(read('tv-muted')===true){presentationSoundOn=false;updatePresentationSound();return false}
  presentationSoundOn=true;const a=presentationAudioContext(),until=performance.now()+1000;updatePresentationSound();if(!a)return false;
@@ -1372,6 +1372,6 @@ window.addEventListener('pagehide',()=>{soundEligible=false;stopPresentationAudi
 if(window.JialatUI&&JialatUI.build===BUILD){
 route();
 if(window.JialatUI)JialatUI.ready();
-}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 25 files together, then reload this page.';}
+}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 26 files together, then reload this page.';}
 })();
 </script></body></html>
