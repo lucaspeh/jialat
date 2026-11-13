@@ -1,8 +1,7 @@
 /* Welcome-screen atmosphere within the established retro identity. */
 [data-page="menu"] .menu-header,
-[data-page="presentation"] .landing,
 [data-page="presentation"] .masthead,
-[data-page="presentation"] .event-cover { position:relative; }
+.event-title { position:relative; }
 [data-page="menu"] .trip-dates { position:relative; }
 [data-page="menu"] .trip-dates::before,
 [data-page="menu"] .trip-dates::after { content:""; position:absolute; top:calc(50% - 2px); width:4px; height:4px; pointer-events:none; }
@@ -10,17 +9,16 @@
 [data-page="menu"] .trip-dates::after { right:-13px; background:#68ad83; }
 
 /* Warm pixel bulbs frame the title without crossing the wheel or controls. */
-[data-page="presentation"] .landing::before,
 [data-page="presentation"].tv .masthead::before,
-[data-page="presentation"] .event-cover::before {
+.event-title::before {
   content:""; position:absolute; top:-32px; left:50%; width:288px; max-width:82%; height:24px;
   transform:translateX(-50%); background:url("pixel-lights.svg") center / contain no-repeat;
   opacity:.85; pointer-events:none; animation:festive-light-glimmer 14s steps(1,end) infinite;
 }
-[data-page="presentation"].tv .masthead::before { top:-16px; width:192px; height:16px; }
-[data-page="presentation"] .event-cover::before { top:3vh; width:clamp(240px,32vw,432px); height:36px; }
+[data-page="presentation"].tv .masthead::before { top:0; width:192px; height:16px; }
+.event-title::before { top:clamp(24px,6vh,96px); width:clamp(240px,32vw,432px); height:clamp(20px,2.8vh,36px); }
 
-/* A bounded CSS layer, removed when a live role replaces the welcome screen.
+/* A bounded CSS layer on welcome and event title screens only.
    Isolation keeps its negative stack level above the canvas and below content. */
 body[data-page="menu"],
 body[data-page="presentation"]:not(.host):not(.tv),
@@ -31,7 +29,8 @@ body[data-page="scoreboard"].landing { isolation:isolate; }
 }
 body[data-page="menu"] > .seasonal-snow,
 body[data-page="presentation"]:not(.host):not(.tv) .seasonal-snow,
-body[data-page="scoreboard"].landing .seasonal-snow { display:block; }
+body[data-page="scoreboard"].landing .seasonal-snow,
+body[data-page].tv .event-title .seasonal-snow { display:block; }
 @supports(height:100svh) { .seasonal-snow { --snow-distance:calc(100svh + 32px); } }
 .seasonal-snow i {
   position:absolute; top:-16px; left:var(--snow-x); width:var(--snow-size,3px); height:var(--snow-size,3px);
@@ -61,20 +60,20 @@ body[data-page="scoreboard"].landing .seasonal-snow { display:block; }
 @keyframes festive-light-glimmer { 0%,79%,83%,100% { opacity:.85; } 80%,82% { opacity:.6; } 81% { opacity:1; } }
 .seasonal-motion { display:flex; align-items:center; justify-content:center; gap:8px; width:max-content; max-width:100%; min-height:44px; margin:12px auto 0; padding:8px; color:var(--color-muted,#b9b6a8); font:400 var(--text-secondary,14px)/1.5 var(--font-ui,monospace); cursor:pointer; }
 body[data-page] .seasonal-motion input { flex:none; width:16px; height:16px; min-height:16px; margin:0; accent-color:var(--color-gold,#d4af37); }
-body[data-page]:has(.seasonal-motion input:checked) *,
-body[data-page]:has(.seasonal-motion input:checked) *::before,
-body[data-page]:has(.seasonal-motion input:checked) *::after { animation-play-state:paused!important; }
+body[data-page]:has(.seasonal-motion input:checked) :is(.seasonal-snow i,.seasonal-art,.seasonal-art *),
+body[data-page]:has(.seasonal-motion input:checked) .seasonal-art::before,
+body[data-page]:has(.seasonal-motion input:checked) .seasonal-art::after { animation-play-state:paused!important; }
+body[data-page].tv .display-controls-panel .seasonal-motion { justify-content:flex-start; width:100%; margin:0; }
 [data-page="scoreboard"] .cf { pointer-events:none; }
 @media(max-width:619px) { .seasonal-snow i:nth-child(n+13) { display:none; } }
 @media(max-height:600px) {
-  [data-page="presentation"] .landing::before { top:-20px; width:192px; height:16px; }
-  [data-page="presentation"] .event-cover::before { top:0; height:20px; }
+  .event-title::before { top:16px; height:20px; }
 }
 @media(prefers-reduced-motion:reduce) {
   .seasonal-snow,.seasonal-motion { display:none!important; }
   .seasonal-snow i,
-  [data-page="presentation"] .landing::before,
+  .seasonal-art,.seasonal-art *,
   [data-page="presentation"].tv .masthead::before,
-  [data-page="presentation"] .event-cover::before { animation:none; }
+  .event-title::before { animation:none; }
   [data-page="scoreboard"] .cf { display:none; }
 }

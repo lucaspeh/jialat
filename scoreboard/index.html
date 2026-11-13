@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta name="jialat-build" content="24"><meta charset="utf-8"><meta name="robots" content="noindex">
+<html lang="en"><head><meta name="jialat-build" content="25"><meta charset="utf-8"><meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a">
 <meta name="description" content="Nine Christmas games. One overall champion. S$18 for the winner. Choose the host controls or the TV display.">
@@ -1639,18 +1639,18 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 #tvAudio .display-controls-panel>button{width:100%;margin-bottom:8px}#tvAudio .display-controls-panel>a{display:flex;align-items:center;min-height:44px;margin-top:8px;border-top:1px solid var(--d);padding-top:8px}
 #tvAudio .tone-tests{padding:8px 0;border:0}
 
-</style><link rel="stylesheet" href="../assets/layout.css?v=24">
-<link rel="stylesheet" href="../assets/festive.css?v=24">
+</style><link rel="stylesheet" href="../assets/layout.css?v=25">
+<link rel="stylesheet" href="../assets/festive.css?v=25">
 </head><body data-page="scoreboard"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section>
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
 <button class="tv-sound-start" id="tvAudioStart" onclick="enableTvSound()" hidden>Turn on sound</button>
-<details id="tvAudio"><summary id="tvControlSummary">Sound off</summary><div class="display-controls-panel"><button type="button" data-fullscreen>Full screen</button><p data-display-note role="status"></p><button id="tvAudioToggle" onclick="toggleTvSound()">Turn on TV sound</button><button id="tvSoundTest" onclick="previewTvCue('test')">Test sound</button><details id="tvAudioTests"><summary>Test tones</summary><div class="tone-tests"><small>Audio plays from this screen.</small><button onclick="previewTvCue('end')">Timer · Time’s up</button><button onclick="previewTvCue('happy')">2–6 · Happy</button><button onclick="previewTvCue('organiser')">7–9 · Oh no!</button><button onclick="previewTvCue('champion')">1st · Champion</button><button onclick="previewTvCue('cheeky')">10th · Cheeky</button></div></details><a href="../">← MAIN MENU</a></div></details>
+<details id="tvAudio"><summary id="tvControlSummary">Sound off</summary><div class="display-controls-panel"><button type="button" data-fullscreen>Full screen</button><p data-display-note role="status"></p><button id="tvAudioToggle" onclick="toggleTvSound()">Turn on TV sound</button><button id="tvSoundTest" onclick="previewTvCue('test')">Test sound</button><details id="tvAudioTests"><summary>Test tones</summary><div class="tone-tests"><small>Audio plays from this screen.</small><button onclick="previewTvCue('end')">Timer · Time’s up</button><button onclick="previewTvCue('happy')">2–6 · Happy</button><button onclick="previewTvCue('organiser')">7–9 · Oh no!</button><button onclick="previewTvCue('champion')">1st · Champion</button><button onclick="previewTvCue('cheeky')">10th · Cheeky</button></div></details><label class="seasonal-motion"><input type="checkbox"><span>Pause animation</span></label><a href="../">← MAIN MENU</a></div></details>
 <img class="tv-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async">
 <main id="H"></main>
 <div id="T"><div id="msg"></div><div id="bd"><h1 id="th"></h1><p id="boardHint"></p><div id="ban"></div><div id="rows"></div><div id="lg"><span style="color:var(--l)">1ST · S$18 CASH PRIZE</span><span>2–6 SAFE</span><span>7–9 NEXT YEAR’S ORGANISERS</span><span>10TH · THE JIALAT TROPHY</span></div></div></div>
-<script src="../assets/ui.js?v=24"></script>
-<script src="../assets/reliability.js?v=24"></script>
+<script src="../assets/ui.js?v=25"></script>
+<script src="../assets/reliability.js?v=25"></script>
 <script>
 
 // Connection state is shared by the three apps on this browser. No game data is stored here.
@@ -1815,6 +1815,7 @@ function holidayIcon(kind){
  if(kind==='santa')h+='<g class="santa-wave"><rect x="14" y="10" width="2" height="4" fill="#e76365"/><rect x="14" y="9" width="2" height="2" fill="#fff5e5"/></g>';
  return `<div class="title-side title-${kind}" aria-hidden="true"><svg viewBox="0 0 ${kind==='tree'?15:18} ${a.length}" role="presentation">${h}</svg></div>`
 }
+function eventScreenIcon(){const rows=['BBBBBBBBBBBB','B..........B','B.II..Y....B','B.II.YYY...B','B.II..Y....B','B....YYY...B','B..........B','BBBBBBBBBBBB','....BBBB....','...BBBBBB...'],colors={Y:'#f3d77a',I:'#86baff',B:'#8a5a2b'};let h='';rows.forEach((r,y)=>[...r].forEach((c,x)=>{if(colors[c])h+='<rect x="'+x+'" y="'+y+'" width="1" height="1" fill="'+colors[c]+'"/>'}));return '<svg viewBox="0 0 12 10" aria-hidden="true" shape-rendering="crispEdges">'+h+'</svg>'}
 function festiveIcons(center){return '<div class="title-icons">'+holidayIcon('tree')+'<div class="title-middle">'+center+'</div>'+holidayIcon('santa')+'</div>'}
 // Each diagram demonstrates the judged action and holds its finish state before repeating.
 function demoPerson(x,color){return '<g transform="translate('+x+' 0)"><rect x="-10" y="25" width="20" height="20" fill="'+color+'"/><path d="M0 50v42m0-30h-22m22 0h22m-22 30l-16 38m16-38l16 38" class="person-line"/></g>'}
@@ -1843,7 +1844,7 @@ const rn=i=>S.nm[i]||'P'+(i+1),nm=i=>esc(rn(i));
 let ROLE=(location.hash.match(/host|tv/)||[''])[0];
 const save=()=>{try{localStorage.setItem('jialat26',JSON.stringify(S))}catch(e){if(window.JialatUI)JialatUI.storageFailure()}};
 const status=(kind,label)=>{if(ROLE==='host'&&localHostBlocked){kind='bad';label='Host controls open in another tab'}else if(ROLE==='host'&&remoteHostBlocked){kind='bad';label='Read-only · another device is hosting'}$('dot').className='dot '+kind;if(window.JialatUI)JialatUI.status($('sync'),label);else $('sync').textContent=label};
-const BOARD_BUILD='24',hostIdentity=window.JialatUI&&/^[a-f0-9]{16}$/.test(JialatUI.deviceId||'')?JialatUI.deviceId:boardToken(),displayIdentity=boardToken();
+const BOARD_BUILD='25',hostIdentity=window.JialatUI&&/^[a-f0-9]{16}$/.test(JialatUI.deviceId||'')?JialatUI.deviceId:boardToken(),displayIdentity=boardToken();
 let hostTab=null,localHostBlocked=false,remoteHostBlocked=false,boardAuthorized=false,boardController='',boardTV='',boardNonce='',boardTakeover=false,boardProbeTimer=0,boardControlSince=0,boardTVGranted=false,boardCursor='';
 let pt,retryTimer=null,retryAt=0,sendFailures=0,sending=false,queued=null,inFlightBody=null,stream=null,pollTimer=null,streamOpen=false,polling=false,pollTask=null;
 const deliveredStates=new Set(),handledControls=new Set();
@@ -2010,10 +2011,10 @@ async function prepareTvSound(confirm=false){
 }
 function enableTvSound(){tvMuted(false);return prepareTvSound(true)}
 function updateTvAudio(){
- if(ROLE!=='tv')return;const b=$('tvAudioToggle'),available=!!(window.AudioContext||window.webkitAudioContext),ready=tvSoundOn&&audioCtx&&audioCtx.state==='running';
+ if(ROLE!=='tv')return;const b=$('tvAudioToggle'),available=!!(window.AudioContext||window.webkitAudioContext),ready=tvSoundOn&&audioCtx&&audioCtx.state==='running',eventTitle=!!$('msg').querySelector('.event-title');
  b.textContent=!available?'Sound unavailable':ready?'Mute TV sound':tvSoundOn?'Resume TV sound':'Turn on TV sound';b.disabled=!available;b.removeAttribute('aria-pressed');b.classList.toggle('sound-on',!!ready);
- const start=$('tvAudioStart'),recovering=start===document.activeElement;if(start){start.hidden=!!ready||tvMuted()||!available;start.textContent='Turn on sound';}
- $('tvAudio').hidden=!ready&&!tvMuted()&&available;
+ const start=$('tvAudioStart'),recovering=start===document.activeElement;if(start){start.hidden=!!ready||tvMuted()||!available||eventTitle;start.textContent='Turn on sound';}
+ $('tvAudio').hidden=!ready&&!tvMuted()&&available&&!eventTitle;
  const performing=S.m[0]==='rev'||!!activeCountdown();$('tvAudioTests').hidden=performing;
  $('tvControlSummary').textContent=!available?'Sound unavailable':ready?'Sound on':tvMuted()?'Sound off':'Turn on sound';$('tvAudio').classList.toggle('sound-ready',!!ready);if(performing)$('tvAudio').open=false
  if(recovering&&ready)$('tvControlSummary').focus({preventScroll:true})
@@ -2213,7 +2214,7 @@ if(revealCheck&&!ready){
  h+=`<div class="host-workspace">${c}${board}</div>`;
  const ties=allDone()?st.filter((o,k)=>k>0&&st[k-1].t===o.t&&st[k-1].b===o.b).map(o=>o.r-1):[];
  if(ties.length)h+=`<p class="hint">Tie for place ${ties.join(', ')}. Replay Snow Blower, then use the player tie-break controls.</p>`;
- h+=`<details class="host-settings" id="hostSetup"${settingsOpen?' open':''}><summary>Sound &amp; settings</summary><p class="host-prize">${PRIZE_TAG}</p><details class="host-audio" id="hostAudio"${audioOpen?' open':''}><summary id="hostSoundStatus">Host sound off</summary><div class="soundbar"><button id="hostSoundToggle" onclick="toggleSound()">Turn on host sound</button><button id="hostSoundTest" onclick="testSound()" disabled>Test chime</button><p class="hint">TV countdown and reveal sounds play on the MacBook. Host sound is optional for the person timing the games.</p></div></details><details><summary>Start a new round</summary><p class="hint">Clears all results and tie-breaks. Player names are kept.</p><button id="startNewRound" class="danger" onclick="reset()">Start a new round</button></details>${relayPanelHTML()}</details>`;
+ h+=`<details class="host-settings" id="hostSetup"${settingsOpen?' open':''}><summary>Sound &amp; settings</summary><details class="host-audio" id="hostAudio"${audioOpen?' open':''}><summary id="hostSoundStatus">Host sound off</summary><div class="soundbar"><button id="hostSoundToggle" onclick="toggleSound()">Turn on host sound</button><button id="hostSoundTest" onclick="testSound()" disabled>Test chime</button><p class="hint">TV countdown and reveal sounds play on the MacBook. Host sound is optional for the person timing the games.</p></div></details><details><summary>Start a new round</summary><p class="hint">Clears all results and tie-breaks. Player names are kept.</p><button id="startNewRound" class="danger" onclick="reset()">Start a new round</button></details>${relayPanelHTML()}</details>`;
  $('H').innerHTML=h;$('hostConnection').append(dotNode,syncNode);relayPanelBind();updateAudioStatus();boardAccess();
  const restore=focusId?$(focusId):focusLabel?Array.from($('H').querySelectorAll('[aria-label]')).find(e=>e.getAttribute('aria-label')===focusLabel):null;
  if(restore&&!restore.disabled)try{restore.focus({preventScroll:true})}catch(e){}
@@ -2250,7 +2251,7 @@ $('msg').innerHTML=`<div class="sm">GAME ${String(m[1]+1).padStart(2,'0')} / 09 
 <div class="guideSteps">${a.steps.map((s,i)=>`<div class="guideStep"><b>STEP ${i+1}</b>${esc(s)}</div>`).join('')}</div>
 <div class="guideFacts"><div class="guideFact"><b>PLAY</b>${esc(a.turn)}</div><div class="guideFact"><b>WIN BY</b>${esc(a.win)}</div><div class="guideFact"><b>POINTS</b>${esc(a.points)}</div></div>
 ${x.u?`<div class="sm">${x.t=='p'?'PAIR LINEUP':'TEAMS'}</div><div class="gr">${x.u.map((u,k)=>`<div class="gb">${x.t=='t'?'TEAM '+'AB'[k]+'<br>':''}${u.map(p=>nm(p-1)).join(x.t=='t'?' · ':' &amp; ')}</div>`).join('')}</div>`:''}`}
-else $('msg').innerHTML=`${festiveIcons('<div class="bob">'+spr('screen',8)+'</div>')}<h1>JIALAT CHRISTMAS 2026</h1><div class="tag">18 YEARS · 11 FRIENDS · 9 GAMES</div><div class="prize-label">${PRIZE_TAG}</div>`;return}
+else $('msg').innerHTML=`<section class="event-title seasonal-art" aria-label="Event title"><div class="seasonal-snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>${festiveIcons('<div class="bob">'+eventScreenIcon()+'</div>')}<h1>JIALAT CHRISTMAS 2026</h1></section>`;return}
 const rev=m[0]=='rev',k=rev?m[1]:10,n=rev?9:m[1],fin=rev||(n>=9&&allDone()&&S.finalShown),st=stand(n),top=Math.max(1,st[0].t);
 const hasPoints=S.sc.some(r=>r.slice(0,n).some(v=>v!==null));
 $('th').textContent=!rev&&!hasPoints?'WAITING FOR RESULTS':rev?'THE FINAL VERDICT':n>=9?(fin?'FINAL RANKINGS':'LIVE RANKINGS'):'AFTER GAME '+n;
@@ -2281,13 +2282,13 @@ function advanceResultFocus(event){
  if(next)next.focus();
 }
 // ---- boot ----
-function render(){document.body.className=ROLE||'landing';if(ROLE=='host')host();else if(ROLE=='tv'){tv();tvRevealAudio()}else $('H').innerHTML=`<div class="seasonal-snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="chooser-topbar site-utility"><a class="back-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="chooser"><div class="title-icons"><div class="title-middle"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-label="Animated pixel abacus" role="img">
+function render(){document.body.className=ROLE||'landing';if(ROLE=='host')host();else if(ROLE=='tv'){tv();tvRevealAudio()}else $('H').innerHTML=`<div class="seasonal-snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="chooser-topbar site-utility"><a class="back-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="chooser"><div class="title-icons seasonal-art"><div class="title-middle"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-label="Animated pixel abacus" role="img">
 <path fill="#d4af37" d="M1 1h16v1H1zM1 2h1v10H1zM16 2h1v10h-1zM1 12h16v1H1z"/>
 <path fill="#6b5a22" d="M3 4h12v1H3zM3 7h12v1H3zM3 10h12v1H3z"/>
 <g class="bead-one"><path fill="#65d9cb" d="M4 3h2v3H4z"/></g>
 <g class="bead-two"><path fill="#86baff" d="M5 6h2v3H5z"/></g>
 <g class="bead-three"><path fill="#ff8b78" d="M7 9h2v3H7z"/></g>
-</svg></div></div><h1>SCOREBOARD</h1><div class="prize-label">${PRIZE_TAG}</div><p class="chooser-intro">Control the games on your phone or iPad.<br>Open the TV display on the MacBook.</p><div class="role-actions"><button class="go" onclick="enterRole('host')"><strong>Host controls</strong><small>Phone, tablet or desktop</small></button><button class="go" onclick="enterRole('tv')"><strong>TV display</strong><small>Open on the MacBook</small></button></div><label class="seasonal-motion"><input type="checkbox"><span>Pause animation</span></label></div>`}
+</svg></div></div><h1>SCOREBOARD</h1><div class="role-actions"><button class="go" onclick="enterRole('host')"><strong>Host controls</strong><small>Phone, tablet or desktop</small></button><button class="go" onclick="enterRole('tv')"><strong>TV display</strong><small>Open on the MacBook</small></button></div><label class="seasonal-motion"><input type="checkbox"><span>Pause animation</span></label></div>`}
 function enterRole(role,fromEntry=true){
  if(!['host','tv',''].includes(role))return;
  if(role)$('H').querySelectorAll('.seasonal-snow,.seasonal-motion').forEach(node=>node.remove())
@@ -2306,7 +2307,7 @@ if(window.JialatUI&&JialatUI.build===BOARD_BUILD){
 if(!validBoard(S)){S=D();JialatUI.storageFailure()}
 enterRole(ROLE,false);
 JialatUI.ready();
-}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 24 files together, then reload this page.';document.body.className='landing';}
+}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 25 files together, then reload this page.';document.body.className='landing';}
 function followRoleLink(){const role=(location.hash.match(/host|tv/)||[''])[0];if(role!==ROLE)enterRole(role,false)}
 window.addEventListener('hashchange',followRoleLink);window.addEventListener('popstate',followRoleLink);
 for(const id of ['tvAudio','tvAudioTests'])$(id).addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();$(id).open=false;$(id).querySelector('summary').focus()}});
