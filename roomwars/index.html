@@ -691,7 +691,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <header class="site-navigation site-utility"><a id="site-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></header>
 <main id="app"></main>
 <script src="../assets/ui.js?v=26"></script>
-<script src="../assets/reliability.js?v=26"></script>
+<script src="../assets/reliability.js?v=26-lock-1"></script>
 <script>
 
 // Connection state is shared by the three apps on this browser. No game data is stored here.
@@ -874,11 +874,65 @@ var rt=null,RV=["home","wait","who","final","picking"];
 function rq(){if(rt)return;rt=setTimeout(function(){rt=null;if(view=="home"&&host&&document.activeElement&&["mg","mp","mv","bc"].indexOf(document.activeElement.id)>=0)return;if(RV.indexOf(view)>=0)render()},80)}
 var out=[],posting=false,postRetry=null,postRetryAt=0,postFailures=0,pollTimer=null,polling=false,pollTask=null,pollOk=false,cursor="",seen={},seenOrder=[],postFailed=false,postError="";
 var roomHostTab=null,wantedRoomHost=false,roomFilesMatch=!!(window.JialatUI&&JialatUI.build==='26');
+var setupDraft=null,roomHostDenied=false,roomHostProblem='',roomLeaving=false,heldOut=[],queuePaused=false;
+function reloadRoom(event){event.preventDefault();location.reload()}
+function roomHostActive(){return !!(host&&roomHostTab&&roomHostTab.active)}
+function roomHostBlocked(){return wantedRoomHost&&(!roomHostActive()||queuePaused)}
+function noteHostDenial(){roomHostDenied=true;try{sessionStorage.setItem('rw-denied-'+code,'1')}catch(e){}}
+function saveSetupDraft(names){setupDraft=names;try{if(names)sessionStorage.setItem('rw-setup-'+code,JSON.stringify(names));else sessionStorage.removeItem('rw-setup-'+code)}catch(e){if(names&&window.JialatUI)JialatUI.storageFailure('Your setup names are kept in this tab. Keep it open and retry organiser controls.')}}
+// This local queue marker separates played results from corrections; post() removes it from relay messages.
+function playerQueueMessage(m){return !!(m&&((m.t==='score'&&m._rwPlayer===true&&validResultRow(m))||(m.t==='tbs'&&I(m.p,0,9)&&I(m.v,0,100000)&&typeof m.tieId==='string')))}
+function readQueue(key){try{var x=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(x)?x.filter(function(m){return m&&typeof m.t==='string'}):[]}catch(e){queuePaused=true;if(window.JialatUI)JialatUI.storageFailure();return []}}
+function mergeQueue(a,b){var ids={};return a.concat(b).filter(function(m){var id=m.mid||JSON.stringify(m);if(ids[id])return false;ids[id]=true;return true})}
+function restorePending(){
+ queuePaused=false;
+ var previousHeld=readQueue('rw-held-'+code),saved=mergeQueue(readQueue('rwq-'+code),out),review=roomHostDenied||!roomHostActive(),held=review?saved.filter(function(m){return !playerQueueMessage(m)}):[];
+ if(queuePaused)return false;
+ heldOut=previousHeld;
+ if(held.length){
+  heldOut=mergeQueue(heldOut,held);
+  try{localStorage.setItem('rw-held-'+code,JSON.stringify(heldOut))}catch(e){queuePaused=true;if(window.JialatUI)JialatUI.storageFailure();return false}
+ }
+ out=review?saved.filter(playerQueueMessage):saved;
+ out.forEach(function(m){mark(m.mid);apply(m)});remember();
+ roomHostDenied=false;try{sessionStorage.removeItem('rw-denied-'+code)}catch(e){}
+ return true;
+}
+function roomQueueNotice(){
+ var note=document.getElementById('room-queue-note');if(!heldOut.length&&!queuePaused){if(note)note.hidden=true;return}
+ if(!note){note=document.createElement('details');note.id='room-queue-note';note.className='host-control-note';var title=document.createElement('summary');title.textContent='Earlier unsent updates';var text=document.createElement('p');text.dataset.queueMessage='';var field=document.createElement('textarea');field.readOnly=true;field.setAttribute('aria-label','Saved result codes for review');note.append(title,text,field);A.before(note)}
+ note.hidden=false;
+ note.querySelector('[data-queue-message]').textContent=queuePaused?'Earlier updates could not be saved safely. Keep this tab open, check browser storage, then retry organiser controls.':heldOut.length+' earlier updates were kept for review and were not resent. Re-enter any organiser changes that are still needed. Check player names and the game round, then share saved result codes with the organiser or review them in Advanced backup.';
+ var rows=[];heldOut.forEach(function(m){if(m.t==='score'&&validResultRow(m))rows.push(m);if(m.t==='scores'&&Array.isArray(m.rows))rows=rows.concat(m.rows.filter(validResultRow))});
+ var field=note.querySelector('textarea');field.hidden=!rows.length;field.value=rows.map(function(m){return m.g+'|'+m.p+'|'+m.v}).join('\n');
+}
+function roomHostAcquired(){
+ host=true;roomHostProblem='';restoreSnapshot();
+ if(!restorePending()){render();return}
+ if(setupDraft){if(!S.names){if(send({t:'cfg',names:setupDraft.slice()}))saveSetupDraft(null)}else saveSetupDraft(null)}
+ render();if(!es||es.readyState===2)connect();post();
+}
+function acquireRoomHost(){
+ wantedRoomHost=true;
+ if(!roomHostTab){
+  host=false;
+  try{
+   if(!window.JialatUI||typeof JialatUI.hostGuard!=='function')throw Error('Host lock unavailable');
+   var guard=JialatUI.hostGuard('roomwars-'+code,function(active){host=active;if(active)roomHostAcquired();else{if(!roomLeaving)noteHostDenial();render()}},{failClosed:true});
+   if(!guard||guard.failClosed!==true||typeof guard.acquire!=='function'){if(guard&&guard.dispose)guard.dispose();throw Error('Host lock needs updating')}
+   roomHostTab=guard;
+  }catch(e){roomHostProblem='files';noteHostDenial();render();return Promise.resolve(false)}
+ }
+ if(roomHostTab.active){roomHostAcquired();return Promise.resolve(true)}
+ return Promise.resolve().then(function(){return roomHostTab.acquire()}).then(function(){if(!roomHostTab.active){host=false;noteHostDenial();render();return false}return true}).catch(function(){var failed=roomHostTab;roomHostTab=null;host=false;roomHostProblem='files';if(failed&&failed.dispose)try{failed.dispose()}catch(e){}noteHostDenial();render();return false});
+}
 function roomHostAccess(){
- var locked=!!(roomHostTab&&!roomHostTab.active),note=document.getElementById('room-host-note');
- if(locked&&!note){note=document.createElement('section');note.id='room-host-note';note.className='host-control-note';var text=document.createElement('p');text.textContent='Host controls are open in another tab. Close that tab before using this one.';var retry=document.createElement('button');retry.type='button';retry.textContent='Retry host controls';retry.onclick=function(){roomHostTab.acquire()};note.append(text,retry);A.before(note)}
+ var locked=roomHostBlocked(),note=document.getElementById('room-host-note');
+ if(locked&&!note){note=document.createElement('section');note.id='room-host-note';note.className='host-control-note';var text=document.createElement('p');var retry=document.createElement('button');retry.type='button';retry.textContent='Retry host controls';retry.onclick=acquireRoomHost;var reload=document.createElement('a');reload.href=location.href;reload.textContent='Reload page';reload.onclick=reloadRoom;note.append(text,retry,reload);A.before(note)}
+ if(note)note.querySelector('p').textContent=roomHostProblem==='files'?'Organiser controls could not load safely. Your setup draft and saved results are kept. Reload this page, then retry.':'Organiser controls are not available in this tab. Close any other organiser tab and check browser storage, then retry here.';
  if(note)note.hidden=!locked;
  if(locked){Array.prototype.forEach.call(A.querySelectorAll('button,input,select,textarea'),function(e){e.disabled=true});Array.prototype.forEach.call(A.querySelectorAll('[role="button"]'),function(e){e.setAttribute('aria-disabled','true');e.tabIndex=-1})}
+ roomQueueNotice();
 }
 function saveSnapshot(){if(!code)return;try{localStorage.setItem('rws-'+code,JSON.stringify({v:1,code:code,state:S,cursor:cursor,seen:seenOrder.slice(-500)}))}catch(e){if(window.JialatUI)JialatUI.storageFailure()}}
 function restoreSnapshot(){
@@ -901,17 +955,18 @@ function restoreSnapshot(){
 }
 function mark(id){if(!id||seen[id])return false;seen[id]=true;seenOrder.push(id);if(seenOrder.length>500)delete seen[seenOrder.shift()];return true}
 function remember(){try{localStorage.setItem("rwq-"+code,JSON.stringify(out))}catch(e){}}
-function send(m){
- if(roomHostTab&&!roomHostTab.active)return '';
+function send(m,playerResult){
+ if(playerResult===true){if(m.p!==me||(m.t!=='score'&&m.t!=='tbs'))return '';m._rwPlayer=true}
+ if(roomHostBlocked()||(!playerQueueMessage(m)&&!roomHostActive()))return '';
  m.mid=Date.now().toString(36)+Math.random().toString(36).slice(2,9);
  if(roundMessage(m.t))m.round=S.round;if(m.t=="reset"){m.round=m.mid;m.roundNo=S.roundNo+1}
  m.at=Date.now();mark(m.mid);apply(m);
  out.push(m);remember();saveSnapshot();stat();post();return m.mid}
 async function post(){
- if(posting||!out.length||roomHostTab&&!roomHostTab.active||Date.now()<postRetryAt||navigator.onLine===false)return;
+ if(posting||!out.length||queuePaused||roomHostBlocked()||(!playerQueueMessage(out[0])&&!roomHostActive())||Date.now()<postRetryAt||navigator.onLine===false)return;
  if(relayWait()>0){postFailed=true;postError=relayWaitLabel();postRetryAt=Date.now()+relayWait();clearTimeout(postRetry);postRetry=relayLater(post,relayWait());stat();return}
  posting=true;var m=out[0],ctrl=new AbortController(),limit=setTimeout(function(){ctrl.abort()},8000);
- try{var r=await relayFetch(BASE+"rw-"+code,{method:"POST",body:JSON.stringify(m),signal:ctrl.signal});if(!r.ok)throw await relayResponseError(r);
+ try{var wire=Object.assign({},m);delete wire._rwPlayer;var r=await relayFetch(BASE+"rw-"+code,{method:"POST",body:JSON.stringify(wire),signal:ctrl.signal});if(!r.ok)throw await relayResponseError(r);
   out=out.filter(function(x){return x.mid!==m.mid});remember();postFailed=false;postError="";postRetryAt=0;postFailures=0;clearTimeout(postRetry);postRetry=null;
  }catch(e){if(!e.status)await poll(true);if(!out.some(function(x){return x.mid===m.mid})){postFailed=false;postError='';postFailures=0;postRetryAt=0;return}postFailed=true;postFailures++;var delay=e.status===429?Math.max(1,relayWait()):relayRetryDelay(postFailures);postRetryAt=Date.now()+delay;
   postError=e.status===429?relayWaitLabel():e.status?"Relay HTTP "+e.status:"Network request failed";
@@ -945,7 +1000,7 @@ function connect(){
   es.addEventListener("message",function(e){try{incoming(JSON.parse(e.data))}catch(x){}})
  }catch(e){on=false;fl=true;stat();if(!pollTimer)pollTimer=setInterval(poll,90000);poll()}
 }
-function resume(event){if(code&&!document.hidden){if(roomHostTab&&!roomHostTab.active){roomHostTab.acquire();return}if(event&&event.type==='online'){clearTimeout(postRetry);postRetry=null;postRetryAt=0;postFailures=0}if(!es||es.readyState===2)connect();post();if(!es||es.readyState===2)poll()}}
+function resume(event){if(code&&!document.hidden){if(roomHostBlocked()){acquireRoomHost();return}if(event&&event.type==='online'){clearTimeout(postRetry);postRetry=null;postRetryAt=0;postFailures=0}if(!es||es.readyState===2)connect();post();if(!es||es.readyState===2)poll()}}
 document.addEventListener("visibilitychange",resume);window.addEventListener("online",resume);window.addEventListener("pageshow",function(e){if(e.persisted)resume()});
 window.addEventListener('jialat-relay-status',function(){stat()});
 function stat(){updatePageChrome();roomHostAccess();var d=document.getElementById("dot"),e=document.getElementById("stat"),help=document.getElementById("syncHelp"),result=document.getElementById("resultSync"),label=roomHostTab&&!roomHostTab.active?'Host controls open in another tab':relayWait()>0?relayWaitLabel():postFailed&&out.length?"Could not send · retrying":out.length?"Sending updates…":on?"Connected":pollOk?"Connected · checking for updates":fl?"Connection lost · retrying":"Connecting";
@@ -954,21 +1009,21 @@ function stat(){updatePageChrome();roomHostAccess();var d=document.getElementByI
  if(result&&result.dataset&&result.dataset.mid){var waiting=out.some(function(m){return m.mid===result.dataset.mid});result.className="sub result-sync"+(waiting&&postFailed?" retry":"");result.textContent=waiting?(postFailed?"Saved on this phone. Reconnecting. Share a backup if the host cannot see it.":"Saved. Sending to the host… You can go back to Room Wars."):"Result sent. You can go back to Room Wars."}}
 function render(){updatePageChrome();clearTimeout(tm);clearInterval(tm);
  if(!code)return setup();
- if(!S.names)return wait();
+ if(!S.names)return setupDraft?setup():wait();
  if(me==null)return who();
  home()}
 function wait(){view="wait";A.innerHTML='<p class="live" id="stat"></p>'+brand("ROOM WARS","trophy")+'<div class="card">Waiting for the host’s names. Ask the host to share the invite link again if this takes more than a few seconds.<button id="retry" class="alt">Retry connection</button></div>';stat();document.getElementById("retry").onclick=resume}
-function setup(){view="setup";updatePageChrome();
- var h=brand("ROOM WARS","trophy")+'<p class="sub">'+(code?'Edit the five pairs, then save.':'Enter the five pairs, then share the invite.')+'</p>';
+function setup(){view="setup";updatePageChrome();var names=S.names||setupDraft;
+ var h=brand("ROOM WARS","trophy")+'<p class="sub">'+(code&&!setupDraft?'Edit the five pairs, then save.':'Enter the five pairs, then share the invite.')+'</p>';
  h+='<div class="pair-setup-list">';
- for(var c=0;c<5;c++)h+='<div class="card pair-setup"><b>Pair '+(c+1)+'</b><div class="row"><input id="p'+(c*2)+'" aria-label="Pair '+(c+1)+', first player" placeholder="Person A" maxlength="14" value="'+(S.names?esc(S.names[c*2]):"")+'"><input id="p'+(c*2+1)+'" aria-label="Pair '+(c+1)+', second player" placeholder="Person B" maxlength="14" value="'+(S.names?esc(S.names[c*2+1]):"")+'"></div></div>';
- h+='</div><div class="setup-actions"><button id="go">'+(code?'Save names':'Create game')+'</button>'+(code?'<button class="alt" id="bk">Cancel</button>':'')+'</div>';
+ for(var c=0;c<5;c++)h+='<div class="card pair-setup"><b>Pair '+(c+1)+'</b><div class="row"><input id="p'+(c*2)+'" aria-label="Pair '+(c+1)+', first player" placeholder="Person A" maxlength="14" value="'+(names?esc(names[c*2]):"")+'"><input id="p'+(c*2+1)+'" aria-label="Pair '+(c+1)+', second player" placeholder="Person B" maxlength="14" value="'+(names?esc(names[c*2+1]):"")+'"></div></div>';
+ h+='</div><div class="setup-actions"><button id="go">'+(code&&!setupDraft?'Save names':'Create game')+'</button>'+(code&&!setupDraft?'<button class="alt" id="bk">Cancel</button>':'')+'</div>';
  A.innerHTML=h;var b=document.getElementById("bk");if(b)b.onclick=render;
  document.getElementById("go").onclick=function(){
   var nm=[];for(var i=0;i<10;i++){var v=document.getElementById("p"+i).value.trim();nm.push(friendName(v||("Player "+(i+1))))}
-  if(!code){var al="abcdefghjkmnpqrstuvwxyz23456789";for(var i=0;i<8;i++)code+=al[Math.floor(Math.random()*al.length)];
-   host=true;ls("rwh-"+code,"1");location.hash=code;connect()}
-  send({t:"cfg",names:nm});render()}}
+  if(!code||setupDraft){if(!code){var al="abcdefghjkmnpqrstuvwxyz23456789";for(var i=0;i<8;i++)code+=al[Math.floor(Math.random()*al.length)];ls("rwh-"+code,"1");location.hash=code}
+   saveSetupDraft(nm);acquireRoomHost();return}
+  send({t:"cfg",names:nm});render()};roomHostAccess()}
 function who(){view="who";var h=brand("ROOM WARS","trophy")+'<p class="sub name-entry-intro">Tap your name to join your pair.</p><div class="pair-setup-list player-choices" aria-label="Choose your name">';
  for(var c=0;c<5;c++)h+='<div class="card pair-setup" role="group" aria-labelledby="pair-choice-'+c+'"><b id="pair-choice-'+c+'">Pair '+(c+1)+'</b><div class="row"><button class="alt" data-i="'+(c*2)+'">'+esc(pn(c*2))+'</button><button class="alt" data-i="'+(c*2+1)+'">'+esc(pn(c*2+1))+'</button></div></div>';
  h+='</div><p class="live selection-status" id="stat"></p><p class="sub" id="syncHelp" style="display:none"></p>';A.innerHTML=h;stat();
@@ -1131,7 +1186,7 @@ function tbG(){if(!S.tb||S.tb.pairs.indexOf(me>>1)<0||S.tbs[me]!==undefined)retu
  A.innerHTML='<div class="arena" id="ar"><div class="big" id="c">0</div><small id="tl">Tie-breaker! Tap to start (5 seconds)</small></div>';
  document.getElementById("ar").onpointerdown=function(e){e.preventDefault();if(over||(t0&&Date.now()-t0>=5000))return;
   if(!t0){t0=Date.now();tm=setInterval(function(){var l=5-(Date.now()-t0)/1000;
-   if(l<=0){clearInterval(tm);over=true;playingTie=false;view="fin";if(!S.tb||S.tb.id!==tieId)return home();send({t:"tbs",p:me,v:n,tieId:tieId});A.innerHTML='<h1 style="text-align:center">'+n+' taps</h1><button id="nx">Back to Room Wars</button>';document.getElementById("nx").onclick=home;focusGameResult()}
+   if(l<=0){clearInterval(tm);over=true;playingTie=false;view="fin";if(!S.tb||S.tb.id!==tieId)return home();send({t:"tbs",p:me,v:n,tieId:tieId},true);A.innerHTML='<h1 style="text-align:center">'+n+' taps</h1><button id="nx">Back to Room Wars</button>';document.getElementById("nx").onclick=home;focusGameResult()}
    else document.getElementById("tl").textContent=l.toFixed(1)+"s left"},50)}
   n++;var cc=document.getElementById("c");cc.textContent=n;ani(cc,"pop")};arenaInput(document.getElementById("ar"),"Tie-breaker. Press Space or Enter to tap.")}
 function ac(){if(!snd||snd.state==="closed"){var C=window.AudioContext||window.webkitAudioContext;if(C)try{snd=new C()}catch(e){}}return snd}
@@ -1141,7 +1196,7 @@ function focusGameResult(){var heading=A.querySelector("h1");if(heading){heading
 function fin(g,v){view="fin";v=scoreValue(g,v);
  var big='<h1 aria-describedby="result-game result-score" style="text-align:center">'+esc(pn(me))+'</h1><p id="result-game" class="sub" style="text-align:center;margin:-2px 0 12px">'+G[g].n+(practice?' · practice':'')+'</p><div id="result-score" class="arena result-'+g+' rise glow"><div class="big pop">'+G[g].f(v)+'</div>'+(practice?'<small>Practice only. Not scored.</small>':'')+'</div>';
  if(practice){A.innerHTML=big+'<button id="nx">Back to Room Wars</button>';document.getElementById("nx").onclick=home;focusGameResult();return}
- var mid=send({t:"score",g:g,p:me,v:v});
+ var mid=send({t:"score",g:g,p:me,v:v},true);
  A.innerHTML=big+'<p class="sub result-sync" id="resultSync" data-mid="'+mid+'" role="status"></p><button id="nx">Back to Room Wars</button><details class="backup"><summary>Share result if missing</summary><p>If the host cannot see this result, share this backup.</p><button class="alt" id="sh">Share backup</button></details>';
  document.getElementById("sh").onclick=function(){share(mine())};document.getElementById("nx").onclick=home;focusGameResult();stat()}
 function run(g,pr){view="play";practice=!!pr;
@@ -1172,13 +1227,16 @@ function stopG(g){
  var c=document.getElementById("c");
  tm=setInterval(function(){var s=(Date.now()-t0)/1000;if(s>=2)c.textContent="?";else c.textContent=s.toFixed(2)},30);
  var d=false;document.getElementById("ar").onpointerdown=function(e){e.preventDefault();if(d)return;d=true;clearInterval(tm);var v=Math.abs((Date.now()-t0)/1000-10),ar=document.getElementById("ar");c.textContent="LOCKED";ani(ar,"glow");ani(c,"pop");tm=setTimeout(function(){fin(g,v)},400)};arenaInput(document.getElementById("ar"),"Stop the timer. Press Space or Enter when you estimate ten seconds.")}
+window.addEventListener('pagehide',function(){roomLeaving=true});window.addEventListener('pageshow',function(){roomLeaving=false});
 var rawHash=location.hash.slice(1),sep=rawHash.indexOf("~"),parts=[sep<0?rawHash:rawHash.slice(0,sep),sep<0?"":rawHash.slice(sep+1)];code=(parts[0]||"").replace(/[^a-z0-9]/gi,"").toLowerCase();
 if(code&&roomFilesMatch){host=ls("rwh-"+code)=="1";var m=ls("rwm-"+code);me=m===null?null:+m;
+ try{var draft=JSON.parse(sessionStorage.getItem('rw-setup-'+code)||'null');if(strs(draft,10))setupDraft=draft;roomHostDenied=sessionStorage.getItem('rw-denied-'+code)==='1';sessionStorage.setItem('rw-denied-'+code,roomHostDenied?'1':'0')}catch(e){roomHostDenied=true}
+ if(setupDraft)host=true;heldOut=readQueue('rw-held-'+code);
  wantedRoomHost=host;var restored=restoreSnapshot();
  if(!restored&&parts[1])try{var names=namesFromInvite(parts[1]);if(strs(names,10))S.names=names.map(function(x){return friendName(x.slice(0,20))})}catch(e){}
  if(!restored)restoreRoomResult();
- try{var saved=JSON.parse(ls("rwq-"+code)||"[]");if(Array.isArray(saved)){out=saved.filter(function(x){return x&&typeof x.t=="string"});out.forEach(function(x){mark(x.mid);apply(x)})}}catch(e){}
- if(host&&window.JialatUI&&JialatUI.hostGuard){host=false;roomHostTab=JialatUI.hostGuard('roomwars-'+code,function(active){host=active;render();if(active){if(!es||es.readyState===2)connect();post()}});roomHostTab.acquire()}else{connect();post()}}
-['click','pointerdown','keydown'].forEach(function(type){A.addEventListener(type,function(event){if(roomHostTab&&!roomHostTab.active&&event.target.closest('button,input,select,textarea,[role="button"]')){event.preventDefault();event.stopImmediatePropagation()}},true)});
+ if(host){acquireRoomHost()}else{restorePending();connect();post()}}
+['click','pointerdown','keydown'].forEach(function(type){A.addEventListener(type,function(event){if(roomHostBlocked()&&event.target.closest('button,input,select,textarea,[role="button"]')){event.preventDefault();event.stopImmediatePropagation()}},true)});
+var bootReload=document.querySelector('#site-boot .boot-actions a');if(bootReload)bootReload.onclick=reloadRoom;
 if(roomFilesMatch){render();JialatUI.ready()}else{var title=document.getElementById('boot-title'),message=document.getElementById('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 26 files together, then reload this page.';}
 </script></body></html>

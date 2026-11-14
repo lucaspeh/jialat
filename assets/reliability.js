@@ -45,9 +45,9 @@
     node.textContent = message || 'This browser cannot save your changes. Keep this page open until the results are secured.';
     document.body.prepend(node);
   }
-  function hostGuard(scope, changed) {
+  function hostGuard(scope, changed, options) {
     var alive = false, fallbackMode = false, unlock, timer, leaseKey = 'jialat-host-tab-' + scope, tab = token();
-    var guard = { requesting: false, disposed: false };
+    var guard = { requesting: false, disposed: false, failClosed: !!(options && options.failClosed) };
     function update(value) { if (alive !== value) { alive = value; if (!guard.disposed && changed) changed(value); } }
     Object.defineProperty(guard, 'active', { get: function () {
       if (alive && fallbackMode) {
@@ -71,7 +71,7 @@
           if (!guard.active) { release(); return; }
           try { localStorage.setItem(leaseKey, JSON.stringify({ tab: tab, until: Date.now() + 45000 })); } catch (error) { release(); }
         }, 15000);
-      } catch (error) { storageFailure(); fallbackMode = false; update(true); }
+      } catch (error) { storageFailure(); fallbackMode = false; update(!(options && options.failClosed)); }
     }
     guard.acquire = function () {
       if (guard.disposed || guard.active || guard.requesting) return guard.ready || Promise.resolve(guard);
