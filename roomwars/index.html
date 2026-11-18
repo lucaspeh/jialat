@@ -814,7 +814,7 @@ function reviewBackup(){
  panel.innerHTML=errors.length?'<p class="import-error" role="alert">'+errors.map(esc).join('<br>')+'</p>':'<h3 tabindex="-1">Check these results</h3><ul class="import-results">'+rows.map(function(x){return '<li><b>'+esc(pn(x.p))+'</b><span>'+esc(G[x.g].n)+'</span><strong>'+esc(G[x.g].f(x.v))+'</strong></li>'}).join('')+'</ul><p class="sub">Check the names and scores. These replace any existing results for the same player and game.</p><button id="backup-confirm">Save these results</button>';
  if(!errors.length){backupRows=rows;var namesAtReview=JSON.stringify(S.names),sourceAtReview=field.value;panel.querySelector('h3').focus();document.getElementById('backup-confirm').onclick=function(){
    if(namesAtReview!==JSON.stringify(S.names)||sourceAtReview!==field.value||!backupRows.length||!backupRows.every(validResultRow)){reviewBackup();return}
-   send({t:'scores',rows:backupRows});backupRows=[];field.value='';panel.innerHTML='<p role="status">Results saved.</p>';
+   saveScores({t:'scores',rows:backupRows.slice()},function(){backupRows=[];field.value='';panel.innerHTML='<p role="status">Results saved.</p>'});
   }}
 }
 
@@ -841,15 +841,111 @@ function scoreValue(g,v){return g==="react"?Math.round(v):g==="stop"?Math.round(
 function strs(a,n){return Array.isArray(a)&&a.length==n&&a.every(function(x){return typeof x=="string"})}
 function perm(o){return Array.isArray(o)&&o.length==5&&o.every(function(x,i){return I(x,0,4)&&o.indexOf(x)==i})}
 function roundMessage(t){return ["score","scores","tb","tbs","pick","pickend","claim","reveal"].indexOf(t)>=0}
+// Organiser checkpoints order room changes without adding relay traffic. Played results
+// merge independently; explicit corrections take precedence over delayed originals.
+var roomRevision=0,corrections={},pickReview=null,editingScores=false,revealId="";
+var wallClock={at:Date.now(),mono:performance.now()},relayClock=null,pickClockWait=null;
+function wallNow(){return wallClock.at+performance.now()-wallClock.mono}
+function roomNow(){return relayClock?relayClock.at+performance.now()-relayClock.mono:wallNow()}
+function pickNow(pick){return pick.clocked?(relayClock?roomNow():null):(host?wallNow():null)}
+function syncedPick(pick){
+ if(!pick||pick.clocked||!relayClock)return pick;
+ // Translate the original start, including any time the update spent in the queue.
+ return Object.assign({},pick,{at:pick.at+(roomNow()-wallNow()),clocked:true});
+}
+function roomClock(packet){
+ if(!packet||!F(packet.time)||["open","keepalive"].indexOf(packet.event)<0)return;
+ var at=packet.time*1000+500;
+ relayClock={at:relayClock?Math.max(at,roomNow()):at,mono:performance.now()};
+ if(host)S.pick=syncedPick(S.pick);
+ if(pickClockWait){clearTimeout(pickClockWait);pickClockWait=0;post()}
+}
+function waitForPickClock(message){
+ var pick=message.integrity&&message.integrity.pick;
+ if(!pick||pick.clocked||pick.paused||!pick.rem||relayClock)return false;
+ // Give the existing stream time to supply its clock. POST can still work without it.
+ if(pickClockWait===null)pickClockWait=setTimeout(function(){pickClockWait=0;post()},1500);
+ return pickClockWait!==0;
+}
+function sameOrder(a,b){return JSON.stringify(a)===JSON.stringify(b)}
+function reconcilePicking(){
+ var previous=S.pick||S.roomResult;if(!previous)return;
+ var changed=!readyToReveal()||!sameOrder(previous.order,order());
+ if(changed&&!pickReview){
+  pickReview={wasPaused:!!(S.pick&&S.pick.paused)};
+  if(S.pick){var remaining=left();if(remaining===null)pickReview.unmeasured=true;else S.pick.rem=remaining;S.pick.paused=true}
+ }else if(!changed&&pickReview){
+  if(S.pick){var now=pickNow(S.pick);S.pick.paused=pickReview.wasPaused;if(!pickReview.unmeasured&&now!==null)S.pick.at=now}
+  pickReview=null;
+ }
+}
+function applyScores(rows,organiser){
+ var before=pts();
+ rows.forEach(function(x){var key=x.g+":"+x.p;if(!organiser&&Object.prototype.hasOwnProperty.call(corrections,key))return;S.sc[x.g][x.p]=scoreValue(x.g,x.v)});
+ // A value-only correction keeps still-valid tie results. Point changes use the
+ // existing tie-break invalidation, once for the complete imported batch.
+ var after=pts();if([0,2,4,6,8].some(function(i){return before[i]+before[i+1]!==after[i]+after[i+1]})){S.tbs={};S.tbh={};S.reveal=false;if(S.tb){S.tb=null;showSharedPhase()}}
+ if(!readyToReveal())S.reveal=false;
+ reconcilePicking();
+}
+function checkpoint(){
+ return JSON.parse(JSON.stringify({v:1,rev:roomRevision,sc:S.sc,corrections:corrections,pick:S.pick,claims:S.claims,roomResult:S.roomResult,review:pickReview,tb:S.tb,tbs:S.tbs,tbh:S.tbh,reveal:S.reveal,revealId:revealId}));
+}
+function validCheckpoint(x){
+ if(!x||x.v!==1||!I(x.rev,1,Number.MAX_SAFE_INTEGER)||!x.sc||!x.corrections||!x.claims||typeof x.reveal!=="boolean"||!x.tbs||!x.tbh)return false;
+ if(x.revealId!==undefined&&typeof x.revealId!=="string")return false;
+ if(!Object.keys(G).every(function(g){return x.sc[g]&&Object.keys(x.sc[g]).every(function(p){return /^[0-9]$/.test(p)&&validScore(g,x.sc[g][p])})}))return false;
+ if(!Object.keys(x.corrections).every(function(k){var a=k.split(":");return a.length===2&&/^[0-9]$/.test(a[1])&&validScore(a[0],x.corrections[k])}))return false;
+ if(!Object.keys(x.claims).every(function(r){return /^[0-4]$/.test(r)&&I(x.claims[r],0,4)})||new Set(Object.values(x.claims)).size!==Object.keys(x.claims).length)return false;
+ if(x.pick&&(!perm(x.pick.order)||!I(x.pick.i,0,4)||!F(x.pick.rem)||x.pick.rem<0||!F(x.pick.at)||typeof x.pick.paused!=="boolean"))return false;
+ if(x.roomResult&&(!validRoomResult(x.roomResult)||x.roomResult.round!==S.round))return false;
+ if(x.review&&(typeof x.review.wasPaused!=="boolean"||!x.pick&&!x.roomResult||x.pick&&!x.pick.paused))return false;
+ if(x.tb&&(!Array.isArray(x.tb.pairs)||!x.tb.pairs.length||!x.tb.pairs.every(function(c,i){return I(c,0,4)&&x.tb.pairs.indexOf(c)===i})||typeof x.tb.id!=="string"))return false;
+ return Object.keys(x.tbs).every(function(p){return /^[0-9]$/.test(p)&&I(x.tbs[p],0,100000)})&&Object.keys(x.tbh).every(function(c){return /^[0-4]$/.test(c)&&Array.isArray(x.tbh[c])&&x.tbh[c].every(function(n){return I(n,0,200000)})});
+}
+function rememberCheckpoint(){
+ if(!code||!roomRevision)return;
+ try{var old=JSON.parse(ls('rw-integrity-'+code)||'null');if(old&&(old.roundNo>S.roundNo||old.round===S.round&&old.state.rev>roomRevision))return}catch(e){}
+ ls('rw-integrity-'+code,JSON.stringify({round:S.round,roundNo:S.roundNo,state:checkpoint()}));
+}
+function acceptCheckpoint(x){
+ try{var latest=JSON.parse(ls('rw-integrity-'+code)||'null');if(latest&&latest.round===S.round&&latest.state.rev>x.rev&&validCheckpoint(latest.state))x=latest.state}catch(e){}
+ if(!validCheckpoint(x)||x.rev<=roomRevision)return false;
+ var reopened=x.reveal&&(!S.reveal||x.revealId&&x.revealId!==revealId);
+ var finished=x.roomResult&&(!S.roomResult||x.roomResult.endedAt!==S.roomResult.endedAt);
+ var oldTie=S.tb,oldTbs=S.tbs,phaseChanged=x.pick&&!S.pick||x.review&&!pickReview||x.tb&&(!oldTie||x.tb.id!==oldTie.id)||oldTie&&!x.tb&&playingTie||reopened;
+ Object.keys(G).forEach(function(g){Object.keys(x.sc[g]).forEach(function(p){if(S.sc[g][p]===undefined)S.sc[g][p]=x.sc[g][p]})});
+ corrections=Object.assign({},x.corrections);Object.keys(corrections).forEach(function(k){var a=k.split(":");S.sc[a[0]][a[1]]=corrections[k]});
+ S.pick=x.pick&&Object.assign({},x.pick,{order:x.pick.order.slice()});S.claims=Object.assign({},x.claims);S.roomResult=x.roomResult;pickReview=x.review;S.tb=x.tb;S.tbs=Object.assign({},x.tbs);S.tbh=x.tbh;S.reveal=x.reveal;revealId=x.revealId||"";roomRevision=x.rev;
+ if(reopened)skip=false;
+ if(finished){skip=true;roomResultFocus=true}
+ if(oldTie&&S.tb&&oldTie.id===S.tb.id)Object.keys(oldTbs).forEach(function(p){if(S.tbs[p]===undefined)S.tbs[p]=oldTbs[p]});
+ reconcilePicking();if(S.roomResult)saveRoomResult();else clearRoomResult();rememberCheckpoint();if(phaseChanged)showSharedPhase();rq();return true;
+}
+function restoreCheckpoint(){try{var x=JSON.parse(ls('rw-integrity-'+code)||'null');if(x&&x.round===S.round&&x.roundNo===S.roundNo)acceptCheckpoint(x.state)}catch(e){}}
+function reviewPickReset(){
+ if(!roomHostActive()||!pickReview||!readyToReveal())return;
+ JialatUI.confirm({title:'Reset all room choices?',message:'The corrected rankings change the room-picking order. All confirmed room choices will be cleared. Picking restarts with the first pair and its full 5 minutes. Corrected scores and valid game results are kept. Cancel keeps picking paused.',label:'Reset room choices'},function(){
+  if(roomHostActive()&&pickReview&&readyToReveal())send({t:'pick',order:order(),i:0,rem:DUR[0]*1000,paused:false,start:true});render();
+ });
+}
+function saveScores(message,saved){
+ var rows=message.t==='scores'?message.rows:[message],isCorrection=rows.some(function(x){return S.sc[x.g][x.p]!==undefined&&scoreValue(x.g,S.sc[x.g][x.p])!==scoreValue(x.g,x.v)});
+ function commit(){if(!send(message))return;if(saved)saved();if(pickReview){render();if(readyToReveal())reviewPickReset()}}
+ if(isCorrection&&(S.pick||S.roomResult))JialatUI.confirm({title:'Save score correction?',message:'Replace the recorded result'+(rows.length>1?'s':'')+'? If the valid picking order changes, room picking will pause and a separate confirmation will be needed to reset room choices. Cancel keeps the original scores and choices.',label:'Save correction'},commit);else commit();
+}
 function showSharedPhase(){clearTimeout(tm);clearInterval(tm);tm=null;playingTie=false;practice=false;if(S.names&&me!==null)view="home"}
-function apply(m){
+function apply(m,organiser){
  if(!m||typeof m!="object")return;var t=m.t;
  if(roundMessage(t)&&(m.round||"0")!==S.round)return;
- if(t==="scores"){if(!Array.isArray(m.rows)||!m.rows.length||m.rows.length>30||!m.rows.every(validResultRow))return;var unique={};if(!m.rows.every(function(x){var key=x.g+":"+x.p;if(unique[key])return false;unique[key]=true;return true}))return;m.rows.forEach(function(x){apply({t:"score",g:x.g,p:x.p,v:x.v,round:S.round})});return}
+ if(m.integrity){acceptCheckpoint(m.integrity);return}
+ if(!organiser&&roomRevision&&["pick","pickend","claim","tb","reveal"].indexOf(t)>=0)return;
+ if(pickReview&&["claim","pickend"].indexOf(t)>=0||pickReview&&t==="pick"&&m.start!==true)return;
+ if(t==="scores"){if(!Array.isArray(m.rows)||!m.rows.length||m.rows.length>30||!m.rows.every(validResultRow))return;var unique={};if(!m.rows.every(function(x){var key=x.g+":"+x.p;if(unique[key])return false;unique[key]=true;return true}))return;applyScores(m.rows,organiser);rq();return}
  if(t=="cfg"){if(strs(m.names,10))S.names=m.names.map(function(x){return friendName(x.slice(0,20))})}
- else if(t=="score"){if(I(m.p,0,9)&&validScore(m.g,m.v)){var value=scoreValue(m.g,m.v);if(scoreValue(m.g,S.sc[m.g][m.p])!==value){S.tbs={};S.tbh={};S.reveal=false;if(S.tb){S.tb=null;showSharedPhase()}}S.sc[m.g][m.p]=value;if(!readyToReveal())S.reveal=false}}
+ else if(t=="score"){if(I(m.p,0,9)&&validScore(m.g,m.v))applyScores([m],organiser)}
  else if(t=="reset"){if(!I(m.roundNo,1,100000)||m.roundNo<=S.roundNo)return;S.round=m.round||m.mid||"0";S.roundNo=I(m.roundNo,1,100000)?m.roundNo:S.roundNo+1;S.sc={tap:{},react:{},stop:{}};S.reveal=false;S.pick=null;S.roomResult=null;clearRoomResult();S.claims={};S.tb=null;S.tbs={};S.tbh={};skip=false;practice=false;playingTie=false;["mv","bc"].forEach(function(id){var e=document.getElementById(id);if(e)e.value=""});clearTimeout(tm);clearInterval(tm);tm=null;if(S.names&&me!==null)view="home"}
- else if(t=="pick"){if(m.start===true&&!readyToReveal())return;if(perm(m.order)&&I(m.i,0,4)&&F(m.rem)&&m.rem>=0){var entering=!S.pick;S.roomResult=null;clearRoomResult();if(m.start===true){S.claims={};showSharedPhase()}else if(entering)showSharedPhase();S.pick={order:m.order.slice(),i:m.i,rem:m.rem,paused:m.paused===true,at:F(m.at)?m.at:Date.now()}}}
+ else if(t=="pick"){if(m.start===true&&!readyToReveal())return;if(perm(m.order)&&I(m.i,0,4)&&F(m.rem)&&m.rem>=0){var entering=!S.pick;S.roomResult=null;clearRoomResult();if(m.start===true){S.claims={};pickReview=null;editingScores=false;showSharedPhase()}else if(entering)showSharedPhase();S.pick={order:m.order.slice(),i:m.i,rem:m.rem,paused:m.paused===true,at:F(m.at)?m.at:wallNow(),clocked:m.clocked===true}}}
  else if(t=="pickend"){
   var finished=m.result||makeRoomResult(S.pick,m.at);if(finished&&!validRoomResult(finished))return;
   if(finished&&finished.round!==S.round)return;
@@ -862,12 +958,12 @@ function apply(m){
    var done=k.pairs.every(function(c){return S.tbs[c*2]!==undefined&&S.tbs[c*2+1]!==undefined});
    k.pairs.forEach(function(c){if(m.cancel===true||!done){delete S.tbs[c*2];delete S.tbs[c*2+1]}else{if(!S.tbh[c])S.tbh[c]=[];S.tbh[c].push(S.tbs[c*2]+S.tbs[c*2+1])}});S.tb=null;
   }else if(Array.isArray(m.pairs)&&m.pairs.length&&m.pairs.every(function(c,i){return I(c,0,4)&&m.pairs.indexOf(c)===i})){S.tb={pairs:m.pairs.slice(),id:String(m.mid||m.at||Date.now())};S.reveal=false;m.pairs.forEach(function(c){delete S.tbs[c*2];delete S.tbs[c*2+1]});showSharedPhase()}
-  if(playingTie)showSharedPhase()
+  reconcilePicking();if(playingTie)showSharedPhase()
  }
  else if(t=="tbs"){if(S.tb&&m.tieId===S.tb.id&&I(m.p,0,9)&&S.tb.pairs.indexOf(m.p>>1)>=0&&I(m.v,0,100000))S.tbs[m.p]=m.v}
  else if(t=="rooms"){if(strs(m.names,5))S.rooms=m.names.map(function(x){return x.slice(0,30)})}
  else if(t=="claim"){if(I(m.r,0,4)){if(m.c===null)delete S.claims[m.r];else if(I(m.c,0,4)){for(var old in S.claims)if(S.claims[old]===m.c)delete S.claims[old];S.claims[m.r]=m.c}}}
- else if(t=="reveal"){if(m.on===true&&!readyToReveal())return;S.reveal=m.on===true;skip=false;if(S.reveal)showSharedPhase()}
+ else if(t=="reveal"){if(m.on===true&&!readyToReveal())return;S.reveal=m.on===true;revealId=S.reveal&&typeof m.mid==="string"?m.mid:"";skip=false;if(S.reveal)showSharedPhase()}
  if(S.roomResult&&(t==="cfg"||t==="rooms")){S.roomResult.names=S.names.slice();S.roomResult.rooms=S.rooms.slice();saveRoomResult()}
  if(view=="home"||view=="wait"||view=="who"||view=="final"||view=="picking")rq()}
 var rt=null,RV=["home","wait","who","final","picking"];
@@ -894,7 +990,7 @@ function restorePending(){
   try{localStorage.setItem('rw-held-'+code,JSON.stringify(heldOut))}catch(e){queuePaused=true;if(window.JialatUI)JialatUI.storageFailure();return false}
  }
  out=review?saved.filter(playerQueueMessage):saved;
- out.forEach(function(m){mark(m.mid);apply(m)});remember();
+ out.forEach(function(m){mark(m.mid);apply(m)});pruneRoomQueue();remember();
  roomHostDenied=false;try{sessionStorage.removeItem('rw-denied-'+code)}catch(e){}
  return true;
 }
@@ -934,11 +1030,12 @@ function roomHostAccess(){
  if(locked){Array.prototype.forEach.call(A.querySelectorAll('button,input,select,textarea'),function(e){e.disabled=true});Array.prototype.forEach.call(A.querySelectorAll('[role="button"]'),function(e){e.setAttribute('aria-disabled','true');e.tabIndex=-1})}
  roomQueueNotice();
 }
-function saveSnapshot(){if(!code)return;try{localStorage.setItem('rws-'+code,JSON.stringify({v:1,code:code,state:S,cursor:cursor,seen:seenOrder.slice(-500)}))}catch(e){if(window.JialatUI)JialatUI.storageFailure()}}
+function saveSnapshot(){if(!code)return;try{localStorage.setItem('rws-'+code,JSON.stringify({v:1,code:code,state:S,integrity:roomRevision?checkpoint():null,cursor:cursor,seen:seenOrder.slice(-500)}))}catch(e){if(window.JialatUI)JialatUI.storageFailure()}}
 function restoreSnapshot(){
  try{
   var cached=JSON.parse(ls('rws-'+code)||'null'),x=cached&&cached.state;
   if(!cached||cached.v!==1||cached.code!==code||!x||!strs(x.names,10)||!strs(x.rooms,5)||typeof x.round!=='string'||!I(x.roundNo,1,100000)||!x.sc||!x.claims)return false;
+  if(roomRevision&&x.round===S.round&&(!cached.integrity||cached.integrity.rev<=roomRevision)){restoreCheckpoint();return true}
   if(!Object.keys(G).every(function(g){return x.sc[g]&&typeof x.sc[g]==='object'&&Object.keys(x.sc[g]).every(function(p){return /^(?:[0-9])$/.test(p)&&validScore(g,x.sc[g][p])})}))return false;
   if(!Object.keys(x.claims).every(function(r){return /^[0-4]$/.test(r)&&I(x.claims[r],0,4)}))return false;
   if(typeof x.reveal!=='boolean'||!x.tbs||typeof x.tbs!=='object'||Array.isArray(x.tbs)||!x.tbh||typeof x.tbh!=='object'||Array.isArray(x.tbh))return false;
@@ -948,6 +1045,7 @@ function restoreSnapshot(){
   if(x.tb&&(!Array.isArray(x.tb.pairs)||!x.tb.pairs.length||x.tb.pairs.length>5||!x.tb.pairs.every(function(p,i){return I(p,0,4)&&x.tb.pairs.indexOf(p)===i})||typeof x.tb.id!=='string'))return false;
   if(x.roomResult&&!validRoomResult(x.roomResult))return false;
   ['names','round','roundNo','reveal','pick','roomResult','tb','tbs','tbh','rooms','claims','sc'].forEach(function(k){if(Object.prototype.hasOwnProperty.call(x,k))S[k]=x[k]});
+  restoreCheckpoint();if(cached.integrity)acceptCheckpoint(cached.integrity);
   cursor=typeof cached.cursor==='string'?cached.cursor:'';
   if(Array.isArray(cached.seen))cached.seen.slice(-500).forEach(function(id){if(typeof id==='string')mark(id)});
   return true;
@@ -955,30 +1053,44 @@ function restoreSnapshot(){
 }
 function mark(id){if(!id||seen[id])return false;seen[id]=true;seenOrder.push(id);if(seenOrder.length>500)delete seen[seenOrder.shift()];return true}
 function remember(){try{localStorage.setItem("rwq-"+code,JSON.stringify(out))}catch(e){}}
+function obsoleteRoomMessage(m){return m.round===S.round&&roomRevision>0&&(m.integrity?m.integrity.rev<roomRevision:["pick","pickend","claim","tb","reveal"].indexOf(m.t)>=0)}
+function pruneRoomQueue(){var kept=out.filter(function(m){return !obsoleteRoomMessage(m)});if(kept.length!==out.length){out=kept;remember()}}
 function send(m,playerResult){
  if(playerResult===true){if(m.p!==me||(m.t!=='score'&&m.t!=='tbs'))return '';m._rwPlayer=true}
  if(roomHostBlocked()||(!playerQueueMessage(m)&&!roomHostActive()))return '';
+ if(pickReview&&(["claim","pickend"].indexOf(m.t)>=0||m.t==='pick'&&m.start!==true))return '';
  m.mid=Date.now().toString(36)+Math.random().toString(36).slice(2,9);
  if(roundMessage(m.t))m.round=S.round;if(m.t=="reset"){m.round=m.mid;m.roundNo=S.roundNo+1}
- m.at=Date.now();mark(m.mid);apply(m);
+ m.at=m.t==='pick'?roomNow():Date.now();if(m.t==='pick')m.clocked=!!relayClock;mark(m.mid);apply(m,playerResult!==true);
+ if(m.t==='reset'){roomRevision=0;corrections={};pickReview=null;revealId="";try{localStorage.removeItem('rw-integrity-'+code)}catch(e){}}
+ else if(!playerResult&&roundMessage(m.t)&&m.t!=='tbs'){
+  var rows=m.t==='scores'?m.rows:m.t==='score'?[m]:[];
+  if(Array.isArray(rows))rows.filter(validResultRow).forEach(function(x){corrections[x.g+':'+x.p]=scoreValue(x.g,x.v)});
+  roomRevision++;m.integrity=checkpoint();rememberCheckpoint();pruneRoomQueue();
+ }
  out.push(m);remember();saveSnapshot();stat();post();return m.mid}
 async function post(){
+ pruneRoomQueue();
  if(posting||!out.length||queuePaused||roomHostBlocked()||(!playerQueueMessage(out[0])&&!roomHostActive())||Date.now()<postRetryAt||navigator.onLine===false)return;
  if(relayWait()>0){postFailed=true;postError=relayWaitLabel();postRetryAt=Date.now()+relayWait();clearTimeout(postRetry);postRetry=relayLater(post,relayWait());stat();return}
+ if(waitForPickClock(out[0]))return;
  posting=true;var m=out[0],ctrl=new AbortController(),limit=setTimeout(function(){ctrl.abort()},8000);
- try{var wire=Object.assign({},m);delete wire._rwPlayer;var r=await relayFetch(BASE+"rw-"+code,{method:"POST",body:JSON.stringify(wire),signal:ctrl.signal});if(!r.ok)throw await relayResponseError(r);
+ try{var wire=Object.assign({},m);delete wire._rwPlayer;
+  if(m.integrity&&m.integrity.pick){var pick=syncedPick(m.integrity.pick);wire.integrity=Object.assign({},m.integrity,{pick:pick});if(m.t==='pick'&&pick.clocked){wire.at=pick.at;wire.clocked=true}}
+  var r=await relayFetch(BASE+"rw-"+code,{method:"POST",body:JSON.stringify(wire),signal:ctrl.signal});if(!r.ok)throw await relayResponseError(r);
   out=out.filter(function(x){return x.mid!==m.mid});remember();postFailed=false;postError="";postRetryAt=0;postFailures=0;clearTimeout(postRetry);postRetry=null;
  }catch(e){if(!e.status)await poll(true);if(!out.some(function(x){return x.mid===m.mid})){postFailed=false;postError='';postFailures=0;postRetryAt=0;return}postFailed=true;postFailures++;var delay=e.status===429?Math.max(1,relayWait()):relayRetryDelay(postFailures);postRetryAt=Date.now()+delay;
   postError=e.status===429?relayWaitLabel():e.status?"Relay HTTP "+e.status:"Network request failed";
   clearTimeout(postRetry);postRetry=relayLater(post,delay)}
  finally{clearTimeout(limit);posting=false;stat();if(out.length&&!postRetry)post()}}
 function incoming(d){
+ roomClock(d);
  if(!d||d.event!="message")return;
  if(d.id)cursor=d.id;
  try{var m=JSON.parse(d.message);
   if(m.mid&&out.some(function(x){return x.mid===m.mid})){out=out.filter(function(x){return x.mid!==m.mid});remember();clearTimeout(postRetry);postRetry=null;postRetryAt=0;postFailures=0;postFailed=false;postError='';stat()}
   if(m.mid&&!mark(m.mid)){saveSnapshot();return}
-  var st=d.time*1000;if(!F(m.at))m.at=st;var oldRound=S.round;apply(m);if(S.round!==oldRound){out=out.filter(function(x){return !roundMessage(x.t)||x.round===S.round});remember()}saveSnapshot()
+  var st=d.time*1000;if(!F(m.at))m.at=st;var oldRound=S.round;apply(m,false);if(S.round!==oldRound){roomRevision=0;corrections={};pickReview=null;revealId="";try{localStorage.removeItem('rw-integrity-'+code)}catch(e){}out=out.filter(function(x){return !roundMessage(x.t)||x.round===S.round});remember()}pruneRoomQueue();saveSnapshot()
  }catch(e){}
 }
 function poll(confirmPending){if(pollTask)return confirmPending===true?pollTask.then(function(){return poll(true)}):pollTask;if(document.hidden&&confirmPending!==true||relayWait()>0)return Promise.resolve();polling=true;var task=(async function(){
@@ -1036,13 +1148,13 @@ function pairCompare(x,y){var d=y.t-x.t;if(d)return d;for(var i=0;i<Math.max(x.h
 function pairStandings(){var p=pts(),cs=[];for(var c=0;c<5;c++)cs.push({c:c,t:p[c*2]+p[c*2+1],h:(S.tbh[c]||[]).slice()});cs.sort(function(x,y){return pairCompare(x,y)||x.c-y.c});cs.forEach(function(x,i){x.r=i&&pairCompare(cs[i-1],x)===0?cs[i-1].r:i+1;x.tied=!!(i&&pairCompare(cs[i-1],x)===0||i<4&&pairCompare(x,cs[i+1])===0)});return cs}
 function tieNote(x){return x.h.length?'Tie-break: '+x.h.join(' → ')+' taps':''}
 function home(){
- if(S.pick)return picking();
- if(S.reveal&&!skip&&!S.roomResult)return final();
+ if(S.pick&&!pickReview&&!editingScores)return picking();
+ if(S.reveal&&!skip&&!S.roomResult&&!pickReview)return final();
  var backupCard=host&&A.querySelector(".backup-import"),backupFocus=backupCard&&backupCard.contains(document.activeElement)?document.activeElement:null;
  var draft={};if(host)["mg","mp","mv","bc"].forEach(function(id){var e=document.getElementById(id);if(e)draft[id]=e.value});
  view="home";var completed=!!(S.roomResult&&S.roomResult.complete),p=pts(),cs=pairStandings(),ord=["1st","2nd","3rd","4th","5th"],played=0;
  for(var g in G)played+=Object.keys(S.sc[g]).length;
- var h=brand("ROOM WARS","trophy")+'<p class="live host-status"><span id="stat"></span> · You: <b>'+esc(pn(me))+'</b> <a href="#" id="chg">change</a></p><p class="sub" id="syncHelp" style="display:none"></p>'+(S.roundNo>1?'<p class="sub" style="text-align:center">ROUND '+S.roundNo+'</p>':'')+(completed?'':'<p class="sub">1st place in each game = 10 pts, 2nd = 9, and so on. Equal game results share points. Pair score = both partners added.</p><p class="sub">After all 3 games, equal pair totals use a 5-second tapping tie-break. Both partners’ taps are added. Only pairs still tied replay.</p>')+roomResultHTML();
+ var h=brand("ROOM WARS","trophy")+'<p class="live host-status"><span id="stat"></span> · You: <b>'+esc(pn(me))+'</b> <a href="#" id="chg">change</a></p><p class="sub" id="syncHelp" style="display:none"></p>'+(S.roundNo>1?'<p class="sub" style="text-align:center">ROUND '+S.roundNo+'</p>':'')+(completed?'':'<p class="sub">1st place in each game = 10 pts, 2nd = 9, and so on. Equal game results share points. Pair score = both partners added.</p><p class="sub">After all 3 games, equal pair totals use a 5-second tapping tie-break. Both partners’ taps are added. Only pairs still tied replay.</p>')+(pickReview?'<section class="card" role="status" aria-live="polite"><h2>Room picking paused</h2><p>Corrected scores may change the picking order. Existing room choices are kept pending review. '+(readyToReveal()?'The organiser must confirm before all choices are reset.':'Complete the existing tie-break rules first.')+'</p></section>':roomResultHTML());
  if(host)h+='<section class="host-overview" aria-label="Room Wars progress"><div><span>Results recorded</span><strong>'+played+' / 30</strong></div><div><span>Rooms chosen</span><strong>'+Object.keys(S.claims).length+' / 5</strong></div></section><nav class="host-shortcuts" aria-label="Host shortcuts"><button class="alt" data-jump="manual-score">Enter scores</button><button class="alt" data-jump="pair-rankings">Pair rankings</button><button class="alt" data-jump="room-pick-controls">Room picking</button></nav>';
  var gm='<h2>Play the games</h2><p class="sub" style="text-align:center;margin-top:-4px">Play all 3 games to win points for your pair!</p>',ico={tap:spr("tap",4),react:spr("react",4),stop:spr("stop",4)},num=0;
  for(var g in G){num++;var n=Object.keys(S.sc[g]).length,mine=S.sc[g][me]!==undefined;
@@ -1057,7 +1169,7 @@ function home(){
   var ids=Object.keys(S.sc[g]).sort(function(a,b){return G[g].hi?scoreValue(g,S.sc[g][b])-scoreValue(g,S.sc[g][a]):scoreValue(g,S.sc[g][a])-scoreValue(g,S.sc[g][b])});
   h+=ids.length?ids.map(function(i){return esc(pn(i))+" "+G[g].f(S.sc[g][i])}).join(" · "):"No scores yet";h+='</div>'}
  h+='</div>'+(completed?'</details>':'');
- if(host){var ready=readyToReveal();h+='<h2>Host controls</h2><div class="card" id="invite-card"><b>Invite link</b><input id="lk" aria-label="Room Wars invite link" readonly value="'+esc(link())+'"><button id="sh">Share invite link</button></div><div class="card" id="manual-score" tabindex="-1"><b>Enter or correct a score</b><select id="mg" aria-label="Game">'+Object.keys(G).map(function(g){return'<option value="'+g+'">'+G[g].n+'</option>'}).join("")+'</select><select id="mp" aria-label="Player">'+S.names.map(function(n,i){return'<option value="'+i+'">'+esc(n)+'</option>'}).join("")+'</select><input id="mv" aria-label="Result" type="number" step="any" inputmode="decimal" placeholder="Taps, ms, or seconds off"><p class="sub score-unit" id="score-unit"></p><button id="ma" class="alt">Save score</button></div><details class="card backup-import"><summary>Advanced backup</summary><p class="sub">Use this only if a player’s score is missing. Paste the results they shared, then check their name.</p><textarea id="bc" aria-label="Shared result codes" placeholder="Paste the player’s shared results here"></textarea><button id="bb" class="alt">Check results</button><div id="backup-preview" aria-live="polite"></div></details><div id="room-pick-controls" tabindex="-1"><button id="rv"'+(ready?'':' disabled title="Complete all three games and settle ties first"')+'>1. Show final rankings</button><button id="sp"'+(ready&&!completed?'':' disabled')+'>'+(completed?'Rooms confirmed':S.roomResult?'Resume room picking':'2. Start room picking')+'</button>'+(ties().length&&!S.tb?'<button class="alt" id="tbs">Start tie-breaker (tied pairs only)</button>':'')+'<button class="alt" id="er">Edit room names</button><button class="alt" id="en">Edit names</button><p class="sub" style="margin:20px 0 0">Play again with the same people. Clears this round’s results and room picks.</p><button class="alt" id="rs">Start a new round</button></div>'}
+ if(host){var ready=readyToReveal();h+='<h2>Host controls</h2><div class="card" id="invite-card"><b>Invite link</b><input id="lk" aria-label="Room Wars invite link" readonly value="'+esc(link())+'"><button id="sh">Share invite link</button></div><div class="card" id="manual-score" tabindex="-1"><b>Enter or correct a score</b><select id="mg" aria-label="Game">'+Object.keys(G).map(function(g){return'<option value="'+g+'">'+G[g].n+'</option>'}).join("")+'</select><select id="mp" aria-label="Player">'+S.names.map(function(n,i){return'<option value="'+i+'">'+esc(n)+'</option>'}).join("")+'</select><input id="mv" aria-label="Result" type="number" step="any" inputmode="decimal" placeholder="Taps, ms, or seconds off"><p class="sub score-unit" id="score-unit"></p><button id="ma" class="alt">Save score</button></div><details class="card backup-import"><summary>Advanced backup</summary><p class="sub">Use this only if a player’s score is missing. Paste the results they shared, then check their name.</p><textarea id="bc" aria-label="Shared result codes" placeholder="Paste the player’s shared results here"></textarea><button id="bb" class="alt">Check results</button><div id="backup-preview" aria-live="polite"></div></details><div id="room-pick-controls" tabindex="-1"><button id="rv"'+(ready?'':' disabled title="Complete all three games and settle ties first"')+'>1. Show final rankings</button><button id="sp"'+(ready&&(!completed||pickReview)?'':' disabled')+'>'+(pickReview?'Review room-picking reset':S.pick?'Return to room picking':completed?'Rooms confirmed':S.roomResult?'Resume room picking':'2. Start room picking')+'</button>'+(ties().length&&!S.tb?'<button class="alt" id="tbs">Start tie-breaker (tied pairs only)</button>':'')+'<button class="alt" id="er">Edit room names</button><button class="alt" id="en">Edit names</button><p class="sub" style="margin:20px 0 0">Play again with the same people. Clears this round’s results and room picks.</p><button class="alt" id="rs">Start a new round</button></div>'}
  A.innerHTML=h+(host?relayPanelHTML():'');if(backupCard){var nextBackup=A.querySelector('.backup-import');if(nextBackup)nextBackup.parentNode.replaceChild(backupCard,nextBackup);if(backupFocus&&backupFocus.isConnected)backupFocus.focus({preventScroll:true})}relayPanelBind();Object.keys(draft).forEach(function(id){var e=document.getElementById(id);if(e)e.value=draft[id]});stat();var roomCopy=document.getElementById("copy-rooms");if(roomCopy)roomCopy.onclick=copyRooms;var summary=document.querySelector(".room-confirmation");if(roomResultFocus&&summary){roomResultFocus=false;summary.scrollIntoView({block:"start",behavior:"auto"});summary.querySelector("h2").focus({preventScroll:true})}
  Array.prototype.forEach.call(A.querySelectorAll("button[data-g]"),function(b){b.onclick=function(){run(b.dataset.g,false)}});
  Array.prototype.forEach.call(A.querySelectorAll("button[data-pr]"),function(b){b.onclick=function(){run(b.dataset.pr,true)}});
@@ -1070,7 +1182,7 @@ function home(){
  document.getElementById("sh").onclick=shareInvite;
  Array.prototype.forEach.call(A.querySelectorAll('[data-jump]'),function(button){button.onclick=function(){var target=document.getElementById(button.dataset.jump);if(target){target.scrollIntoView({block:'start',behavior:'auto'});target.focus({preventScroll:true})}}});
  document.getElementById("sp").onclick=function(){
-  if(completed)return;var previous=S.roomResult;
+  if(pickReview){reviewPickReset();return}if(S.pick){editingScores=false;picking();return}if(completed)return;var previous=S.roomResult;
   if(previous){var next=previous.order.findIndex(function(pair){return !Object.keys(S.claims).some(function(r){return S.claims[r]===pair})});if(next<0)return;send({t:"pick",order:previous.order,i:next,rem:DUR[next]*1000,paused:false})}
   else send({t:"pick",order:order(),i:0,rem:DUR[0]*1000,paused:false,start:true})
  };
@@ -1080,7 +1192,7 @@ function home(){
  document.getElementById("en").onclick=setup;
  var scoreInput=document.getElementById("mv"),gameInput=document.getElementById("mg");gameInput.onchange=function(){scoreInput.min="0";scoreInput.step=gameInput.value=="stop"?"0.001":"1";scoreInput.placeholder=gameInput.value=="tap"?"Whole number of taps":gameInput.value=="react"?"Reaction time in whole milliseconds":"Seconds off, to 3 decimal places";document.getElementById("score-unit").textContent=gameInput.value==="stop"?"Enter seconds away from 10.00. Example: 10.25 seconds means 0.250 off.":gameInput.value==="react"?"Enter reaction time in milliseconds. Example: 285.":"Enter the whole number of taps."};gameInput.onchange();
  ["mg","mp","mv","bc"].forEach(function(id){document.getElementById(id).onblur=rq});
- document.getElementById("ma").onclick=function(){var raw=scoreInput.value.trim(),g=gameInput.value,v=Number(raw);if(!raw||!validScore(g,v)){alert(g=="tap"?"Enter a whole tap count of 0 or more.":"Enter a valid result of 0 or more.");return}send({t:"score",g:g,p:+document.getElementById("mp").value,v:v});scoreInput.value=""};
+ document.getElementById("ma").onclick=function(){var raw=scoreInput.value.trim(),g=gameInput.value,v=Number(raw);if(!raw||!validScore(g,v)){alert(g=="tap"?"Enter a whole tap count of 0 or more.":"Enter a valid result of 0 or more.");return}saveScores({t:"score",g:g,p:+document.getElementById("mp").value,v:v},function(){scoreInput.value=""})};
  document.getElementById("bb").onclick=reviewBackup;
  document.getElementById("rs").onclick=newRound}
 function newRound(confirmed){if(confirmed!==true){var options={title:'Start a new round?',message:'Clear all three game results, practice attempts, tie-breaks and room picks for everyone? Player and room names are kept.',label:'Start new round'};if(window.JialatUI)JialatUI.confirm(options,function(){newRound(true)});else if(confirm(options.message))newRound(true);return;}out=out.filter(function(m){return !roundMessage(m.t)&&m.t!=="reset"});remember();send({t:"reset"});home()}
@@ -1097,22 +1209,28 @@ function final(){view="final";var cs=pairStandings(),ord=["1st","2nd","3rd","4th
  document.getElementById("st1").onclick=function(){share(rtext())};document.getElementById("st2").onclick=cardImg;
  var hd=document.getElementById("hd");if(hd)hd.onclick=function(){send({t:"reveal",on:false})}}
 function order(){return pairStandings().map(function(x){return x.c})}
-function left(){var k=S.pick;if(!k)return 0;return k.paused?k.rem:Math.max(0,k.rem-(Date.now()-k.at))}
+function left(){var k=S.pick;if(!k)return 0;if(k.paused)return k.rem;var now=pickNow(k);return now===null?null:Math.max(0,k.rem-Math.max(0,now-k.at))}
 function fmt(ms){var t=Math.ceil(ms/1000);return Math.floor(t/60)+":"+("0"+t%60).slice(-2)}
 function pk(o){send({t:"pick",order:S.pick.order,i:o.i,rem:o.rem,paused:!!o.paused})}
 function tick(){var k=S.pick,e=document.getElementById("cd");if(!k||!e){clearInterval(pt);return}
- var l=left();if(l<=0&&!k.paused){var u=k.i+":"+k.at+":"+k.rem;if(u!=upKey){upKey=u;chime([784,988,1175])}}var display=fmt(l);if(e.textContent!==display)e.textContent=display;e.style.color=l<30000?"#e5484d":"";var hb=document.getElementById("hpb");if(hb){hb.style.width=Math.min(100,l/(DUR[k.i]*10))+"%";hb.style.background=l<30000?"#a8262c":""}
- var caption=k.paused?"⏸ Paused":(l<=0?"Time’s up!":""),cs=document.getElementById("cs");if(cs.textContent!==caption)cs.textContent=caption}
+ var l=left(),known=l!==null;
+ if(known&&l<=0&&!k.paused){var u=k.i+":"+k.at+":"+k.rem;if(u!=upKey){upKey=u;chime([784,988,1175])}}
+ var display=known?fmt(l):"--:--",low=known&&l<30000;if(e.textContent!==display)e.textContent=display;e.style.color=low?"#e5484d":"";
+ var hb=document.getElementById("hpb");if(hb){hb.style.width=(known?Math.min(100,l/(DUR[k.i]*10)):0)+"%";hb.style.background=low?"#a8262c":""}
+ var caption=!known?"Countdown unavailable until a synced update arrives.":k.paused?"⏸ Paused":(l<=0?"Time’s up!":""),cs=document.getElementById("cs");if(cs.textContent!==caption)cs.textContent=caption;
+ if(host){var disabled=!known||roomHostBlocked();["pp","pm"].forEach(function(id){var control=document.getElementById(id);if(control&&control.disabled!==disabled)control.disabled=disabled})}
+}
 function picking(){view="picking";var k=S.pick,c=k.order[k.i],nx=k.order[k.i+1],last=k.i==4,ord=["1st","2nd","3rd","4th","5th"];
  if(k.i!==lastI){lastI=k.i;chime([880])}
  var h=''+brand("ROOM PICKING","star")+'<div class="card win"><div class="sub">'+ord[k.i]+' pick · now choosing</div><div class="big" style="font-size:var(--text-feature);line-height:1.2">'+esc(cn(c))+'</div>'+(last?'<div class="sub" style="margin:10px 0 0">No timer. This pair takes the last room'+(roomOf(c,k.order)?': <b>'+esc(roomOf(c,k.order))+'</b>':'')+'.</div>':'<div class="cd" id="cd"></div><div class="hp"><i id="hpb"></i></div><div class="sub" id="cs" style="margin:0;min-height:20px"></div>')+(nx!==undefined?'<div class="sub" style="margin:10px 0 0">Up next: <b>'+esc(cn(nx))+'</b></div>':'')+'</div><p class="sub" style="text-align:center;margin:12px 0 4px">Everyone can look around the whole building. Only the pair above chooses now.</p><h2>Pick order</h2>';
  k.order.forEach(function(x,i){h+='<div class="rank'+(i==k.i?' first':'')+(i<k.i?' done':'')+'"><div class="n">'+(i<k.i?'✓':i+1)+'</div><div class="g"><b>'+esc(cn(x))+'</b><small>'+ord[i]+' pick'+(i==4?' · last room':'')+'</small></div></div>'});
  h+='<h2>Rooms</h2>';
  S.rooms.forEach(function(n,r){var t=S.claims[r],b='style="width:auto;margin:0;padding:10px 14px"';h+='<div class="rank'+(t!==undefined?' done':'')+'"><div class="g"><b>'+esc(n)+'</b><small>'+(t!==undefined?'Taken by '+esc(cn(t)):'Available')+'</small></div>'+(host&&!last&&t===undefined?'<button '+b+' data-r="'+r+'">Give to this pair</button>':'')+(host&&t!==undefined?'<button class="alt" '+b+' data-f="'+r+'">Free</button>':'')+'</div>'});
- var hb=!host?'':(k.i>0?'<button class="alt" id="pb">← Previous pair</button>':'')+(last?'':'<button id="pn">Next pair →</button>')+'<div class="row" style="margin-top:8px">'+(last?'':'<button id="pp" class="alt pb">'+(k.paused?'▶ Resume':'⏸ Pause')+'</button><button id="pm" class="alt pb">+1 min</button>')+'<button class="alt pb" id="pe">'+(last?'Finish picking':'End picking')+'</button></div>';
+ var hb=!host?'':(k.i>0?'<button class="alt" id="pb">← Previous pair</button>':'')+(last?'':'<button id="pn">Next pair →</button>')+'<div class="row" style="margin-top:8px">'+(last?'':'<button id="pp" class="alt pb">'+(k.paused?'▶ Resume':'⏸ Pause')+'</button><button id="pm" class="alt pb">+1 min</button>')+'<button class="alt pb" id="pe">'+(last?'Finish picking':'End picking')+'</button></div><button class="alt" id="pc">Review scores</button>';
  var mk='<p class="sub" style="text-align:center;margin:12px 0 4px">Everyone can look';h=h.replace(mk,hb+mk);
  A.innerHTML=h;
  if(host){var g=function(id,f){var e=document.getElementById(id);if(e)e.onclick=f};
+  g("pc",function(){editingScores=true;home()});
   g("pn",function(){if(!Object.keys(S.claims).some(function(r){return S.claims[r]===c})){alert("Give this pair a room before moving to the next pair.");return}pk({i:k.i+1,rem:DUR[k.i+1]*1000})});
   g("pp",function(){if(S.pick)pk({i:S.pick.i,rem:left(),paused:!S.pick.paused})});
   g("pm",function(){if(S.pick)pk({i:S.pick.i,rem:left()+60000,paused:S.pick.paused})});
@@ -1234,7 +1352,7 @@ if(code&&roomFilesMatch){host=ls("rwh-"+code)=="1";var m=ls("rwm-"+code);me=m===
  if(setupDraft)host=true;heldOut=readQueue('rw-held-'+code);
  wantedRoomHost=host;var restored=restoreSnapshot();
  if(!restored&&parts[1])try{var names=namesFromInvite(parts[1]);if(strs(names,10))S.names=names.map(function(x){return friendName(x.slice(0,20))})}catch(e){}
- if(!restored)restoreRoomResult();
+ if(!restored)restoreRoomResult();restoreCheckpoint();
  if(host){acquireRoomHost()}else{restorePending();connect();post()}}
 ['click','pointerdown','keydown'].forEach(function(type){A.addEventListener(type,function(event){if(roomHostBlocked()&&event.target.closest('button,input,select,textarea,[role="button"]')){event.preventDefault();event.stopImmediatePropagation()}},true)});
 var bootReload=document.querySelector('#site-boot .boot-actions a');if(bootReload)bootReload.onclick=reloadRoom;
