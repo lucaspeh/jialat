@@ -1,0 +1,50 @@
+name: Safari relay diagnosis
+on:
+  push:
+    branches: [diagnostics/safari-relay-ab]
+permissions:
+  contents: read
+jobs:
+  safari:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Start Safari WebDriver
+        run: |
+          sudo safaridriver --enable
+          safaridriver -p 4444 >"$RUNNER_TEMP/safaridriver.log" 2>&1 &
+          for i in {1..20}; do
+            if curl --silent --fail http://localhost:4444/status >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+      - name: Check deployed games in Safari
+        run: |
+          if [[ -f diagnostics/safari_relay.py ]]; then
+            python3 -u diagnostics/safari_relay.py
+          else
+            python3 - <<'PY'
+          import json, urllib.request
+          from urllib.parse import urlsplit
+          def wd(path, data=None, method=None):
+              data = json.dumps(data).encode() if data is not None else None
+              req = urllib.request.Request('http://localhost:4444' + path, data=data, method=method, headers={'Content-Type':'application/json'})
+              return json.load(urllib.request.urlopen(req,timeout=60))['value']
+          session = wd('/session', {'capabilities':{'alwaysMatch':{'browserName':'safari'}}})
+          sid = '/session/' + session['sessionId']
+          print(session['capabilities']['browserName'], session['capabilities']['browserVersion'])
+          try:
+              for page in ['roomwars','scoreboard','after18years']:
+                  url = 'https://lucaspeh.github.io/jialat/' + page + '/'
+                  wd(sid + '/url', {'url':url})
+                  result = wd(sid + '/execute/sync', {'script':'return [location.origin, document.title, window.JialatUI?.build, window.JialatUI?.relayRevision]','args':[]})
+                  assert result[0] == 'https://lucaspeh.github.io' and result[2] == '26', result
+                  print(page, 'opened', result[1:])
+          finally:
+              wd(sid,method='DELETE')
+          PY
+          fi
