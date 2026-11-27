@@ -1,4 +1,4 @@
-name: Isolated alternate JIALAT relay trial
+name: Verify live JIALAT after the server switch
 on:
   push:
     branches: [diagnostics/safari-relay-ab]
@@ -22,51 +22,53 @@ jobs:
             sleep 1
           done
           exit 1
-      - name: Test a separate copy with dummy game data
+      - name: Verify pairing and update delivery on the deployed site
         run: |
-          python3 -u - <<'PY'
-          import json, os, pathlib, secrets, subprocess, sys, urllib.request
-          domains = ['ntfy.adminforge.de', 'ntfy.envs.net', 'ntfy.jae.fi', 'ntfy.tedomum.fr']
-          for domain in domains:
-              root = 'https://' + domain
-              topic = 'jialat-test-' + secrets.token_hex(16)
-              message = 'isolated synthetic relay test'
-              try:
-                  with urllib.request.urlopen(root+'/v1/health', timeout=7) as response:
-                      if not json.load(response).get('healthy'):
-                          raise ValueError('health check failed')
-                  request = urllib.request.Request(root+'/'+topic, data=message.encode(), method='POST')
-                  with urllib.request.urlopen(request, timeout=7) as response:
-                      if json.load(response)['message'] != message:
-                          raise ValueError('publish acknowledgement differed')
-                  request = urllib.request.Request(root+'/'+topic+'/json?poll=1&since=all', headers={'Origin':'https://lucaspeh.github.io'})
-                  with urllib.request.urlopen(request, timeout=7) as response:
-                      if response.headers.get('Access-Control-Allow-Origin') != '*':
-                          raise ValueError('cross-origin access unavailable')
-                      if not any(json.loads(line).get('message') == message for line in response):
-                          raise ValueError('test update missing')
-              except (OSError, KeyError, ValueError) as error:
-                  print('Skipped',domain,type(error).__name__)
-                  continue
-              break
-          else:
-              raise SystemExit('No candidate supported the basic relay checks')
-          print('Testing alternate relay',domain)
-          source = pathlib.Path('diagnostics/safari_relay.py').read_text()
-          source = source.replace('versions=[("candidate",candidate),("candidate-quiet",candidate)]','versions=[("alternate",candidate)]')
-          handler = '                handler=functools.partial'
-          assert handler in source
-          replacement = [
-              '                for game in ("roomwars", "scoreboard", "after18years"):',
-              '                    page = folder / game / "index.html"',
-              '                    text = page.read_text()',
-              '                    assert "https://ORIGINAL/" in text',
-              '                    page.write_text(text.replace("https://ORIGINAL/", "https://HOST/"))',
-              handler,
-          ]
-          source = source.replace(handler, '\n'.join(replacement), 1)
-          source = source.replace('ntfy.sh', domain).replace('https://ORIGINAL/','https://ntfy.sh/').replace('https://HOST/','https://'+domain+'/')
-          source = source.replace('if tag=="candidate-quiet":\n                continue','if tag in ("candidate-quiet", "alternate"):\n                continue')
-          os.environ['RELAY_CANDIDATE'] = 'bb06f02e2c99e6dcdbfb188287be61331e51d678'
-          exec(compile(source,'alternate_relay_trial.py','exec'),{'__name__':'__main__'})
+          RELAY_DEPLOYED_ONLY=1 python3 -u - <<'PY'
+          import json, secrets, sys
+          sys.path.insert(0,'diagnostics')
+          import safari_relay as q
+
+          original_wd = q.wd
+          def webdriver(url, data=None, method=None):
+              if url.endswith(':9515/session') and data:
+                  data['capabilities']['alwaysMatch']['pageLoadStrategy'] = 'none'
+              return original_wd(url, data, method)
+          q.wd = webdriver
+
+          def visit(tab, url):
+              path, marker, fragment = url.partition('#')
+              url = path + '?v=26-live-3&check=' + secrets.token_hex(4) + marker + fragment
+              tab.goto(url)
+              condition = 'location.href===' + json.dumps(url)
+              condition += " && window.JialatUI?.build==='26' && [...document.scripts].some(s=>s.getAttribute('src')?.endsWith('reliability.js?v=26-live-3'))"
+              q.until(tab, condition, 'deployed repaired game boot', 20)
+          q.visit = visit
+
+          from pathlib import Path
+          from urllib.request import Request, urlopen
+          deployed = '5f88763c68aedd6faacbb1cf511c8df92b01eadc'
+          import subprocess, time
+          for path in ('index.html', 'roomwars/index.html', 'scoreboard/index.html', 'after18years/index.html', 'assets/reliability.js'):
+              expected = subprocess.check_output(['git','show',deployed+':'+path])
+              for attempt in range(12):
+                  try:
+                      req = Request(q.PAGES+'/'+path+'?v=26-live-3',headers={'Cache-Control':'no-cache'})
+                      with urlopen(req, timeout=10) as res:
+                          if res.read() == expected:
+                              print('Live file matched',path,flush=True)
+                              break
+                  except OSError:
+                      pass
+                  time.sleep(5)
+              else:
+                  raise RuntimeError('Latest file missing from Pages: '+path)
+          source = Path(q.__file__).read_text().replace('ntfy.sh','ntfy.adminforge.de')
+          ns = {'__name__':'diagnostic'}
+          exec(compile(source[:source.index('class QuietHandler')], q.__file__, 'exec'), ns)
+          q.scoreboard = ns['scoreboard']
+          source = source.replace('if tag=="candidate-quiet":\n                continue','if tag in ("candidate-quiet", "published"):\n                continue')
+          q.main = None
+          exec(compile(source[source.index('def main():'):source.index('if __name__==')], q.__file__, 'exec'), q.__dict__)
+          q.main()
           PY
