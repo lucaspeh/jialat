@@ -54,13 +54,19 @@ jobs:
           print('Testing alternate relay',domain)
           source = pathlib.Path('diagnostics/safari_relay.py').read_text()
           source = source.replace('versions=[("candidate",candidate),("candidate-quiet",candidate)]','versions=[("alternate",candidate)]')
-          source = source.replace('                handler=functools.partial', '''                for game in ("roomwars", "scoreboard", "after18years"):
-                    page = folder / game / "index.html"
-                    text = page.read_text()
-                    assert "https://ORIGINAL/" in text
-                    page.write_text(text.replace("https://ORIGINAL/", "https://HOST/"))
-                handler=functools.partial''')
+          handler = '                handler=functools.partial'
+          assert handler in source
+          replacement = [
+              '                for game in ("roomwars", "scoreboard", "after18years"):',
+              '                    page = folder / game / "index.html"',
+              '                    text = page.read_text()',
+              '                    assert "https://ORIGINAL/" in text',
+              '                    page.write_text(text.replace("https://ORIGINAL/", "https://HOST/"))',
+              handler,
+          ]
+          source = source.replace(handler, '\n'.join(replacement), 1)
           source = source.replace('ntfy.sh', domain).replace('https://ORIGINAL/','https://ntfy.sh/').replace('https://HOST/','https://'+domain+'/')
+          source = source.replace('if tag=="candidate-quiet":\n                continue','if tag in ("candidate-quiet", "alternate"):\n                continue')
           os.environ['RELAY_CANDIDATE'] = 'bb06f02e2c99e6dcdbfb188287be61331e51d678'
           exec(compile(source,'alternate_relay_trial.py','exec'),{'__name__':'__main__'})
           PY
