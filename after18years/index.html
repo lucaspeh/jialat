@@ -988,6 +988,7 @@ let retryTimer=0,retryAt=0,sendFailures=0,pollTimer=0,probe=null,peer=null,waiti
 let raf=0,wheelKey='',viewKey='',displayId=uid(),seen=new Set(),helloTimer=0,relayWake=0;
 let settledDraw='',landingDraw='';
 let helloChallenge=uid(),answeredChallenges=new Set(),ackTimer=0;
+let relayOpenedAt=0,tvChallenge='',pairingRetried=false;
 let presentationCtx=null,presentationSoundOn=false,soundDraw='',soundEligible=false,soundLastTick=-1,soundTickAt=0;
 const presentationVoices=new Set(),soundRevealed=new Set();
 const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -998,7 +999,7 @@ function randomIndex(n){let a=new Uint32Array(1),limit=Math.floor(4294967296/n)*
 function uid(){const a=new Uint8Array(8);crypto.getRandomValues(a);return Array.from(a,n=>n.toString(16).padStart(2,'0')).join('')}
 function ordinal(n){return n+(n===1?'st':n===2?'nd':n===3?'rd':'th')}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function tvLink(){const u=new URL(location.href);u.search='?v=26-live-2';u.hash=room===EVENT_ROOM?'tv':'tv='+room;return u.href}
+function tvLink(){const u=new URL(location.href);u.search='?v=26-wheel-3';u.hash=room===EVENT_ROOM?'tv':'tv='+room;return u.href}
 function finite(n){return typeof n==='number'&&Number.isFinite(n)}
 function valid(x){
  if(x&&x.writer!==undefined&&!(/^[a-f0-9]{16}$/).test(x.writer))return false;
@@ -1220,10 +1221,20 @@ async function recoverNewerDraw(message){
  else{errorText='Could not restore the newer TV draw. Keep the TV open and tap Reconnect.';paint()}
 }
 function onMessage(envelope){
- if(!envelope)return;if(envelope.event==='open'){if(finite(envelope.time))controlSince=Math.max(controlSince,envelope.time);return}if(envelope.event!=='message')return;
+ if(!envelope)return;
+ if(envelope.event==='open'){
+  if(finite(envelope.time)){controlSince=envelope.time;relayOpenedAt=performance.now()}
+  return;
+ }
+ if(envelope.event!=='message')return;
  if(envelope.id&&seen.has(envelope.id))return;if(envelope.id){seen.add(envelope.id);if(seen.size>400)seen.delete(seen.values().next().value)}
  let m;try{m=JSON.parse(envelope.message)}catch(e){return}if(!m||m.room!==room)return;
- if(m.t!=='state'&&(finite(envelope.time)&&envelope.time<controlSince||Math.abs(Date.now()-(envelope.time*1000||m.at))>25000))return;
+ if(m.t!=='state'){
+  if(!finite(envelope.time)||envelope.time<controlSince)return;
+  // Compare relay timestamps on the same clock, even if a device's clock is off.
+  const relayNow=controlSince?controlSince*1000+performance.now()-relayOpenedAt:Date.now();
+  if(Math.abs(relayNow-envelope.time*1000)>25000)return;
+ }
  if(m.t==='state'){
   if(envelope.id)cursor=envelope.id;
   const x=m.state;if(!valid(x))return;
@@ -1236,7 +1247,14 @@ function onMessage(envelope){
   if(mode==='host'&&x.writer&&x.writer!==hostIdentity&&!takeoverRequested&&(!S||x.rev>=S.rev))remoteHostBlocked=true;
   if(mode==='host'&&pending&&pending.id===x.id){accepted(x);return}
   if(mode==='host'&&pending&&x.rev>=pending.rev&&x.id!==pending.id){pending=null;clearTimeout(retryTimer);retryTimer=0;S=x;save();paint();return}
-  if(!S||x.rev>S.rev){S=x;if(mode==='tv'&&tvPermit&&x.grant===tvPermit.probe)tvPermit=null;save();paint()}
+  if(!S||x.rev>S.rev){
+   S=x;
+   if(mode==='tv'){
+    if(tvPermit&&x.grant===tvPermit.probe)tvPermit=null;
+    if(calibrated()){clearTimeout(helloTimer);helloTimer=0;errorText=''}
+   }
+   save();paint();
+  }
   return;
  }
  if(mode==='tv'){
@@ -1253,8 +1271,8 @@ function onMessage(envelope){
   return;
  }
  if(m.t==='ready'&&m.build===BUILD&&peer&&m.display===peer.id&&m.authorized===true&&m.controller!==hostIdentity){remoteHostBlocked=true;cancelProbe();paint();return}
- if(m.t==='hello'&&(/^[a-f0-9]{16}$/).test(m.display)&&Math.abs(Date.now()-(envelope.time*1000||m.at))<25000){
-  if(probe&&probe.target===m.display){if(m.challenge!==helloChallenge){if(!probe.helloRequested){probe.helloRequested=true;control('host-online',{challenge:helloChallenge,target:m.display}).catch(()=>{})}return}if(!probe.helloRequested)return;const purpose=probe.purpose;cancelProbe();beginProbe(purpose,m.display);return}
+ if(m.t==='hello'&&(/^[a-f0-9]{16}$/).test(m.display)){
+  if(probe&&probe.target===m.display){if(m.challenge!==helloChallenge){if(!probe.helloRequested){probe.helloRequested=true;control('host-online',{challenge:helloChallenge,target:m.display}).catch(()=>{})}return}if(!probe.helloRequested&&(probe.purpose!=='sync'||Date.now()-probe.sentAt<8000))return;const purpose=probe.purpose;cancelProbe();beginProbe(purpose,m.display);return}
   if(peer&&peer.id===m.display&&Date.now()-peer.seen<10000)return;
   if(m.challenge!==helloChallenge){schedulePoll();control('host-online',{challenge:helloChallenge,target:m.display}).catch(()=>{});return}
   if(probe){const purpose=probe.purpose;cancelProbe();beginProbe(purpose,m.display)}else beginProbe('sync',m.display);return;
@@ -1281,7 +1299,23 @@ function onMessage(envelope){
   return;
  }
 }
-function announce(challenge=''){if(mode!=='tv'||!streamOpen||document.hidden||challenge&&answeredChallenges.has(challenge))return;if(challenge){answeredChallenges.add(challenge);if(answeredChallenges.size>40)answeredChallenges.delete(answeredChallenges.values().next().value)}control('hello',{display:displayId,challenge}).catch(()=>{})}
+function announce(challenge='',retry=false){
+ if(mode!=='tv'||!streamOpen||document.hidden||relayWait()>0||(!retry&&challenge&&answeredChallenges.has(challenge)))return;
+ if(challenge){
+  tvChallenge=challenge;answeredChallenges.add(challenge);
+  if(answeredChallenges.size>40)answeredChallenges.delete(answeredChallenges.values().next().value);
+ }
+ control('hello',{display:displayId,challenge}).catch(()=>{});
+ if(helloTimer||calibrated())return;
+ helloTimer=setTimeout(()=>{
+  helloTimer=0;
+  if(mode!=='tv'||calibrated()||!streamOpen||document.hidden||relayWait()>0)return;
+  if(pairingRetried){
+   errorText='Host hasn’t answered. Keep this TV tab visible and tap Reconnect on the phone.';status();return;
+  }
+  pairingRetried=true;announce(tvChallenge,true);
+ },11000);
+}
 function schedulePoll(){clearTimeout(pollTimer);pollTimer=0;if(!mode||streamOpen)return;pollTimer=setTimeout(async()=>{await poll();schedulePoll()},60000)}
 function poll(replay=false,confirmPending=false){
  if(polling)return replay===true||confirmPending===true?polling.then(()=>poll(replay,confirmPending)):polling;
@@ -1303,8 +1337,8 @@ function connect(){
  if(relayWait()>0){if(stream)stream.close();streamOpen=false;clearTimeout(relayWake);relayWake=relayLater(resume,relayWait());status();return}
  if(stream)stream.close();streamOpen=false;controlSince=0;if(mode==='host')helloChallenge=uid();
  try{stream=JialatUI.relayStream(BASE+PREFIX+room+'/sse?since='+encodeURIComponent(cursor||'all'),relayWait,relayRetryDelay);
-  stream.onconnecting=()=>{streamOpen=false;if(mode==='host'){peer=null;cancelProbe()}paint()};
-  stream.onopen=()=>{streamOpen=true;pollOK=true;clearTimeout(pollTimer);pollTimer=0;paint();if(mode==='host'){helloChallenge=uid();flush();control('host-online',{challenge:helloChallenge}).catch(()=>{})}else{answeredChallenges.clear();announce()}};
+  stream.onconnecting=()=>{streamOpen=false;controlSince=0;clearTimeout(helloTimer);helloTimer=0;if(mode==='host'){peer=null;cancelProbe()}paint()};
+  stream.onopen=()=>{streamOpen=true;pollOK=true;clearTimeout(pollTimer);pollTimer=0;paint();if(mode==='host'){helloChallenge=uid();flush();control('host-online',{challenge:helloChallenge}).catch(()=>{})}else{answeredChallenges.clear();tvChallenge='';pairingRetried=false;announce()}};
   stream.onerror=()=>{streamOpen=false;paint();poll();schedulePoll()};
   stream.onmessage=e=>{try{onMessage(JSON.parse(e.data))}catch(err){}};
  }catch(e){streamOpen=false;poll();schedulePoll()}
