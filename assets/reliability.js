@@ -78,19 +78,20 @@
     function checkOnReturn() {
       if (!document.hidden && deadline && Date.now() >= deadline) fallback();
     }
+    function markOpen() {
+      armTimeout(idleTimeout);
+      if (stream.readyState === 1) return;
+      failures = 0;
+      stream.readyState = 1;
+      recordTraffic('streamOpens');
+      if (stream.onopen) stream.onopen({ type: 'open' });
+    }
     function receive(event) {
-      // Both transports can report a native open before the first ntfy frame arrives.
       if (typeof event.data !== 'string') return;
       var packet;
       try { packet = JSON.parse(event.data); } catch (error) { return; }
       if (!packet || !['open', 'message', 'keepalive'].includes(packet.event)) return;
-      armTimeout(idleTimeout);
-      if (stream.readyState !== 1) {
-        failures = 0;
-        stream.readyState = 1;
-        recordTraffic('streamOpens');
-        if (stream.onopen) stream.onopen({ type: 'open' });
-      }
+      markOpen();
       if (packet.event === 'keepalive') return;
       if (packet.event === 'message' && typeof packet.id === 'string') {
         try {
@@ -121,10 +122,15 @@
       transport = current;
       function frame(event) { if (transport === current) receive(event); }
       function lost() { if (transport === current) fallback(); }
+      current.onopen = function (event) {
+        if (transport !== current) return;
+        // A native open starts pairing. ntfy's named SSE open also carries the relay clock.
+        if (typeof event.data === 'string') receive(event);
+        else markOpen();
+      };
       current.onmessage = frame;
       current.onerror = lost;
       if (kind === 'sse') {
-        current.onopen = frame;
         current.addEventListener('keepalive', frame);
       } else {
         current.onclose = lost;

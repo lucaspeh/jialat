@@ -34,20 +34,47 @@ function fixture(t, cooldown = () => 0) {
   return { stream, opened, document, tick: ms => t.mock.timers.tick(ms) };
 }
 
-test('a native open without an ntfy frame falls back without starting a handshake', t => {
+test('native SSE open starts one handshake and a later ntfy open delivers the relay clock', t => {
+  const { stream, opened, tick } = fixture(t);
+  let handshakes = 0;
+  const frames = [];
+  stream.onopen = () => handshakes++;
+  stream.onmessage = event => frames.push(JSON.parse(event.data));
+  opened[0].onopen(new Event('open'));
+  assert.equal(handshakes, 1);
+  assert.equal(stream.readyState, 1);
+  tick(8000);
+  assert.equal(opened.length, 1);
+  opened[0].packet('open', { event: 'open', time: 123 });
+  opened[0].packet('message', { event: 'message', message: 'first update' });
+  assert.deepEqual(frames, [{ event: 'open', time: 123 }, { event: 'message', message: 'first update' }]);
+  assert.equal(handshakes, 1);
+});
+
+test('an unopened SSE falls back and WebSocket can start pairing before its first frame', t => {
   const { stream, opened, tick } = fixture(t);
   let handshakes = 0;
   stream.onopen = () => handshakes++;
-  opened[0].onopen(new Event('open'));
-  assert.equal(stream.readyState, 0);
   tick(8000);
   assert.equal(opened[1].url.href, 'wss://ntfy.sh/example/ws?since=all');
   opened[0].packet('open', { event: 'open' });
   assert.equal(handshakes, 0);
+  opened[1].onopen(new Event('open'));
+  assert.equal(handshakes, 1);
+  tick(8000);
+  assert.equal(opened.length, 2);
   opened[1].packet('message', { event: 'open' });
   opened[1].packet('message', { event: 'keepalive' });
   assert.equal(stream.readyState, 1);
   assert.equal(handshakes, 1);
+});
+
+test('a natively open transport that stays silent still times out', t => {
+  const { opened, tick } = fixture(t);
+  opened[0].onopen(new Event('open'));
+  tick(100000);
+  assert.ok(opened[0].closed);
+  assert.equal(opened[1].url.protocol, 'wss:');
 });
 
 test('keepalives sustain a quiet stream and a silent stream resumes from durable state', t => {
