@@ -6,7 +6,7 @@ permissions:
   contents: read
 jobs:
   safari:
-    runs-on: macos-15
+    runs-on: macos-15-intel
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -22,29 +22,38 @@ jobs:
             sleep 1
           done
           exit 1
-      - name: Check deployed games in Safari
+      - name: Compare the exact revisions in Intel Mac Safari
         run: |
-          if [[ -f diagnostics/safari_relay.py ]]; then
-            python3 -u diagnostics/safari_relay.py
-          else
-            python3 - <<'PY'
-          import json, urllib.request
-          from urllib.parse import urlsplit
-          def wd(path, data=None, method=None):
-              data = json.dumps(data).encode() if data is not None else None
-              req = urllib.request.Request('http://localhost:4444' + path, data=data, method=method, headers={'Content-Type':'application/json'})
-              return json.load(urllib.request.urlopen(req,timeout=60))['value']
-          session = wd('/session', {'capabilities':{'alwaysMatch':{'browserName':'safari'}}})
-          sid = '/session/' + session['sessionId']
-          print(session['capabilities']['browserName'], session['capabilities']['browserVersion'])
+          python3 -u - <<'PY'
+          import contextlib, functools, http.server, pathlib, subprocess, sys, tarfile, tempfile, threading, time
+          sys.path.insert(0, 'diagnostics')
+          import safari_relay as q
+          from urllib.request import urlopen
+          from hashlib import sha256
+          baseline='ce316eed992eab1a70c73796d57fb155e691f298'
+          repaired='6cbcab474555726340dca300029f4523a4a2d747'
+          for path in ['assets/reliability.js','roomwars/index.html','scoreboard/index.html','after18years/index.html']:
+              body=urlopen(q.PAGES+'/'+path,timeout=20).read()
+              match=next((ref for ref in [baseline,repaired] if body==subprocess.check_output(['git','show',ref+':'+path])),None)
+              assert match, path + ' on Pages differed from both revisions'
+              print('Published asset',path,match[:7])
+          driver=q.Driver('http://127.0.0.1:4444',{'browserName':'safari'})
           try:
-              for page in ['roomwars','scoreboard','after18years']:
-                  url = 'https://lucaspeh.github.io/jialat/' + page + '/'
-                  wd(sid + '/url', {'url':url})
-                  result = wd(sid + '/execute/sync', {'script':'return [location.origin, document.title, window.JialatUI?.build, window.JialatUI?.relayRevision]','args':[]})
-                  assert result[0] == 'https://lucaspeh.github.io' and result[2] == '26', result
-                  print(page, 'opened', result[1:])
+              print('Native browser',driver.browser)
+              for name,ref,expected in [('before',q.BEFORE,True),('rewrite',q.REWRITE,False),('repair',repaired,True)]:
+                  with tempfile.TemporaryDirectory() as folder:
+                      with subprocess.Popen(['git','archive',ref],stdout=subprocess.PIPE) as p,tarfile.open(fileobj=p.stdout,mode='r|') as archive:
+                          archive.extractall(folder,filter='data')
+                      with http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(q.QuietHandler,directory=folder)) as srv:
+                          threading.Thread(target=srv.serve_forever,daemon=True).start()
+                          base='http://127.0.0.1:'+str(srv.server_port)
+                          normal=q.opening_probe(driver,base,False)
+                          quiet=q.opening_probe(driver,base,True)
+                          print('Safari A/B',name,'normal',normal['delivered'],'withheld',quiet['delivered'])
+                          assert normal['delivered'] and quiet['delivered']==expected and quiet['metadata']>0
+                          srv.shutdown()
           finally:
-              wd(sid,method='DELETE')
+              driver.close()
           PY
-          fi
+      - name: Verify all three repaired connections with both browser roles
+        run: python3 -u diagnostics/safari_relay.py
