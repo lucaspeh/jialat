@@ -1648,7 +1648,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <main id="H"></main>
 <div id="T"><div id="msg"></div><div id="bd"><h1 id="th"></h1><p id="boardHint"></p><div id="ban"></div><div id="rows"></div><div id="lg"><span style="color:var(--l)">1ST · S$18 CASH PRIZE</span><span>2–6 SAFE</span><span>7–9 NEXT YEAR’S ORGANISERS</span><span>10TH · THE JIALAT TROPHY</span></div></div></div>
 <script src="../assets/ui.js?v=26"></script>
-<script src="../assets/reliability.js?v=26-live-2.1"></script>
+<script src="../assets/reliability.js?v=26-live-3"></script>
 <script>
 
 // Connection state is shared by the three apps on this browser. No game data is stored here.
@@ -1656,7 +1656,7 @@ var relayFetch=window.JialatUI&&JialatUI.relayFetch?JialatUI.relayFetch:fetch;
 var relayMemory={until:0,reason:'Relay busy (429)'},relayQuotaPromise=null,relayDetailsOpen=false;
 function relayRead(key){try{return JSON.parse(localStorage.getItem(key)||'null')}catch(e){return null}}
 function relayWrite(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch(e){}}
-function relayInfo(){var x=relayRead('jialat-relay-hold');if(x&&typeof x.until==='number'&&isFinite(x.until)&&x.until>relayMemory.until)relayMemory=x;return relayMemory}
+function relayInfo(){var x=relayRead('jialat-relay-adminforge-hold');if(x&&typeof x.until==='number'&&isFinite(x.until)&&x.until>relayMemory.until)relayMemory=x;return relayMemory}
 function relayWait(){return Math.max(0,relayInfo().until-Date.now())}
 function relayLocalTime(at){try{return new Date(at).toLocaleString([],{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}catch(e){return new Date(at).toLocaleString()}}
 function relayWaitLabel(){var x=relayInfo(),wait=Math.ceil(relayWait()/1000);var label={42901:'Connection busy',42903:'Too many game tabs open',42905:'Daily data limit reached',42908:'Daily message limit reached',42911:'Too many games started'}[x.code]||(/daily/i.test(x.reason||'')?'Daily message limit reached':'Connection busy');return label+(x.resetKnown&&x.code===42908?' · resets '+relayLocalTime(x.until):' · next check in '+wait+'s')}
@@ -1664,18 +1664,18 @@ function relayLater(fn,ms){return setTimeout(fn,Math.min(2147483000,Math.max(0,m
 function relayRetryDelay(failures){return Math.min(60000,5000*Math.pow(2,Math.min(4,Math.max(0,failures-1))))}
 function relayWaitingError(){var e=Error('HTTP 429');e.status=429;e.retryAfterMs=relayWait();e.ntfyCode=relayInfo().code||0;return e}
 function relayReason(code,detail){return {42901:'Too many requests (42901)',42903:'Too many open game tabs (42903)',42905:'Daily data allowance reached (42905)',42908:'Daily relay allowance reached (42908)',42911:'Too many new games (42911)'}[code]||(/daily/i.test(detail)?'Daily relay allowance reached (429)':'Relay busy (429)')}
-function relayQuota(){var q=relayRead('jialat-relay-quota');return q&&Number.isFinite(q.limit)&&q.limit>0&&Number.isFinite(q.remaining)&&q.remaining>=0&&Number.isFinite(q.checkedAt)&&Number.isFinite(q.resetAt)?q:null}
+function relayQuota(){var q=relayRead('jialat-relay-adminforge-quota');return q&&Number.isFinite(q.limit)&&q.limit>0&&Number.isFinite(q.remaining)&&q.remaining>=0&&Number.isFinite(q.checkedAt)&&Number.isFinite(q.resetAt)?q:null}
 function relayUseQuota(q){
- if(q&&q.remaining===0&&q.resetAt>Date.now()&&q.resetAt>relayInfo().until){relayMemory={until:q.resetAt,reason:'Daily relay allowance used up',code:42908,resetKnown:true,source:'quota-status'};relayWrite('jialat-relay-hold',relayMemory)}
+ if(q&&q.remaining===0&&q.resetAt>Date.now()&&q.resetAt>relayInfo().until){relayMemory={until:q.resetAt,reason:'Daily relay allowance used up',code:42908,resetKnown:true,source:'quota-status'};relayWrite('jialat-relay-adminforge-hold',relayMemory)}
 }
 async function relayQuotaCheck(force=false){
  var cached=relayQuota();if(force!==true&&cached&&Date.now()-cached.checkedAt<60000){relayUseQuota(cached);return cached}
  if(relayQuotaPromise)return relayQuotaPromise;
  relayQuotaPromise=(async function(){var c=new AbortController(),timer=setTimeout(function(){c.abort()},8000);try{
-  var r=await relayFetch('https://ntfy.sh/v1/account',{cache:'no-store',credentials:'omit',signal:c.signal});if(!r.ok)return null;
+  var r=await relayFetch('https://ntfy.adminforge.de/v1/account',{cache:'no-store',credentials:'omit',signal:c.signal});if(!r.ok)return null;
   var x=await r.json(),l=x&&x.limits,s=x&&x.stats;if(!l||!s||l.basis!=='ip'||!Number.isFinite(l.messages)||l.messages<=0||!Number.isFinite(s.messages_remaining)||s.messages_remaining<0||!Number.isFinite(s.reset_at))return null;
   var q={limit:l.messages,remaining:Math.min(l.messages,s.messages_remaining),used:Number.isFinite(s.messages)?s.messages:l.messages-s.messages_remaining,resetAt:s.reset_at*1000,checkedAt:Date.now(),basis:'ip'};
-  relayWrite('jialat-relay-quota',q);relayUseQuota(q);return q;
+  relayWrite('jialat-relay-adminforge-quota',q);relayUseQuota(q);return q;
  }catch(e){return null}finally{clearTimeout(timer)}})();
  try{return await relayQuotaPromise}finally{relayQuotaPromise=null}
 }
@@ -1688,13 +1688,13 @@ async function relayResponseError(response){
  if(!known&&(code===42908||code===42905||/daily.*message|message.*daily/i.test(detail))){var q=await relayQuotaCheck(true);if(q&&(code===42905||code===42908||q.remaining===0)&&q.resetAt>Date.now()){delay=q.resetAt-Date.now();known=true}}
  if(!known)delay=(code===42908||code===42905)?1800000:30000;
  var at=Date.now(),until=at+Math.max(5000,delay),previous=relayInfo();
- if(until>=previous.until){relayMemory={until:until,reason:relayReason(code,detail),code:code,resetKnown:known,source:'server-response'};relayWrite('jialat-relay-hold',relayMemory)}
- relayWrite('jialat-relay-diagnostic',{http:429,code:code,reason:relayReason(code,detail),at:at,retryAt:relayInfo().until,retryHeaderVisible:raw!==null,resetKnown:known});
+ if(until>=previous.until){relayMemory={until:until,reason:relayReason(code,detail),code:code,resetKnown:known,source:'server-response'};relayWrite('jialat-relay-adminforge-hold',relayMemory)}
+ relayWrite('jialat-relay-adminforge-diagnostic',{http:429,code:code,reason:relayReason(code,detail),at:at,retryAt:relayInfo().until,retryHeaderVisible:raw!==null,resetKnown:known});
  e.ntfyCode=code;e.retryAfterMs=relayWait();relayPanelUpdate();return e;
 }
 function relayPanelHTML(){return '<details class="relay-details"'+(relayDetailsOpen?' open':'')+'><summary>CONNECTION STATUS</summary><p id="relay-allowance" role="status">Check this network’s remaining allowance and reset time.</p><div class="relay-actions"><button type="button" id="relay-check">Check allowance</button><button type="button" id="relay-copy">Copy connection details</button></div><p id="relay-traffic"></p><p id="relay-note" role="status"></p></details>'}
 function relayPanelUpdate(){
- var box=document.getElementById('relay-allowance');if(!box)return;var q=relayQuota(),d=relayRead('jialat-relay-diagnostic'),lines=[];
+ var box=document.getElementById('relay-allowance');if(!box)return;var q=relayQuota(),d=relayRead('jialat-relay-adminforge-diagnostic'),lines=[];
  if(q){lines.push(q.remaining+' / '+q.limit+' messages left when checked.');lines.push('Resets '+relayLocalTime(q.resetAt)+' (your device time).');lines.push('Checked '+relayLocalTime(q.checkedAt)+'. Devices on the same network may share this allowance.')}
  else lines.push('Allowance not checked yet. Checking does not send a game result.');
  if(relayWait()>0)lines.push(relayWaitLabel());else if(d)lines.push('Last limit: '+d.reason+' · '+relayLocalTime(d.at)+'.');
@@ -1704,11 +1704,11 @@ function relayPanelBind(){
  var check=document.getElementById('relay-check'),copy=document.getElementById('relay-copy'),panel=document.querySelector('.relay-details');if(!check)return;
  panel.ontoggle=function(){relayDetailsOpen=panel.open};
  check.onclick=async function(){check.disabled=true;var note=document.getElementById('relay-note');if(note)note.textContent='Checking allowance…';var q=await relayQuotaCheck();check.disabled=false;relayPanelUpdate();window.dispatchEvent(new Event('jialat-relay-status'));note=document.getElementById('relay-note');if(note)note.textContent=q?'Allowance checked. It does not reset by refreshing the page.':'Could not check the allowance. Saved game results are kept.';};
- copy.onclick=async function(){var d=relayRead('jialat-relay-diagnostic'),q=relayQuota(),text=JSON.stringify({app:document.title,build:window.JialatUI?JialatUI.build:null,relayRevision:window.JialatUI?JialatUI.relayRevision:null,traffic:window.JialatUI?JialatUI.traffic():null,checkedAt:new Date().toISOString(),lastLimit:d||null,allowance:q||null},null,2),note=document.getElementById('relay-note');try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error('Clipboard unavailable');await navigator.clipboard.writeText(text);if(note)note.textContent='Connection details copied. No names, room links or results are included.'}catch(e){var old=document.getElementById('relay-manual');if(old)old.remove();var field=document.createElement('textarea');field.id='relay-manual';field.readOnly=true;field.setAttribute('aria-label','Connection details to copy');field.value=text;panel.appendChild(field);field.focus();field.select();if(note)note.textContent='Select and copy the connection details below.'}};
+ copy.onclick=async function(){var d=relayRead('jialat-relay-adminforge-diagnostic'),q=relayQuota(),text=JSON.stringify({app:document.title,build:window.JialatUI?JialatUI.build:null,relayRevision:window.JialatUI?JialatUI.relayRevision:null,traffic:window.JialatUI?JialatUI.traffic():null,checkedAt:new Date().toISOString(),lastLimit:d||null,allowance:q||null},null,2),note=document.getElementById('relay-note');try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error('Clipboard unavailable');await navigator.clipboard.writeText(text);if(note)note.textContent='Connection details copied. No names, room links or results are included.'}catch(e){var old=document.getElementById('relay-manual');if(old)old.remove();var field=document.createElement('textarea');field.id='relay-manual';field.readOnly=true;field.setAttribute('aria-label','Connection details to copy');field.value=text;panel.appendChild(field);field.focus();field.select();if(note)note.textContent='Select and copy the connection details below.'}};
  relayPanelUpdate();if(window.JialatUI&&JialatUI.showTraffic)JialatUI.showTraffic();
 }
 // ---- CONFIG: change the topic to anything long and random (host and TV share this file) ----
-const TOPIC='jialat26-k7q2m9x4vz', URL_='https://ntfy.sh/'+TOPIC;
+const TOPIC='jialat26-k7q2m9x4vz', URL_='https://ntfy.adminforge.de/'+TOPIC;
 // ---- GAMES (edit rules text here if your PPT differs) ----
 const TAG={s:'SOLO · 10 → 1 PTS',p:'PAIRS · WIN 10 / OTHERS 5',t:'TEAMS · WIN 10 / LOSE 5'},EXP={s:55,p:60,t:75};
 const G=[
@@ -2321,11 +2321,11 @@ function enterRole(role,fromEntry=true){
 }
 $('H').addEventListener('keydown',advanceResultFocus);
 $('T').ondblclick=()=>document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();
-if(window.JialatUI&&JialatUI.build===BOARD_BUILD&&JialatUI.relayRevision==='2'){
+if(window.JialatUI&&JialatUI.build===BOARD_BUILD&&JialatUI.relayRevision==='3'){
 if(!validBoard(S)){S=D();JialatUI.storageFailure()}
 enterRole(ROLE,false);
 JialatUI.ready();
-}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Reload this page from the JIALAT site to load the matching files for Build 26 · relay 2.';document.body.className='landing';}
+}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Reload this page from the JIALAT site to load the matching files for Build 26 · relay 3.';document.body.className='landing';}
 function followRoleLink(){const role=(location.hash.match(/host|tv/)||[''])[0];if(role!==ROLE)enterRole(role,false)}
 window.addEventListener('hashchange',followRoleLink);window.addEventListener('popstate',followRoleLink);
 for(const id of ['tvAudio','tvAudioTests'])$(id).addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();$(id).open=false;$(id).querySelector('summary').focus()}});
