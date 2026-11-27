@@ -24,7 +24,7 @@
 :root  {
   color-scheme: dark;
   --background: #0a0a0a;
-  --card-background: #1c180e;
+  --card-background: #171511;
   --card-hover: #28210e;
   --gold: #d4af37;
   --gold-light: #f3d77a;
@@ -110,9 +110,9 @@ h1  {
   height: 100%;
   min-height: 88px;
   padding: 10px 12px;
-  border: 3px solid var(--gold);
+  border: 1px solid #695a3a;
   background: var(--card-background);
-  box-shadow: 4px 4px 0 var(--gold-deep);
+  box-shadow: 0 3px #282218;
   color: var(--text);
   text-decoration: none;
   touch-action: manipulation;
@@ -157,6 +157,7 @@ h1  {
   height: 18px;
   color: var(--gold);
 }
+.destination-card:is(:active, :focus-visible) { border-color: var(--gold); background: var(--card-hover); }
 .destination-card:focus-visible  {
   outline: 3px solid var(--focus);
   outline-offset: 6px;
@@ -297,7 +298,8 @@ h1  {
   .destination-card:hover  {
     background: var(--card-hover);
     transform: translate(-1px, -1px);
-    box-shadow: 5px 5px 0 var(--gold-deep);
+    border-color: var(--gold);
+    box-shadow: 0 3px #514321;
   }
   .destination-card:active  {
     transform: translate(3px, 3px);

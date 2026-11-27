@@ -76,12 +76,40 @@ body[data-page] .host-status { min-height:24px; margin:0 0 12px; font-size:var(-
 .boot-state a { display:inline-flex; align-items:center; min-height:44px; color:var(--color-gold-light); }
 .boot-actions { display:flex; flex-wrap:wrap; gap:24px; }
 
+/* A filled brass face marks the action the host can take now. */
+body[data-page="presentation"].host #spin:enabled,
+body[data-page="scoreboard"].host :is(.timer-primary, #revealNext, #revealClose):enabled,
+body[data-page="roomwars"].is-host :is(.current-action, #go, #rs2):enabled {
+  color:#21190c;
+  background:#ebcf86;
+  border:2px solid #ffebbb;
+  box-shadow:0 3px #725c30;
+  text-shadow:none;
+}
+body[data-page="scoreboard"].host:has(.reveal-controls) .turn .timer-primary:enabled {
+  color:var(--color-text);
+  background:var(--color-surface);
+  border-color:var(--color-input-edge);
+}
+body[data-page="roomwars"] .card, body[data-page].host :is(.card, .turn, .order-panel, .pairing) {
+  border:1px solid #544a31;
+  box-shadow:none;
+}
+body[data-page="roomwars"] :is(input, select, textarea),
+body[data-page="scoreboard"].host :is(input, select) { border-width:1px; }
+
 /* A single outer width includes the safe-area gutters. */
 body[data-page="menu"] { display:flex; flex-direction:column; justify-content:center; padding:0; }
 [data-page="menu"] .menu-shell { width:100%; max-width:var(--site-width); min-height:0; flex:none; padding:max(24px,env(safe-area-inset-top,0px)) max(var(--site-gutter),env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(var(--site-gutter),env(safe-area-inset-left,0px)); }
 [data-page="menu"] .menu-header { margin-bottom:24px; }
 [data-page="menu"] .christmas-mark { width:42px; height:48px; margin-bottom:12px; }
-[data-page="menu"] h1 { font-size:var(--entry-heading); }
+[data-page="menu"] h1 {
+  color:#fff0ca;
+  font-size:clamp(calc(40 * var(--font-unit)), 8vw, calc(84 * var(--font-unit)));
+  line-height:1.05;
+  letter-spacing:-.04em;
+  text-shadow:0 .035em #ac8d48, .065em .08em #48391d;
+}
 [data-page="menu"] .menu-grid { gap:16px; }
 [data-page="menu"] .destination-card { min-height:116px; padding:18px; gap:12px; }
 [data-page="menu"] .destination-title { font-size:calc(18 * var(--font-unit)); }
