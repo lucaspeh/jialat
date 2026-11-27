@@ -202,9 +202,9 @@ def main():
                 return safari,chrome
 
         versions=[("before",BEFORE),("rewrite",REWRITE),("published",None)]
-        candidate=os.environ.get("RELAY_CANDIDATE")
+        candidate=os.environ.get("RELAY_CANDIDATE","6cbcab474555726340dca300029f4523a4a2d747")
         if candidate:
-            versions=[("candidate",candidate)]
+            versions=[("candidate",candidate),("candidate-quiet",candidate)]
         if os.environ.get("RELAY_DEPLOYED_ONLY"):
             versions=[("published",None)]
         failures=0
@@ -220,6 +220,29 @@ def main():
                         archive.extractall(folder,filter="data")
                 else:
                     shutil.copytree(os.environ["PAGES_ARTIFACT"],folder,dirs_exist_ok=True)
+                if tag=="candidate-quiet":
+                    # Both endpoints are real. Only the relay's first metadata
+                    # event is withheld from the app in these temporary copies.
+                    shim="""<script>
+                    for(const key of ['EventSource','WebSocket']){
+                      const Native=window[key];
+                      window[key]=class extends Native{
+                        constructor(url,...args){
+                          super(url,...args);
+                          this.addEventListener(key==='EventSource'?'open':'message',e=>{
+                            if(typeof e.data==='string' && JSON.parse(e.data).event==='open'){
+                              e.stopImmediatePropagation();
+                            }
+                          });
+                        }
+                      };
+                    }</script>"""
+                    for game in ["roomwars","scoreboard","after18years"]:
+                        path=folder/game/"index.html"
+                        html=path.read_text()
+                        assert "</head>" in html
+                        path.write_text(html.replace("</head>",shim+"</head>",1))
+                    time.sleep(75)
                 handler=functools.partial(QuietHandler,directory=folder)
                 server=http.server.ThreadingHTTPServer(("127.0.0.1",0),handler)
                 threading.Thread(target=server.serve_forever,daemon=True).start()
@@ -231,7 +254,8 @@ def main():
                 with contextlib.ExitStack() as sessions:
                     first,second=clients()
                     sessions.callback(first.close);sessions.callback(second.close)
-                    host,guest=(second,first) if action==scoreboard else (first,second)
+                    reverse=(action==scoreboard) != (tag=="candidate-quiet" or bool(os.environ.get("RELAY_REVERSE_ROLES")))
+                    host,guest=(second,first) if reverse else (first,second)
                     try:
                         action(host,guest,base)
                         print("PASS",tag,action.__name__,host.browser,"to",guest.browser,flush=True)
@@ -243,12 +267,14 @@ def main():
                                 pass
                         failures+=1
                         print("FAIL",tag,action.__name__,str(error)[:520],flush=True)
+            if tag=="candidate-quiet":
+                continue
             with contextlib.ExitStack() as sessions:
                 primary,peer=clients();sessions.callback(primary.close);sessions.callback(peer.close)
                 for suppress in [False,True]:
                     result=opening_probe(primary,base,suppress)
                     print("PROBE", tag, primary.browser, "suppressed" if suppress else "normal", result['delivered'],flush=True)
-                    if not suppress and not result['delivered']: failures+=1
+                    if not result["delivered"] or result["callbacks"]!=1 or not result["native"]: failures+=1
         if failures: raise SystemExit(f"{failures} game or control checks failed")
 
 if __name__=="__main__":
