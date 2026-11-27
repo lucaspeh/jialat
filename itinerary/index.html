@@ -43,7 +43,6 @@
   box-sizing:border-box
 }
 html {
-  scroll-behavior:smooth;
   -webkit-text-size-adjust:100%;
   color-scheme:dark
 }
@@ -205,6 +204,16 @@ button:active,.action:active {
   border-color:var(--tab-accent);
   color:var(--tab-accent);
   background:#171a18
+}
+@media (prefers-reduced-motion:no-preference) {
+  .day-tab.day-changed[aria-selected="true"] .tab-date {
+    animation:date-seat 240ms steps(3, end);
+  }
+}
+@keyframes date-seat {
+  from { transform:translateY(-4px); }
+  65% { transform:translateY(1px); }
+  to { transform:none; }
 }
 .day-tab:nth-child(1) {
   --tab-accent:var(--teal)
@@ -1132,9 +1141,10 @@ a[href="../"]:active  {
  }
  function hashDay(){var match=/^#day-([1-4])$/.exec(location.hash);return match?Number(match[1]):null}
  function show(day,announce){
+  var changed=day!==current;
   current=Math.max(1,Math.min(4,day));
   panels.forEach(function(panel,i){panel.hidden=i!==current-1});
-  tabs.forEach(function(tab,i){var selected=i===current-1;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1});
+  tabs.forEach(function(tab,i){var selected=i===current-1;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;if(changed)tab.classList.toggle('day-changed',selected&&announce)});
   previous.disabled=current===1;next.disabled=current===4;
   document.getElementById('page-count').textContent='0'+current+' / 04';
   if(announce)document.getElementById('day-announcement').textContent=panels[current-1].querySelector('.eyebrow').textContent;
@@ -1145,7 +1155,7 @@ a[href="../"]:active  {
   if(location.hash!=='#day-'+day)history.replaceState(null,'','#day-'+day);
   show(day,true);
   if(focus)tabs[day-1].focus({preventScroll:true});
-  if(scrolled)panels[day-1].scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+  if(scrolled)panels[day-1].scrollIntoView({block:'start'});
  }
  nav.setAttribute('role','tablist');
  tabs.forEach(function(tab,i){

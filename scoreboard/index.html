@@ -560,6 +560,7 @@ summary {
   text-align:center
 }
 #msg {
+  display:flex;
   height:100%;
   flex-direction:column;
   align-items:center;
@@ -598,13 +599,7 @@ summary {
 }
 #msg.spotlight .spot-icon svg {
   width:min(17vh,170px);
-  height:auto;
-  animation:spot-bob 1.2s steps(3) infinite alternate
-}
-@keyframes spot-bob {
-  to {
-    transform:translateY(-1vh) rotate(5deg)
-  }
+  height:auto
 }
 #msg.rules {
   gap:1.3vh;
@@ -764,15 +759,16 @@ summary {
   stroke-linecap:square;
   stroke-linejoin:miter
 }
+.scene-1 { --demo-cycle:3.2s; }
 .scene-1 .blower-tip {
   transform-origin:155px 76px;
-  animation:blower-pop 2s steps(4) infinite
+  animation:blower-pop var(--demo-cycle) steps(4) infinite
 }
 .scene-1 .cotton {
-  animation:cotton-off 2s ease-in infinite
+  animation:cotton-off var(--demo-cycle) ease-in infinite
 }
 .scene-1 .contact {
-  animation:contact-flash 2s steps(1) infinite
+  animation:contact-flash var(--demo-cycle) steps(1) infinite
 }
 @keyframes blower-pop {
   0%,12%,90%,100% {
@@ -783,18 +779,8 @@ summary {
   }
 }
 @keyframes cotton-off {
-  0%,40% {
-    transform:none;
-    opacity:1
-  }
-  68%,88% {
-    transform:translate(54px,57px);
-    opacity:0
-  }
-  89%,100% {
-    transform:none;
-    opacity:1
-  }
+  0%,38% { transform:none; }
+  65%,100% { transform:translate(54px,53px); }
 }
 @keyframes contact-flash {
   0%,36%,65%,100% {
@@ -804,16 +790,22 @@ summary {
     opacity:1
   }
 }
+.scene-2 { --demo-cycle:5.5s; }
 .scene-2 .fan-head {
   transform-origin:116px 112px;
-  animation:head-fan 5.5s ease-in-out infinite
+  animation:head-fan var(--demo-cycle) ease-in-out infinite
 }
 .scene-2 .fan-air {
-  animation:plate-air 5.5s ease-in-out infinite
+  animation:plate-air var(--demo-cycle) ease-in-out infinite
 }
 .scene-2 .candle-flame {
   transform-origin:460px 74px;
-  animation:fan-flame 5.5s steps(3) infinite
+  animation:fan-flame var(--demo-cycle) steps(3) infinite
+}
+.scene-2 .flame-out { animation:flame-out var(--demo-cycle) steps(1) infinite; }
+@keyframes flame-out {
+  0%,100% { opacity:0; }
+  56%,91% { opacity:1; }
 }
 @keyframes head-fan {
   0%,10%,30%,50%,100% {
@@ -852,16 +844,17 @@ summary {
     opacity:1
   }
 }
+.scene-3 { --demo-cycle:6.8s; }
 .scene-3 .lower-ribbon {
-  animation:three-drops 6.8s ease-in-out infinite
+  animation:three-drops var(--demo-cycle) ease-in-out infinite
 }
 .scene-3 .ribbon-arm-left {
   transform-origin:107px 66px;
-  animation:ribbon-arm-left 6.8s ease-in-out infinite
+  animation:ribbon-arm-left var(--demo-cycle) ease-in-out infinite
 }
 .scene-3 .ribbon-arm-right {
   transform-origin:533px 66px;
-  animation:ribbon-arm-right 6.8s ease-in-out infinite
+  animation:ribbon-arm-right var(--demo-cycle) ease-in-out infinite
 }
 @keyframes ribbon-arm-left {
   0%,9%,34%,58%,100% {
@@ -885,13 +878,13 @@ summary {
   fill:var(--teal)
 }
 .scene-3 .count-one {
-  animation:drop-one 6.8s steps(1) infinite
+  animation:drop-one var(--demo-cycle) steps(1) infinite
 }
 .scene-3 .count-two {
-  animation:drop-two 6.8s steps(1) infinite
+  animation:drop-two var(--demo-cycle) steps(1) infinite
 }
 .scene-3 .count-three {
-  animation:drop-three 6.8s steps(1) infinite
+  animation:drop-three var(--demo-cycle) steps(1) infinite
 }
 @keyframes three-drops {
   0%,9%,34%,58%,100% {
@@ -925,18 +918,19 @@ summary {
     opacity:0
   }
 }
+.scene-4 { --demo-cycle:6s; }
 .scene-4 .spoken {
-  animation:speak-once 6s steps(1) infinite
+  animation:speak-once var(--demo-cycle) steps(1) infinite
 }
 .scene-4 .go-out {
-  animation:speech-flames 6s steps(1) infinite;
+  animation:speech-flames var(--demo-cycle) steps(1) infinite;
   animation-delay:calc(var(--i)*.07s)
 }
 .scene-4 .smoke {
-  animation:candle-smoke 6s ease-out infinite
+  animation:candle-smoke var(--demo-cycle) ease-out infinite
 }
 .scene-4 .count-example {
-  animation:example-count 6s steps(1) infinite
+  animation:example-count var(--demo-cycle) steps(1) infinite
 }
 @keyframes speak-once {
   0%,12%,63%,100% {
@@ -972,26 +966,26 @@ summary {
     opacity:1
   }
 }
+.scene-5 { --demo-cycle:6s; }
 .scene-5 .placed-tree,.scene-5 .release-hand {
-  animation:supported-place 6s ease-in-out infinite
+  animation:supported-place var(--demo-cycle) ease-in-out infinite
 }
 .scene-5 .release-hand {
   animation-name:release-hand
 }
 .scene-5 .measure {
-  animation:measure-base 6s steps(1) infinite
+  animation:measure-base var(--demo-cycle) steps(1) infinite
 }
 .scene-5 .reach-arm {
   transform-origin:254px 85px;
-  animation:reach-arm 6s ease-in-out infinite
+  animation:reach-arm var(--demo-cycle) ease-in-out infinite
 }
 @keyframes reach-arm {
   0%,14%,100% {
     transform:none
   }
-  54%,90% {
-    transform:scale(1.32,2.39)
-  }
+  54%,62% { transform:scale(1.32,2.39); }
+  72%,100% { transform:none; }
 }
 @keyframes supported-place {
   0%,14%,100% {
@@ -1023,17 +1017,18 @@ summary {
     opacity:1
   }
 }
+.scene-6 { --demo-cycle:6s; }
 .scene-6 .unroll-roll {
   transform-origin:165px 78px;
-  animation:roll-unwind 6s linear infinite
+  animation:roll-unwind var(--demo-cycle) linear infinite
 }
 .scene-6 .unrolled-tail {
   stroke-dasharray:1;
   stroke-dashoffset:1;
-  animation:tail-unwind 6s linear infinite
+  animation:tail-unwind var(--demo-cycle) linear infinite
 }
 .scene-6 .unroll-finish {
-  animation:unroll-finish 6s steps(1) infinite
+  animation:unroll-finish var(--demo-cycle) steps(1) infinite
 }
 @keyframes roll-unwind {
   0%,10%,100% {
@@ -1064,35 +1059,32 @@ summary {
     opacity:1
   }
 }
+.scene-7 { --demo-cycle:6.5s; }
 .scene-7 .spinner-a,.scene-7 .spinner-b {
   transform-origin:0 85px;
-  animation:body-spin 1.2s steps(6) infinite
+  animation:body-spin var(--demo-cycle) ease-in-out infinite
 }
 .scene-7 .spinner-b {
-  animation-direction:reverse
+  --turn-width:-.65
 }
 .scene-7 .wrap-a {
   transform-origin:190px 84px;
-  animation:unwrap-a 6.5s ease-in-out infinite
+  animation:unwrap-a var(--demo-cycle) ease-in-out infinite
 }
 .scene-7 .wrap-b {
   transform-origin:450px 84px;
-  animation:wrap-b 6.5s ease-in-out infinite
+  animation:wrap-b var(--demo-cycle) ease-in-out infinite
 }
 .scene-7 .transfer-thread {
   stroke-dasharray:9 5;
-  animation:thread-flow 1s linear infinite,thread-done 6.5s steps(1) infinite
+  animation:thread-flow 1s linear infinite,thread-done var(--demo-cycle) steps(1) infinite
 }
 .scene-7 .transfer-finish {
-  animation:transfer-finish 6.5s steps(1) infinite
+  animation:transfer-finish var(--demo-cycle) steps(1) infinite
 }
 @keyframes body-spin {
-  0%,100% {
-    transform:scaleX(1)
-  }
-  50% {
-    transform:scaleX(-1)
-  }
+  0%,12%,32%,52%,72%,100% { transform:scaleX(1); }
+  22%,42%,62% { transform:scaleX(var(--turn-width,-1)); }
 }
 @keyframes unwrap-a {
   0%,12%,100% {
@@ -1135,29 +1127,30 @@ summary {
     opacity:1
   }
 }
+.scene-8 { --demo-cycle:7s; }
 .scene-8 .courier {
-  animation:knee-carry 7s ease-in-out infinite
+  animation:knee-carry var(--demo-cycle) ease-in-out infinite
 }
 .scene-8 .knee-ball {
-  animation:knee-drop 7s ease-in-out infinite
+  animation:knee-drop var(--demo-cycle) ease-in-out infinite
 }
 .scene-8 .tag-flash {
-  animation:relay-tag 7s steps(1) infinite
+  animation:relay-tag var(--demo-cycle) steps(1) infinite
 }
 .scene-8 .landed-ball {
-  animation:landed-ball 7s steps(1) infinite
+  animation:landed-ball var(--demo-cycle) steps(1) infinite
 }
 @keyframes landed-ball {
-  0%,51%,96%,100% {
+  0%,51% {
     opacity:0
   }
-  53%,94% {
+  52%,100% {
     opacity:1
   }
 }
 .scene-8 .walking-leg {
   transform-origin:170px 84px;
-  animation:knee-step .6s steps(2) infinite alternate
+  animation:knee-step var(--demo-cycle) steps(2) infinite
 }
 @keyframes knee-carry {
   0%,9%,84%,100% {
@@ -1172,42 +1165,42 @@ summary {
     transform:none;
     opacity:1
   }
-  51%,60% {
+  51% {
     transform:translateY(24px);
     opacity:1
   }
-  62%,96% {
+  52%,99.9% {
     transform:translateY(24px);
     opacity:0
   }
 }
 @keyframes relay-tag {
-  0%,83%,96%,100% {
+  0%,83% {
     opacity:0
   }
-  85%,94% {
+  84%,100% {
     opacity:1
   }
 }
 @keyframes knee-step {
-  to {
-    transform:rotate(3deg)
-  }
+  0%,9%,25%,42%,58%,72%,84%,100% { transform:none; }
+  17%,33%,65%,78% { transform:rotate(5deg); }
 }
+.scene-9 { --demo-cycle:7s; }
 .scene-9 .stack-head {
-  animation:place-head-cup 7s ease-in-out infinite
+  animation:place-head-cup var(--demo-cycle) ease-in-out infinite
 }
 .scene-9 .stack-left {
-  animation:place-left-cup 7s ease-in-out infinite
+  animation:place-left-cup var(--demo-cycle) ease-in-out infinite
 }
 .scene-9 .stack-right {
-  animation:place-right-cup 7s ease-in-out infinite
+  animation:place-right-cup var(--demo-cycle) ease-in-out infinite
 }
 .scene-9 .cup-hand {
-  animation:hands-away 7s steps(1) infinite
+  animation:hands-away var(--demo-cycle) steps(1) infinite
 }
 .scene-9 .balanced {
-  animation:balanced-hold 7s steps(1) infinite
+  animation:balanced-hold var(--demo-cycle) steps(1) infinite
 }
 @keyframes place-head-cup {
   0%,8%,100% {
@@ -1622,9 +1615,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   outline-offset:4px
 }
 @media(prefers-reduced-motion:reduce) {
-  *,*::before,*::after {
-    animation:none!important;
-    transition:none!important
+  :not(.gameScene *), *::before, *::after { animation:none!important; }
+  *, *::before, *::after { transition:none!important; }
+  /* Freeze each demonstration during its result hold, including its finish label. */
+  .gameScene * {
+    animation-play-state:paused!important;
+    animation-delay:calc(-.86 * var(--demo-cycle))!important;
   }
 }
 
@@ -1642,6 +1638,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 
 </style><link rel="stylesheet" href="../assets/layout.css?v=26">
 <link rel="stylesheet" href="../assets/festive.css?v=26">
+<link rel="stylesheet" href="../assets/tv-reveals.css">
 </head><body data-page="scoreboard"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section>
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
@@ -1651,7 +1648,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <main id="H"></main>
 <div id="T"><div id="msg"></div><div id="bd"><h1 id="th"></h1><p id="boardHint"></p><div id="ban"></div><div id="rows"></div><div id="lg"><span style="color:var(--l)">1ST · S$18 CASH PRIZE</span><span>2–6 SAFE</span><span>7–9 NEXT YEAR’S ORGANISERS</span><span>10TH · THE JIALAT TROPHY</span></div></div></div>
 <script src="../assets/ui.js?v=26"></script>
-<script src="../assets/reliability.js?v=26"></script>
+<script src="../assets/reliability.js?v=26-live-2"></script>
 <script>
 
 // Connection state is shared by the three apps on this browser. No game data is stored here.
@@ -1707,42 +1704,9 @@ function relayPanelBind(){
  var check=document.getElementById('relay-check'),copy=document.getElementById('relay-copy'),panel=document.querySelector('.relay-details');if(!check)return;
  panel.ontoggle=function(){relayDetailsOpen=panel.open};
  check.onclick=async function(){check.disabled=true;var note=document.getElementById('relay-note');if(note)note.textContent='Checking allowance…';var q=await relayQuotaCheck();check.disabled=false;relayPanelUpdate();window.dispatchEvent(new Event('jialat-relay-status'));note=document.getElementById('relay-note');if(note)note.textContent=q?'Allowance checked. It does not reset by refreshing the page.':'Could not check the allowance. Saved game results are kept.';};
- copy.onclick=async function(){var d=relayRead('jialat-relay-diagnostic'),q=relayQuota(),text=JSON.stringify({app:document.title,build:window.JialatUI?JialatUI.build:null,traffic:window.JialatUI?JialatUI.traffic():null,checkedAt:new Date().toISOString(),lastLimit:d||null,allowance:q||null},null,2),note=document.getElementById('relay-note');try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error('Clipboard unavailable');await navigator.clipboard.writeText(text);if(note)note.textContent='Connection details copied. No names, room links or results are included.'}catch(e){var old=document.getElementById('relay-manual');if(old)old.remove();var field=document.createElement('textarea');field.id='relay-manual';field.readOnly=true;field.setAttribute('aria-label','Connection details to copy');field.value=text;panel.appendChild(field);field.focus();field.select();if(note)note.textContent='Select and copy the connection details below.'}};
+ copy.onclick=async function(){var d=relayRead('jialat-relay-diagnostic'),q=relayQuota(),text=JSON.stringify({app:document.title,build:window.JialatUI?JialatUI.build:null,relayRevision:window.JialatUI?JialatUI.relayRevision:null,traffic:window.JialatUI?JialatUI.traffic():null,checkedAt:new Date().toISOString(),lastLimit:d||null,allowance:q||null},null,2),note=document.getElementById('relay-note');try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error('Clipboard unavailable');await navigator.clipboard.writeText(text);if(note)note.textContent='Connection details copied. No names, room links or results are included.'}catch(e){var old=document.getElementById('relay-manual');if(old)old.remove();var field=document.createElement('textarea');field.id='relay-manual';field.readOnly=true;field.setAttribute('aria-label','Connection details to copy');field.value=text;panel.appendChild(field);field.focus();field.select();if(note)note.textContent='Select and copy the connection details below.'}};
  relayPanelUpdate();if(window.JialatUI&&JialatUI.showTraffic)JialatUI.showTraffic();
 }
-// Try a second persistent connection before entering a deliberately slow standby mode.
-function relayStream(url){
- var api={readyState:0,kind:'',onopen:null,onerror:null,onmessage:null,onconnecting:null},listeners=[],source=null,socket=null,timer=0,retryTimer=0,failures=0,closed=false,failed=false,generation=0,lastMessageId='';
- function emit(e){if(closed||failed)return;try{var packet=JSON.parse(e.data);if(packet.event==='message'&&typeof packet.id==='string'){var transient=false;try{var body=JSON.parse(packet.message);transient=body&&((body._jialat==='control')||['hello','host-online','probe','ready','ack'].includes(body.t))}catch(ignore){}if(!transient)lastMessageId=packet.id}}catch(ignore){}if(api.onmessage)api.onmessage(e);listeners.forEach(function(f){f(e)})}
- function stopCurrent(){generation++;clearTimeout(timer);timer=0;if(source){source.onopen=source.onerror=source.onmessage=null;source.close();source=null}if(socket){socket.onopen=socket.onerror=socket.onclose=socket.onmessage=null;try{socket.close()}catch(e){}socket=null}}
- function fail(){
-  if(closed||failed)return;failed=true;failures++;api.readyState=2;stopCurrent();
-  if(api.onerror)api.onerror({type:'error'});
-  if(!closed&&!retryTimer)retryTimer=relayLater(function(){retryTimer=0;if(!closed&&!document.hidden)eventSource()},Math.max(relayWait(),relayRetryDelay(failures)));
- }
- function opened(kind){if(closed||failed||api.readyState===1&&api.kind===kind)return;failures=0;if(window.JialatUI&&JialatUI.recordTraffic)JialatUI.recordTraffic('streamOpens');clearTimeout(timer);timer=0;api.kind=kind;api.readyState=1;if(api.onopen)api.onopen({type:'open'})}
- function streamURL(kind){var u=new URL(url);if(kind==='websocket'){u.protocol=u.protocol==='https:'?'wss:':'ws:';u.pathname=u.pathname.replace(/\/sse$/,'/ws')}if(lastMessageId)u.searchParams.set('since',lastMessageId);return u.href}
- function webSocket(){
-  if(closed||failed)return;stopCurrent();api.readyState=0;if(api.onconnecting)api.onconnecting({type:'connecting'});
-  if(relayWait()>0){fail();return}
-  try{if(!window.WebSocket)throw Error('WebSocket unavailable');var token=generation;socket=new WebSocket(streamURL('websocket'));socket.onopen=function(){if(token===generation)opened('websocket')};socket.onmessage=function(e){if(token===generation)emit(e)};socket.onerror=socket.onclose=function(){if(token===generation)fail()};timer=setTimeout(fail,8000)}catch(e){fail()}
- }
- function eventSource(){
-  if(closed)return;stopCurrent();failed=false;api.readyState=0;if(api.onconnecting)api.onconnecting({type:'connecting'});
-  if(relayWait()>0){fail();return}
-  try{if(!window.EventSource)throw Error('EventSource unavailable');var token=generation;source=new EventSource(streamURL('sse'));source.onopen=function(e){if(token===generation){opened('sse');if(e&&e.data)emit(e)}};source.onerror=function(){if(token===generation)webSocket()};source.addEventListener('message',function(e){if(token===generation)emit(e)});timer=setTimeout(webSocket,8000)}catch(e){webSocket()}
- }
- timer=setTimeout(eventSource,0);
- api.addEventListener=function(type,fn){if(type==='message')listeners.push(fn)};
- api.close=function(){if(closed)return;if(window.JialatUI&&JialatUI.recordTraffic)JialatUI.recordTraffic('streamCloses');closed=true;clearTimeout(retryTimer);retryTimer=0;api.readyState=2;stopCurrent();listeners=[];window.removeEventListener('pagehide',api.close)};
- window.addEventListener('pagehide',api.close);return api;
-}
-// End shared relay.
-
-
-
-
-
 // ---- CONFIG: change the topic to anything long and random (host and TV share this file) ----
 const TOPIC='jialat26-k7q2m9x4vz', URL_='https://ntfy.sh/'+TOPIC;
 // ---- GAMES (edit rules text here if your PPT differs) ----
@@ -1823,7 +1787,7 @@ function demoPerson(x,color){return '<g transform="translate('+x+' 0)"><rect x="
 function demoCup(x,y,color,cls){return '<g class="'+cls+'"><path d="M'+x+' '+y+'h22l-3 17h-16z" fill="'+color+'"/><rect class="cup-hand" x="'+(x+5)+'" y="'+(y+18)+'" width="13" height="5" fill="var(--t)"/></g>'}
 const SCENES=[
  `<path d="M45 137H590" stroke="var(--d)" stroke-width="2"/><rect x="106" y="43" width="34" height="38" fill="var(--ice)"/><path d="M123 82v42m0-20h35" class="person-line"/><rect x="139" y="68" width="17" height="13" fill="var(--coral)"/><g class="blower-tip"><path d="M155 76H301" stroke="var(--teal)" stroke-width="9"/><path d="M298 69v14" stroke="var(--l)" stroke-width="5"/></g><path d="M285 127h47l-5-43h-37z" fill="#14212a" stroke="var(--ice)" stroke-width="3"/><circle class="cotton" cx="308" cy="73" r="10" fill="var(--t)"/><g class="contact" stroke="var(--l)" stroke-width="3"><path d="M320 61l12-7m-9 20h14m-17 12l10 7"/></g><text x="420" y="42" class="scene-note">REPEAT FOR ALL 5</text>${Array.from({length:5},(_,i)=>'<path d="M'+(420+i*30)+' 92h20l-3-23h-14z" fill="none" stroke="var(--ice)" stroke-width="2"/><rect x="'+(427+i*30)+'" y="59" width="6" height="6" fill="var(--t)"/>').join('')}<text x="420" y="125" class="scene-finish">5 OFF = FINISH</text><text x="320" y="165" text-anchor="middle" class="scene-caption">USE ONLY THE PARTY BLOWER</text>`,
- `<path d="M70 138H560" stroke="var(--d)" stroke-width="2"/><g class="fan-head"><rect x="110" y="43" width="38" height="38" fill="var(--ice)"/><rect x="145" y="67" width="20" height="10" fill="var(--t)"/><ellipse cx="213" cy="72" rx="49" ry="13" fill="var(--teal)" stroke="var(--l)" stroke-width="3"/><path d="M128 82v42m0-20h35" class="person-line"/></g><path d="M185 32l25-12m-25 12l5-12m-5 12l14 3" fill="none" stroke="var(--teal)" stroke-width="3"/><g class="fan-air" stroke="var(--ice)" stroke-width="3"><path d="M285 66h106m-92 15h107m-121 15h105"/></g><rect x="447" y="92" width="26" height="45" fill="var(--l)"/><path d="M460 91v-13" stroke="var(--t)" stroke-width="3"/><path class="candle-flame" d="M460 78q-16-18 0-35q16 18 0 35" fill="var(--coral)"/><text x="440" y="30" class="scene-note">FLAME OUT</text><text x="320" y="165" text-anchor="middle" class="scene-caption">PLATE IN MOUTH · MOVE YOUR HEAD TO FAN</text>`,
+ `<path d="M70 138H560" stroke="var(--d)" stroke-width="2"/><g class="fan-head"><rect x="110" y="43" width="38" height="38" fill="var(--ice)"/><rect x="145" y="67" width="20" height="10" fill="var(--t)"/><ellipse cx="213" cy="72" rx="49" ry="13" fill="var(--teal)" stroke="var(--l)" stroke-width="3"/><path d="M128 82v42m0-20h35" class="person-line"/></g><path d="M185 32l25-12m-25 12l5-12m-5 12l14 3" fill="none" stroke="var(--teal)" stroke-width="3"/><g class="fan-air" stroke="var(--ice)" stroke-width="3"><path d="M285 66h106m-92 15h107m-121 15h105"/></g><rect x="447" y="92" width="26" height="45" fill="var(--l)"/><path d="M460 91v-13" stroke="var(--t)" stroke-width="3"/><path class="candle-flame" d="M460 78q-16-18 0-35q16 18 0 35" fill="var(--coral)"/><text x="440" y="30" class="scene-note flame-out">FLAME OUT</text><text x="320" y="165" text-anchor="middle" class="scene-caption">PLATE IN MOUTH · MOVE YOUR HEAD TO FAN</text>`,
  `${demoPerson(84,'var(--ice)')}${demoPerson(556,'var(--teal)')}<path d="M107 66l47-20" class="person-line ribbon-arm-left"/><path d="M533 66l-47-20" class="person-line ribbon-arm-right"/><g class="lower-ribbon"><rect x="147" y="37" width="20" height="14" fill="var(--t)"/><rect x="473" y="37" width="20" height="14" fill="var(--t)"/><path d="M159 45L320 28L481 45" fill="none" stroke="var(--teal)" stroke-width="4"/><path d="M320 28v38m0-26q0-16 13-16q13 0 13 13" fill="none" stroke="var(--coral)" stroke-width="7"/></g><path d="M307 95v10h-12v32h50v-32h-12V95" fill="#14212a" stroke="var(--ice)" stroke-width="3"/><text x="320" y="18" text-anchor="middle" class="drop-count count-one">1 / 3</text><text x="320" y="18" text-anchor="middle" class="drop-count count-two">2 / 3</text><text x="320" y="18" text-anchor="middle" class="drop-count count-three">3 / 3 · FINISH</text><text x="320" y="165" text-anchor="middle" class="scene-caption">ONE RIBBON END EACH · LOWER, LIFT, REPEAT ×3</text>`,
  `<rect x="41" y="72" width="33" height="35" fill="var(--ice)"/><path d="M59 108v29m17-44h13" class="person-line"/><g class="spoken"><path d="M94 92h104m-14-7l15 7l-15 7" fill="none" stroke="var(--teal)" stroke-width="3"/><rect x="20" y="14" width="212" height="35" fill="#122923" stroke="var(--teal)" stroke-width="2"/><text x="126" y="37" text-anchor="middle" font-size="17" fill="var(--t)">MERRY CHRISTMAS!</text></g>${Array.from({length:8},(_,i)=>{const x=252+i*45;return '<rect x="'+(x-12)+'" y="111" width="24" height="22" fill="#193343" stroke="var(--ice)" stroke-width="2"/><path class="'+(i<6?'go-out':'')+'" style="--i:'+i+'" d="M'+x+' 107q-11-14 0-27q11 13 0 27" fill="var(--coral)"/>'+(i<6?'<path class="smoke" d="M'+x+' 101q-8-9 0-17" fill="none" stroke="var(--muted)" stroke-width="2"/>':'')}).join('')}<text x="405" y="37" text-anchor="middle" class="scene-finish count-example">EXAMPLE: 6 FLAMES OUT</text><text x="320" y="165" text-anchor="middle" class="scene-caption">ONE PHRASE, ONE BREATH · COUNT FLAMES OUT</text>`,
  `<path d="M52 138H586" stroke="var(--d)" stroke-width="2"/><path d="M240 13v131" stroke="var(--coral)" stroke-width="4"/><text x="234" y="25" text-anchor="end" class="scene-note">FEET BEHIND</text><rect x="112" y="47" width="24" height="27" fill="var(--ice)"/><path d="M124 79l21 34m-6-23l84 15m-56 14l-28 21m28-21l17 21" class="person-line"/><rect x="263" y="45" width="24" height="24" fill="var(--teal)"/><path d="M265 74l-45 35m0 0l-44 25m44-25l-17 25" class="person-line"/><path d="M254 85l94 18" class="person-line reach-arm" vector-effect="non-scaling-stroke"/><g class="placed-tree"><path d="M362 59l-20 32h40z" fill="var(--teal)"/><rect x="350" y="92" width="24" height="17" fill="var(--l)"/></g><rect class="release-hand" x="340" y="100" width="12" height="7" fill="var(--t)"/><g class="measure" stroke="var(--ice)" stroke-width="2"><path d="M242 145h138m-132-4l-6 4l6 4m126-8l6 4l-6 4"/><text x="460" y="106" stroke="none" class="scene-finish">RELEASE FIRST</text><text x="460" y="128" stroke="none" class="scene-note">MEASURE TO BASE</text></g><text x="320" y="171" text-anchor="middle" class="scene-caption">PARTNER SUPPORTS · FEET STAY BEHIND THE LINE</text>`,
@@ -1847,6 +1811,7 @@ const save=()=>{try{localStorage.setItem('jialat26',JSON.stringify(S))}catch(e){
 const status=(kind,label)=>{if(ROLE==='host'&&localHostBlocked){kind='bad';label='Host controls open in another tab'}else if(ROLE==='host'&&remoteHostBlocked){kind='bad';label='Read-only · another device is hosting'}$('dot').className='dot '+kind;if(window.JialatUI)JialatUI.status($('sync'),label);else $('sync').textContent=label};
 const BOARD_BUILD='26',hostIdentity=window.JialatUI&&/^[a-f0-9]{16}$/.test(JialatUI.deviceId||'')?JialatUI.deviceId:boardToken(),displayIdentity=boardToken();
 let hostTab=null,localHostBlocked=false,remoteHostBlocked=false,boardAuthorized=false,boardController='',boardTV='',boardNonce='',boardTakeover=false,boardProbeTimer=0,boardControlSince=0,boardTVGranted=false,boardCursor='';
+let displayAnnouncementPending=false;
 let pt,retryTimer=null,retryAt=0,sendFailures=0,sending=false,queued=null,inFlightBody=null,stream=null,pollTimer=null,streamOpen=false,polling=false,pollTask=null;
 const deliveredStates=new Set(),handledControls=new Set();
 function boardHostLocked(){if(hostTab&&!hostTab.active)localHostBlocked=true;return localHostBlocked||remoteHostBlocked}
@@ -1863,7 +1828,7 @@ function validBoard(x){
 }
 function boardStateKey(x){return String(x.v)+':'+(x.writer||'')}
 function retainBoardConflict(){const saved=queued||inFlightBody;if(!saved)return;try{localStorage.setItem('jialat26-conflict',saved)}catch(e){if(window.JialatUI)JialatUI.storageFailure()}queued=null;pending(null);clearTimeout(retryTimer);retryTimer=null;retryAt=0}
-function adoptBoard(x,force=false){if(!validBoard(x)||!force&&x.v<=S.v)return;S=Object.assign(D(),x);S.nm=S.nm.map(friendName);save();if(ROLE==='host')restoreCountdown();render()}
+function adoptBoard(x,force=false,live=false){if(!validBoard(x)||!force&&x.v<=S.v)return;S=Object.assign(D(),x);S.nm=S.nm.map(friendName);save();if(ROLE==='host')restoreCountdown();render(live)}
 function boardAccess(){
  if(ROLE!=='host')return;const note=$('hostControlNote');if(!note)return;
  const locked=localHostBlocked||remoteHostBlocked;note.hidden=!locked;note.replaceChildren();if(!locked)return;
@@ -1883,16 +1848,22 @@ function requestBoardControl(takeover=false){
  status('','Checking TV host control…');boardControl('host',{host:hostIdentity,nonce:boardNonce,target:boardTV,takeover});
  boardProbeTimer=setTimeout(()=>{if(!boardAuthorized&&ROLE==='host')status('bad','TV not responding. Check both screens show Build '+BOARD_BUILD+'. Your changes are saved here.')},20000);
 }
+function announceBoardDisplay(){
+ if(!displayAnnouncementPending||!streamOpen||document.hidden)return;
+ displayAnnouncementPending=false;boardControl('display',{display:displayIdentity});
+}
 function receiveControl(m){
  if(m.build!==BOARD_BUILD||typeof m.mid!=='string'||handledControls.has(m.mid))return;
  handledControls.add(m.mid);if(handledControls.size>200)handledControls.delete(handledControls.values().next().value);
  if(ROLE==='tv'){
-  if(m.type!=='host'||document.hidden||m.target&&m.target!==displayIdentity||!/^[a-f0-9]{16}$/.test(m.host||''))return;
-  if(!boardController)boardController=S.writer||m.host;if(m.takeover===true)boardController=m.host;boardTVGranted=true;
+  if(m.type!=='host'||m.target&&m.target!==displayIdentity||!/^[a-f0-9]{16}$/.test(m.host||''))return;
+  if(document.hidden){displayAnnouncementPending=true;return}
+  displayAnnouncementPending=false;
+  if(!boardController)boardController=S.writer||m.host;if(m.takeover===true)boardController=m.host;boardTVGranted=true;liveRevealStream=true;
   boardControl('ready',{display:displayIdentity,target:m.host,nonce:m.nonce,controller:boardController,authorized:boardController===m.host,state:S});return;
  }
  if(ROLE!=='host'||localHostBlocked)return;
- if(m.type==='display'){if(/^[a-f0-9]{16}$/.test(m.display||'')&&m.display!==boardTV){boardTV=m.display;requestBoardControl(boardTakeover)}return}
+ if(m.type==='display'){if(/^[a-f0-9]{16}$/.test(m.display||'')&&(m.display!==boardTV||!boardAuthorized)){boardTV=m.display;requestBoardControl(boardTakeover)}return}
  if(m.type!=='ready'||!/^[a-f0-9]{16}$/.test(m.display||''))return;if(boardTV&&m.display!==boardTV)return;
  if(m.target!==hostIdentity){if(boardTV===m.display&&m.authorized&&m.controller!==hostIdentity){boardController=m.controller;boardAuthorized=false;remoteHostBlocked=true;retainBoardConflict();if(validBoard(m.state))adoptBoard(m.state,true);host();status('bad','Another device is hosting');}return}
  if(m.nonce!==boardNonce)return;clearTimeout(boardProbeTimer);boardProbeTimer=0;boardTV=m.display;boardController=m.controller;
@@ -1922,13 +1893,18 @@ async function sendLatest(){
  }finally{clearTimeout(limit);inFlightBody=null;sending=false;if(queued&&!retryTimer){clearTimeout(pt);pt=setTimeout(sendLatest,250)}}
 }
 function commit(){if(boardHostLocked()){try{const saved=JSON.parse(localStorage.getItem('jialat26'));if(validBoard(saved))S=saved}catch(e){}render();return}S.v=Math.max(Date.now(),S.v+1);S.writer=hostIdentity;S.build=BOARD_BUILD;save();render();push()}
-function receive(j){try{
+function receive(j,fromStream=false){try{
  if(!j)return;if(j.event==='open'){if(Number.isFinite(j.time))boardControlSince=Math.max(boardControlSince,j.time);return}if(j.event!=='message')return;const x=JSON.parse(j.message);
  if(x&&x._jialat==='control'){if(Number.isFinite(j.time)&&j.time<boardControlSince||Math.abs(Date.now()-(j.time*1000||x.at))>25000)return;receiveControl(x);return}
  if(!validBoard(x))return;if(j.id)boardCursor=j.id;
  if(ROLE==='tv'&&boardTVGranted&&x.writer!==boardController)return;if(ROLE==='host'&&boardController&&x.writer&&x.writer!==boardController)return;
  if(ROLE==='host'&&x.writer===hostIdentity){const key=boardStateKey(x);deliveredStates.add(key);if(deliveredStates.size>200)deliveredStates.delete(deliveredStates.values().next().value);if(queued&&boardStateKey(JSON.parse(queued))===key){queued=null;pending(null);clearTimeout(retryTimer);retryTimer=null;retryAt=0;sendFailures=0;status('ok','Update confirmed by relay')}}
- if(x.v>S.v){if(ROLE==='host'&&x.writer&&x.writer!==hostIdentity){remoteHostBlocked=true;boardAuthorized=false;retainBoardConflict()}adoptBoard(x,true)}
+ if(x.v>S.v){
+  if(ROLE==='host'&&x.writer&&x.writer!==hostIdentity){remoteHostBlocked=true;boardAuthorized=false;retainBoardConflict()}
+  const afterOpen=boardControlSince>0&&j.time>boardControlSince;
+  const afterHandshake=liveRevealStream&&j.time>=boardControlSince;
+  adoptBoard(x,true,fromStream&&(afterOpen||afterHandshake));
+ }
  }catch(e){}}
 function poll(confirmPending=false){if(pollTask)return confirmPending===true?pollTask.then(()=>poll(true)):pollTask;if(document.hidden&&confirmPending!==true||relayWait()>0)return Promise.resolve();polling=true;const task=(async()=>{
  try{const ctrl=new AbortController(),limit=setTimeout(()=>ctrl.abort(),8000);let r;
@@ -1937,18 +1913,27 @@ function poll(confirmPending=false){if(pollTask)return confirmPending===true?pol
   (await r.text()).trim().split('\n').forEach(line=>{if(line)try{receive(JSON.parse(line))}catch(e){}});if(!streamOpen)status('ok','Connected · checking for updates');
  }catch(e){if(e.status===429){if(stream)stream.close();streamOpen=false;conn()}if(!streamOpen)status('bad',relayWait()>0?relayWaitLabel():'Connection lost · retrying')}
  finally{polling=false}})();pollTask=task;task.then(()=>{if(pollTask===task)pollTask=null},()=>{if(pollTask===task)pollTask=null});return task}
+// A fresh handshake distinguishes live messages in the stream’s opening second.
+// Later relay timestamps also work when the same TV reconnects without a new handshake.
+let liveRevealStream=false;
 function conn(){
  if(!window.JialatUI||JialatUI.build!==BOARD_BUILD||!ROLE||ROLE==='host'&&localHostBlocked)return;
  if(relayWait()>0){if(stream)stream.close();streamOpen=false;clearInterval(pollTimer);pollTimer=relayLater(()=>{pollTimer=null;conn()},relayWait());status('bad',relayWaitLabel());return}
  status('','Connecting…');if(stream)stream.close();streamOpen=false;boardAuthorized=false;boardControlSince=0;boardNonce='';
- try{stream=relayStream(URL_+'/sse?since='+encodeURIComponent(boardCursor||'all'));
-  stream.onconnecting=()=>{streamOpen=false;boardAuthorized=false;status('','Reconnecting to live updates…')};
-  stream.onopen=()=>{streamOpen=true;clearInterval(pollTimer);pollTimer=null;if(ROLE==='host')requestBoardControl(boardTakeover);else{status('ok','Live');boardControl('display',{display:displayIdentity})}};
+ try{stream=JialatUI.relayStream(URL_+'/sse?since='+encodeURIComponent(boardCursor||'all'),relayWait,relayRetryDelay);
+  stream.onconnecting=()=>{streamOpen=false;boardAuthorized=false;liveRevealStream=false;status('','Reconnecting to live updates…')};
+  stream.onopen=()=>{
+   streamOpen=true;clearInterval(pollTimer);pollTimer=null;
+   if(ROLE==='host'){
+    // A TV reloaded while this host was offline will have a new display ID.
+    boardTV='';requestBoardControl(boardTakeover);
+   }else{status('ok','Live');displayAnnouncementPending=true;announceBoardDisplay()}
+  };
   stream.onerror=()=>{streamOpen=false;boardAuthorized=false;status('bad','Reconnecting · checking for updates');if(!pollTimer)pollTimer=setInterval(poll,60000);poll()};
-  stream.onmessage=ev=>{try{receive(JSON.parse(ev.data))}catch(e){}};
+  stream.onmessage=ev=>{try{receive(JSON.parse(ev.data),true)}catch(e){}};
  }catch(e){status('bad','Connection lost · retrying');if(!pollTimer)pollTimer=setInterval(poll,60000)}
 }
-function resumeBoard(online=false){if(!ROLE||document.hidden)return;if(ROLE==='host'&&hostTab&&!hostTab.active){hostTab.acquire();return}if(online){clearTimeout(retryTimer);retryTimer=null;retryAt=0;sendFailures=0}if(!stream||stream.readyState===2)conn();else if(ROLE==='host')sendLatest()}
+function resumeBoard(online=false){if(!ROLE||document.hidden)return;if(ROLE==='host'&&hostTab&&!hostTab.active){hostTab.acquire();return}if(online){clearTimeout(retryTimer);retryTimer=null;retryAt=0;sendFailures=0}if(!stream||stream.readyState===2)conn();else if(ROLE==='host')sendLatest();else announceBoardDisplay()}
 window.addEventListener('online',()=>resumeBoard(true));window.addEventListener('pageshow',e=>{if(e.persisted)resumeBoard()});document.addEventListener('visibilitychange',()=>{if(!document.hidden)resumeBoard()});
 function stand(n){const t=S.sc.map((r,i)=>({i,t:r.slice(0,n).reduce((a,v)=>a+(v||0),0),b:S.tb[i]||0}));t.sort((a,b)=>b.t-a.t||b.b-a.b||a.i-b.i);t.forEach((o,k)=>o.r=k+1);return t}
 const allDone=()=>S.sc.every(r=>r.every(v=>v!=null));
@@ -2041,12 +2026,13 @@ function tvCountdownAudio(c,f){
  playCue('end',true)
 }
 document.addEventListener('visibilitychange',()=>{if(ROLE==='tv'){tvCountdownFrame=null;if(document.hidden)stopCue();updateTvAudio()}});
-function tvRevealAudio(){
+function tvRevealStep(live){
  const next={mode:S.m[0],step:Number(S.m[1]||0),id:S.revealId||0},old=tvLastFrame,frame=++tvAudioFrame;tvLastFrame=next;updateTvAudio();
  if(old&&(next.mode!=='rev'||next.id!==old.id||next.step<old.step))stopCue();
  // Only a new forward step makes a sound. Reloads, catch-up, Back and spotlight exits stay quiet.
- if(!tvSoundOn||document.hidden||!old||next.mode!=='rev'||old.mode!=='rev'||next.id!==old.id||next.step!==old.step+1||next.step<1||next.step>10)return;
- requestAnimationFrame(()=>{if(frame===tvAudioFrame&&tvSoundOn&&!document.hidden)playCue(rankCue(REVEAL_ORDER[next.step-1]),true)})
+ if(!live||document.hidden||!old||next.mode!=='rev'||old.mode!=='rev'||next.id!==old.id||next.step!==old.step+1||next.step<1||next.step>10)return false;
+ if(tvSoundOn)requestAnimationFrame(()=>{if(frame===tvAudioFrame&&tvSoundOn&&!document.hidden)playCue(rankCue(REVEAL_ORDER[next.step-1]),true)});
+ return !matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 const size=g=>G[g].t=='s'?10:G[g].t=='p'?5:2;
 const vals=g=>{if(!Array.isArray(S.rs[g]))S.rs[g]=[];return S.rs[g]};
@@ -2224,8 +2210,33 @@ function dismissRevealCheck(){revealCheck=false;host();const title=$('currentGam
 // ---- tv ----
 const rows=[];
 function mkRows(){for(let i=0;i<10;i++){const d=document.createElement('div');d.className='row';d.innerHTML='<div class="in"><b class="rk"></b><div class="bar"><i></i><span class="nm"></span></div><b class="pt"></b></div>';$('rows').appendChild(d);rows.push(d)}}
-function confetti(){const layer=document.createElement('div');layer.className='confetti-overlay';layer.setAttribute('aria-hidden','true');document.body.appendChild(layer);for(let k=0;k<80;k++){const s=document.createElement('span');s.className='cf';s.style.cssText=`left:${Math.random()*100}%;background:${['#f3d77a','#d4af37','#fff','#c95b62','#68ad83','#f3d77a','#d4af37','#fff'][k%8]};animation-duration:${2+Math.random()*3}s;animation-delay:${Math.random()*1.5}s`;layer.appendChild(s)}setTimeout(()=>layer.remove(),7000)}
-let lastRev=-1;
+function confetti(card){
+ const layer=document.createElement('div');
+ layer.className='confetti-overlay';layer.setAttribute('aria-hidden','true');
+ const colors=['#f3d77a','#aa803d','#fff1cc','#c95b62','#68ad83'];
+ for(let i=0;i<36;i++){
+  const piece=document.createElement('span');
+  piece.className='cf';
+  piece.style.cssText=`left:${Math.random()*100}%;background:${colors[i%colors.length]};animation-duration:${.8+Math.random()*.65}s;animation-delay:${Math.random()*.2}s`;
+  layer.appendChild(piece);
+ }
+ card.appendChild(layer);setTimeout(()=>layer.remove(),1800);
+}
+function showSpotlight(rank,animate){
+ const who=stand(9)[rank-1],msg=$('msg');
+ let card=msg.querySelector('.spot-card');
+ if(!card||card.dataset.rank!==String(rank)){
+  msg.innerHTML=`<section class="spot-card" data-rank="${rank}"><div class="spot-icon" aria-hidden="true">${spr(rank===10?'trophy':'medal',14)}</div>
+   <p class="spot-rank">${rank===10?'10th place · The Jialat Trophy':'1st place · Champion'}</p>
+   <h1 class="spot-name"></h1>${rank===1?`<div class="spot-prize">${cashPrizeIcon()}</div>`:''}</section>`;
+  card=msg.firstElementChild;
+ }
+ card.querySelector('.spot-name').textContent=rn(who.i);
+ if(animate){
+  card.classList.add('on-air');
+  if(rank===1)confetti(card);
+ }
+}
 function activeCountdown(){return validCountdown(S.timer)&&S.m[0]==='rules'&&S.m[1]===S.timer.g?S.timer:null}
 function drawTvCountdown(c){
  const x=G[c.g];$('msg').className='timer-view';
@@ -2242,17 +2253,18 @@ function tickTvCountdown(){
  $('msg').classList.toggle('urgent',f.phase==='ended'||f.phase==='running'&&f.seconds<=10);$('msg').classList.toggle('ended',f.phase==='ended');
  tvCountdownAudio(c,f)
 }
-function tv(){const m=S.m,rank=m[0]=='rev'&&m[1]>0?REVEAL_ORDER[m[1]-1]:null,spot=m[0]=='rev'&&S.spotlight&&(rank===1||rank===10),sealed=m[0]=='board'&&m[1]>=9&&allDone()&&!S.finalShown,b=!sealed&&!spot&&(m[0]=='board'||m[0]=='rev');$('bd').style.display=b?'flex':'none';$('msg').style.display=b?'none':'flex';
+function tv(animate){const m=S.m,rank=m[0]=='rev'&&m[1]>0?REVEAL_ORDER[m[1]-1]:null,spot=m[0]=='rev'&&S.spotlight&&(rank===1||rank===10),sealed=m[0]=='board'&&m[1]>=9&&allDone()&&!S.finalShown,b=!sealed&&!spot&&(m[0]=='board'||m[0]=='rev');$('bd').style.display=b?'flex':'none';$('msg').style.display=b?'none':'';
 $('msg').className=spot?'spotlight '+(rank===10?'trophy':'champion'):m[0]=='rules'?'rules':'';
-if(!b){lastRev=-1;if(spot){const st=stand(9),who=st[rank-1];$('msg').innerHTML=`<div class="spot-icon">${spr(rank===10?'trophy':'medal',14)}</div><div class="spot-rank">${rank===10?'10TH PLACE · THE JIALAT TROPHY':'1ST PLACE · CHAMPION'}</div><h1>${rank===10?'THE JIALAT TROPHY':'THE CHAMPION'}</h1><div class="spot-name">${nm(who.i)}</div>${rank===1?`<div class="spot-prize">${cashPrizeIcon()}<div class="sm">OVERALL CHAMPION’S CASH PRIZE</div></div>`:''}`}
+if(!b){if(spot)showSpotlight(rank,animate);
 else if(sealed){$('msg').innerHTML=`<div class="bob">${spr('screen',8)}</div><h1>ALL NINE GAMES COMPLETE</h1><div class="tag">THE FINAL REVEAL IS COMING</div><div class="prize-label">${PRIZE_TAG}</div>`}
 else if(activeCountdown()){drawTvCountdown(S.timer)}
 else if(m[0]=='rules'){const x=G[m[1]],a=GUIDE[m[1]],kind={s:'SOLO',p:'PAIRS',t:'TEAMS OF FIVE'}[x.t];
-$('msg').innerHTML=`<div class="sm">GAME ${String(m[1]+1).padStart(2,'0')} / 09 · ${PRIZE_TAG}</div><h1>${esc(x.n)}</h1><div class="tag">${kind}</div><div class="guideGoal">${esc(a.goal)}</div>${scene(m[1])}
+$('msg').innerHTML=`<div class="guide-intro"><div class="sm">GAME ${String(m[1]+1).padStart(2,'0')} / 09 · ${PRIZE_TAG}</div><h1>${esc(x.n)}</h1><div class="tag">${kind}</div><div class="guideGoal">${esc(a.goal)}</div>${scene(m[1])}</div>
 <div class="guideSteps">${a.steps.map((s,i)=>`<div class="guideStep"><b>STEP ${i+1}</b>${esc(s)}</div>`).join('')}</div>
 <div class="guideFacts"><div class="guideFact"><b>PLAY</b>${esc(a.turn)}</div><div class="guideFact"><b>WIN BY</b>${esc(a.win)}</div><div class="guideFact"><b>POINTS</b>${esc(a.points)}</div></div>
 ${x.u?`<div class="sm">${x.t=='p'?'PAIR LINEUP':'TEAMS'}</div><div class="gr">${x.u.map((u,k)=>`<div class="gb">${x.t=='t'?'TEAM '+'AB'[k]+'<br>':''}${u.map(p=>nm(p-1)).join(x.t=='t'?' · ':' &amp; ')}</div>`).join('')}</div>`:''}`}
-else $('msg').innerHTML=`<section class="event-title seasonal-art" aria-label="Event title"><div class="seasonal-snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>${festiveIcons('<div class="bob">'+eventScreenIcon()+'</div>')}<h1>JIALAT CHRISTMAS 2026</h1></section>`;return}
+else if(!$('msg').querySelector('.event-title'))$('msg').innerHTML=`<section class="event-title seasonal-art" aria-label="Event title"><div class="seasonal-snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>${festiveIcons('<div class="bob">'+eventScreenIcon()+'</div>')}<h1>JIALAT 2026</h1><p class="event-season">Christmas</p></section>`;return}
+if($('msg').firstChild)$('msg').replaceChildren();
 const rev=m[0]=='rev',k=rev?m[1]:10,n=rev?9:m[1],fin=rev||(n>=9&&allDone()&&S.finalShown),st=stand(n),top=Math.max(1,st[0].t);
 const hasPoints=S.sc.some(r=>r.slice(0,n).some(v=>v!==null));
 $('th').textContent=!rev&&!hasPoints?'WAITING FOR RESULTS':rev?'THE FINAL VERDICT':n>=9?(fin?'FINAL RANKINGS':'LIVE RANKINGS'):'AFTER GAME '+n;
@@ -2263,7 +2275,12 @@ d.style.transform=`translateY(${(o.r-1)*100}%)`;d.style.order=String(o.r);d.clas
 if(old&&old!=o.r&&!hide){d.classList.add('hop')}d.dataset.r=o.r;
 d.querySelector('.rk').textContent=hasPoints?o.r:'—';d.querySelector('.nm').innerHTML=hide?'???':esc(rn(o.i))+(fin&&o.r==1?cashPrizeIcon():fin&&o.r==10?`<span class="wob">${spr('medal',3)}</span>`:fin&&o.r>=7&&o.r<10?'<small>ORGANISER</small>':'');
 d.querySelector('i').style.width=hide?'0':(o.t/top*100)+'%';d.querySelector('.pt').textContent=hide?'':hasPoints?o.t:'—'});
-if(rev&&k==10&&lastRev!=10)confetti();lastRev=rev?k:-1}
+if(animate&&rank)rows[st[rank-1].i].querySelector('.bar').animate([
+ {borderColor:'#fff1ce',boxShadow:'inset 6px 0 #fff1ce, 0 0 10px #d4af3780'},
+ {borderColor:'#d4af37',offset:.56},
+ {borderColor:'var(--d)',boxShadow:'inset 0 0 transparent'}
+],{duration:720});
+}
 // Preserve native Tab order when saving replaces the result form.
 function advanceResultFocus(event){
  if(ROLE!=='host'||event.key!=='Tab'||!event.target.matches('.results input[data-result-slot]'))return;
@@ -2283,7 +2300,7 @@ function advanceResultFocus(event){
  if(next)next.focus();
 }
 // ---- boot ----
-function render(){document.body.className=ROLE||'landing';if(ROLE=='host')host();else if(ROLE=='tv'){tv();tvRevealAudio()}else $('H').innerHTML=`<div class="seasonal-snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="chooser-topbar site-utility"><a class="back-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="chooser"><div class="title-icons seasonal-art"><div class="title-middle"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-label="Animated pixel abacus" role="img">
+function render(live=false){document.body.className=ROLE||'landing';if(ROLE=='host')host();else if(ROLE=='tv'){tv(tvRevealStep(live))}else $('H').innerHTML=`<div class="seasonal-snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="chooser-topbar site-utility"><a class="back-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="chooser"><div class="title-icons seasonal-art"><div class="title-middle"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-label="Animated pixel abacus" role="img">
 <path fill="#d4af37" d="M1 1h16v1H1zM1 2h1v10H1zM16 2h1v10h-1zM1 12h16v1H1z"/>
 <path fill="#6b5a22" d="M3 4h12v1H3zM3 7h12v1H3zM3 10h12v1H3z"/>
 <g class="bead-one"><path fill="#65d9cb" d="M4 3h2v3H4z"/></g>
@@ -2294,7 +2311,7 @@ function enterRole(role,fromEntry=true){
  if(!['host','tv',''].includes(role))return;
  if(role)$('H').querySelectorAll('.seasonal-snow').forEach(node=>node.remove())
  if(hostTab){hostTab.dispose();hostTab=null}localHostBlocked=false;remoteHostBlocked=false;boardAuthorized=false;boardTV='';boardNonce='';boardController='';boardTVGranted=false;clearTimeout(boardProbeTimer);boardProbeTimer=0;if(stream)stream.close();stream=null;streamOpen=false;clearInterval(pollTimer);pollTimer=null;clearTimeout(pt);clearTimeout(retryTimer);retryTimer=null;retryAt=0;sendFailures=0;queued=null;stopCue();
- tvLastFrame=null;tvCountdownFrame=null;tvAudioFrame++;
+ tvLastFrame=null;tvCountdownFrame=null;tvAudioFrame++;liveRevealStream=false;$('msg').replaceChildren();
  ROLE=role;if(fromEntry)history.replaceState(null,'',role?'#'+role:location.pathname+location.search);
  if(ROLE==='tv'){Q=null;if(!rows.length)mkRows();if(!tvCountdownInterval)tvCountdownInterval=setInterval(tickTvCountdown,100)}else{clearInterval(tvCountdownInterval);tvCountdownInterval=null}
  if(ROLE==='host')restoreCountdown();
@@ -2304,11 +2321,11 @@ function enterRole(role,fromEntry=true){
 }
 $('H').addEventListener('keydown',advanceResultFocus);
 $('T').ondblclick=()=>document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();
-if(window.JialatUI&&JialatUI.build===BOARD_BUILD){
+if(window.JialatUI&&JialatUI.build===BOARD_BUILD&&JialatUI.relayRevision==='2'){
 if(!validBoard(S)){S=D();JialatUI.storageFailure()}
 enterRole(ROLE,false);
 JialatUI.ready();
-}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Upload all Build 26 files together, then reload this page.';document.body.className='landing';}
+}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Reload this page from the JIALAT site to load the matching files for Build 26 · relay 2.';document.body.className='landing';}
 function followRoleLink(){const role=(location.hash.match(/host|tv/)||[''])[0];if(role!==ROLE)enterRole(role,false)}
 window.addEventListener('hashchange',followRoleLink);window.addEventListener('popstate',followRoleLink);
 for(const id of ['tvAudio','tvAudioTests'])$(id).addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();$(id).open=false;$(id).querySelector('summary').focus()}});

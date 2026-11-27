@@ -1,7 +1,7 @@
-/* Local host coordination and traffic accounting. No background network traffic. */
+/* Shared relay transport, local host coordination and traffic counters. */
 (function () {
   'use strict';
-  var ui = window.JialatUI || {}, build = '26';
+  var ui = window.JialatUI || {}, build = '26', relayRevision = '2';
   var complete = ['ready', 'bind', 'status', 'arena'].every(function (key) { return typeof ui[key] === 'function'; });
   function token() {
     var bytes = new Uint8Array(8); crypto.getRandomValues(bytes);
@@ -20,7 +20,7 @@
   } catch (error) {}
   function showTraffic() {
     var node = document.getElementById('relay-traffic');
-    if (node) node.textContent = 'Build ' + build + ' · This tab: ' + traffic.postAttempts + ' publish attempts, ' + traffic.postOK + ' successful responses. Other devices count separately.';
+    if (node) node.textContent = 'Build ' + build + ' · relay ' + relayRevision + ' · This tab: ' + traffic.postAttempts + ' publish attempts, ' + traffic.postOK + ' successful responses. Other devices count separately.';
   }
   function recordTraffic(name) {
     if (typeof traffic[name] !== 'number') return;
@@ -38,6 +38,113 @@
       if (!response.ok) recordTraffic(response.status === 429 ? 'limited' : 'failures');
       return response;
     } catch (error) { recordTraffic('failures'); throw error; }
+  }
+  function relayStream(url, waitForRelay, retryDelay) {
+    var stream = { readyState: 0, kind: '', onopen: null, onconnecting: null, onerror: null, onmessage: null };
+    var transport, timer, deadline, retryTimer, closed = false, failures = 0, cursor = '';
+    // ntfy normally sends a keepalive every 45 seconds, including on quiet topics.
+    var openingTimeout = 8000, idleTimeout = 100000;
+
+    function stopTransport() {
+      clearTimeout(timer);
+      deadline = 0;
+      if (transport) {
+        var previous = transport;
+        transport = null;
+        previous.close();
+      }
+    }
+    function retry() {
+      stopTransport();
+      stream.readyState = 2;
+      if (stream.onerror) stream.onerror({ type: 'error' });
+      if (closed) return;
+      var delay = Math.max(waitForRelay(), retryDelay(++failures));
+      retryTimer = setTimeout(function () {
+        if (!document.hidden) connect('sse');
+      }, Math.min(delay, 2147483000));
+    }
+    function fallback() {
+      if (stream.kind === 'sse' && waitForRelay() === 0) connect('websocket');
+      else retry();
+    }
+    function armTimeout(ms) {
+      clearTimeout(timer);
+      deadline = Date.now() + ms;
+      timer = setTimeout(function () {
+        if (!document.hidden) fallback();
+      }, ms);
+    }
+    function checkOnReturn() {
+      if (!document.hidden && deadline && Date.now() >= deadline) fallback();
+    }
+    function receive(event) {
+      // Both transports can report a native open before the first ntfy frame arrives.
+      if (typeof event.data !== 'string') return;
+      var packet;
+      try { packet = JSON.parse(event.data); } catch (error) { return; }
+      if (!packet || !['open', 'message', 'keepalive'].includes(packet.event)) return;
+      armTimeout(idleTimeout);
+      if (stream.readyState !== 1) {
+        failures = 0;
+        stream.readyState = 1;
+        recordTraffic('streamOpens');
+        if (stream.onopen) stream.onopen({ type: 'open' });
+      }
+      if (packet.event === 'keepalive') return;
+      if (packet.event === 'message' && typeof packet.id === 'string') {
+        try {
+          var body = JSON.parse(packet.message);
+          if (body && body._jialat !== 'control' && !['hello', 'host-online', 'probe', 'ready', 'ack'].includes(body.t)) cursor = packet.id;
+        } catch (error) {}
+      }
+      if (stream.onmessage) stream.onmessage(event);
+    }
+    function connect(kind) {
+      if (closed) return;
+      stopTransport();
+      stream.kind = kind;
+      stream.readyState = 0;
+      if (stream.onconnecting) stream.onconnecting({ type: 'connecting' });
+      if (waitForRelay() > 0) { retry(); return; }
+      var endpoint = new URL(url), current;
+      if (cursor) endpoint.searchParams.set('since', cursor);
+      try {
+        if (kind === 'websocket') {
+          endpoint.protocol = endpoint.protocol === 'https:' ? 'wss:' : 'ws:';
+          endpoint.pathname = endpoint.pathname.replace(/\/sse$/, '/ws');
+          current = new WebSocket(endpoint.href);
+        } else {
+          current = new EventSource(endpoint.href);
+        }
+      } catch (error) { fallback(); return; }
+      transport = current;
+      function frame(event) { if (transport === current) receive(event); }
+      function lost() { if (transport === current) fallback(); }
+      current.onmessage = frame;
+      current.onerror = lost;
+      if (kind === 'sse') {
+        current.onopen = frame;
+        current.addEventListener('keepalive', frame);
+      } else {
+        current.onclose = lost;
+      }
+      armTimeout(openingTimeout);
+    }
+    stream.close = function () {
+      if (closed) return;
+      closed = true;
+      recordTraffic('streamCloses');
+      clearTimeout(retryTimer);
+      stopTransport();
+      stream.readyState = 2;
+      window.removeEventListener('pagehide', stream.close);
+      document.removeEventListener('visibilitychange', checkOnReturn);
+    };
+    window.addEventListener('pagehide', stream.close);
+    document.addEventListener('visibilitychange', checkOnReturn);
+    retryTimer = setTimeout(function () { connect('sse'); }, 0);
+    return stream;
   }
   function storageFailure(message) {
     if (document.getElementById('storage-save-warning')) return;
@@ -93,6 +200,7 @@
     return guard;
   }
   ui.build = complete ? build : 'incomplete'; ui.deviceId = deviceId; ui.hostGuard = hostGuard;
+  ui.relayRevision = relayRevision; ui.relayStream = relayStream;
   ui.relayFetch = relayFetch; ui.recordTraffic = recordTraffic; ui.showTraffic = showTraffic;
   ui.traffic = function () { return Object.assign({}, traffic); }; ui.storageFailure = storageFailure;
   if (complete) {
