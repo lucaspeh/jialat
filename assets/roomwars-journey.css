@@ -158,3 +158,28 @@
 @media (prefers-reduced-motion:reduce) {
   .completion-finale *, .completion-finale *::before { animation:none !important; }
 }
+
+/* Keep the host's countdown beside the room assignment workflow. */
+.host-picking .pick-current {
+  position:sticky;
+  top:env(safe-area-inset-top, 0px);
+  z-index:2;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:4px 12px;
+  margin-bottom:12px;
+  padding:10px 12px;
+  background:#1b1811;
+}
+.host-picking .pick-current :is(.journey-label,.big) { grid-column:1; margin:0; text-align:left; }
+.host-picking .pick-current .big { font-size:var(--text-section) !important; }
+.host-picking .pick-current .cd { grid-area:1 / 2 / 3 / 3; margin:0; font-size:var(--text-feature); }
+.host-picking .pick-current :is(.hp,.sub) { grid-column:1 / -1; margin:0; }
+.host-picking #cs:empty { display:none; }
+.host-picking .pick-room-list .rank { margin-bottom:6px; }
+.host-picking .pick-room-list button { min-height:44px; flex:none; }
+.host-picking .pick-host-controls { margin:8px 0 20px; }
+@media (max-height:470px) {
+  .host-picking .pick-current { position:relative; top:auto; }
+}

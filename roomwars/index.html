@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta name="jialat-build" content="27"><meta charset="utf-8">
+<html lang="en"><head><meta name="jialat-build" content="28"><meta charset="utf-8">
 <meta name="robots" content="noindex">
-<meta name="jialat-room-wars-build" content="27">
+<meta name="jialat-room-wars-build" content="28">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a">
 <meta name="description" content="Three mini-games. Five pairs. One room-picking order. Hosts set up the game; players join with the shared invite.">
@@ -652,14 +652,14 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 </style><link rel="stylesheet" href="../assets/layout.css?v=26">
 <link rel="stylesheet" href="../assets/motion.css?v=4.1">
 <link rel="stylesheet" href="../assets/roomwars-play.css?v=3">
-<link rel="stylesheet" href="../assets/roomwars-journey.css?v=2">
+<link rel="stylesheet" href="../assets/roomwars-journey.css?v=3">
 </head><body data-page="roomwars"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section>
 <i id="dot" class="dot"></i>
 <header class="site-navigation site-utility"><a id="site-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></header>
 <main id="app"></main>
 <script src="../assets/motion.js?v=4.1"></script>
-<script src="../assets/ui.js?v=27"></script>
-<script src="../assets/reliability.js?v=27"></script>
+<script src="../assets/ui.js?v=28"></script>
+<script src="../assets/reliability.js?v=28"></script>
 <script src="../assets/roomwars-journey.js?v=2"></script>
 <script>
 
@@ -767,7 +767,7 @@ function namesFromInvite(raw){
  if(raw.charAt(0)==='n')return raw.slice(1).split(',').map(function(n){return decodeURIComponent(n)});
  return JSON.parse(decodeURIComponent(raw));
 }
-function link(){var u=new URL(location.href);u.hash="";u.search='?v=27';
+function link(){var u=new URL(location.href);u.hash="";u.search='?v=28';
  return u.toString()+"#"+code+(S.names?"~"+namesForInvite(S.names):"")}
 function I(x,a,b){return typeof x=="number"&&x%1===0&&x>=a&&x<=b}
 function F(x){return typeof x=="number"&&isFinite(x)}
@@ -970,7 +970,7 @@ function apply(m){
 var rt=null,RV=["home","wait","who","final","picking","complete"];
 function rq(){if(rt)return;rt=setTimeout(function(){rt=null;if(view=="home"&&host&&document.activeElement&&["mg","mp","mv","bc"].indexOf(document.activeElement.id)>=0)return;if(RV.indexOf(view)>=0)render()},80)}
 var out=[],posting=false,postRetry=null,postRetryAt=0,postFailures=0,pollTimer=null,polling=false,pollTask=null,pollOk=false,cursor="",seen={},seenOrder=[],postFailed=false,postError="";
-var roomHostTab=null,wantedRoomHost=false,roomFilesMatch=!!(window.JialatUI&&JialatUI.build==='27'&&JialatUI.relayRevision==='3'&&typeof stageIndicator==='function');
+var roomHostTab=null,wantedRoomHost=false,roomFilesMatch=!!(window.JialatUI&&JialatUI.build==='28'&&JialatUI.relayRevision==='3'&&typeof stageIndicator==='function');
 var setupDraft=null,roomHostDenied=false,roomHostProblem='',roomLeaving=false,heldOut=[],queuePaused=false;
 function reloadRoom(event){event.preventDefault();location.reload()}
 function roomHostActive(){return !!(host&&roomHostTab&&roomHostTab.active)}
@@ -1287,25 +1287,32 @@ function tick(){var k=S.pick,e=document.getElementById("cd");if(!k||!e){clearInt
  var caption=k.paused?"⏸ Paused":(l<=0?"Time’s up!":""),cs=document.getElementById("cs");if(cs.textContent!==caption)cs.textContent=caption}
 function picking(){
  var previousClaims=A.dataset.motionView==="picking"?A.querySelectorAll("[data-room-claim]"):[];
- view="picking";var k=S.pick,c=k.order[k.i],nx=k.order[k.i+1],last=k.i==4,ord=["1st","2nd","3rd","4th","5th"];
+ var focus=document.activeElement;
+ var pickingFocus=host&&focus?.closest(".pick-room-list,.pick-host-controls");
+ view="picking";var k=S.pick,c=k.order[k.i],nx=k.order[k.i+1],last=k.i==4;
  if(k.i!==lastI){lastI=k.i;chime([880])}
- var hb=!host?'':(k.i>0?'<button class="alt" id="pb">← Previous pair</button>':'')+(last?'':'<button id="pn">Next pair →</button>')+'<div class="row" style="margin-top:8px">'+(last?'':'<button id="pp" class="alt pb">'+(k.paused?'▶ Resume':'⏸ Pause')+'</button><button id="pm" class="alt pb">+1 min</button>')+'<button class="alt pb" id="pe">'+(last?'Finish picking':'End picking')+'</button></div>';
+ var hb=!host?'':'<section class="pick-host-controls" aria-label="Picking controls">'+(last?'':'<button id="pn">Next pair →</button>')+(k.i>0?'<button class="alt" id="pb">← Previous pair</button>':'')+'<div class="row" style="margin-top:8px">'+(last?'':'<button id="pp" class="alt pb">'+(k.paused?'▶ Resume':'⏸ Pause')+'</button><button id="pm" class="alt pb">+1 min</button>')+'<button class="alt pb" id="pe">'+(last?'Finish picking':'End picking')+'</button></div></section>';
  var playerPair=me>>1,assignments=visibleAssignments(k);
  var myRoom=Object.keys(assignments).find(function(r){return assignments[r]===playerPair});
- var h=brand("Room Picking","star")+stageIndicator(3)+'<div class="card win pick-current"><p class="journey-label">Pick '+(k.i+1)+' / 5</p><div class="big" style="font-size:var(--text-feature);line-height:1.2">'+esc(cn(c))+'</div>'+
+ var current='<div class="card win pick-current"><p class="journey-label">Pick '+(k.i+1)+' / 5</p><div class="big" style="font-size:var(--text-feature);line-height:1.2">'+esc(cn(c))+'</div>'+
   (last?'<p class="sub">'+(roomFromAssignments(assignments,c)?'The remaining room is assigned automatically. The host confirms all five rooms.':'The first four rooms must be assigned to determine the remaining room.')+'</p>':
    '<div class="cd" id="cd"></div><div class="hp"><i id="hpb"></i></div><div class="sub" id="cs" style="min-height:20px"></div>')+
-  (nx!==undefined?'<p class="sub">Up next: <b>'+esc(cn(nx))+'</b></p>':'')+'</div>'+
-  (myRoom!==undefined?roomTag(S.rooms[myRoom],cn(playerPair),S.claims[myRoom]===undefined?"Your room · automatic, awaiting confirmation":"Your room · awaiting confirmation",myRoom):
-   '<p class="card pick-status">'+(playerPair===c&&!last?"Your pair is choosing. Tell the host which room you want.":"Your pair is waiting for its room.")+'</p>')+
-  hb+'<button class="alt" id="open-rankings">Final rankings and game results</button>'+(host?'<button class="alt" id="organiser-tools">Open host tools</button>':'')+'<h2>Pick order</h2>';
+  (nx!==undefined?'<p class="sub">Up next: <b>'+esc(cn(nx))+'</b></p>':'')+'</div>';
+ var personal=(myRoom!==undefined?roomTag(S.rooms[myRoom],cn(playerPair),S.claims[myRoom]===undefined?"Your room · automatic, awaiting confirmation":"Your room · awaiting confirmation",myRoom):
+   '<p class="card pick-status">'+(playerPair===c&&!last?"Your pair is choosing. Tell the host which room you want.":"Your pair is waiting for its room.")+'</p>');
+ var tools='<button class="alt" id="open-rankings">Final rankings and game results</button>'+(host?'<button class="alt" id="organiser-tools">Open host tools</button>':'');
+ var pickOrder='<section aria-label="Pick order"><h2>Pick order</h2>';
  k.order.forEach(function(x,i){
   var room=roomFromAssignments(assignments,x);
-  h+='<div class="rank'+(i===k.i?' first':'')+(room?' done':'')+'"><div class="n">'+(i+1)+'</div><div class="g"><b>'+esc(cn(x))+'</b><small>'+
+  pickOrder+='<div class="rank'+(i===k.i?' first':'')+(room?' done':'')+'"><div class="n">'+(i+1)+'</div><div class="g"><b>'+esc(cn(x))+'</b><small>'+
    (room?esc(room)+(x===playerPair?' · Your pair':''):i===k.i?'Choosing now':'Waiting')+'</small></div></div>'
  });
- h+='<h2>Rooms</h2>';
- S.rooms.forEach(function(n,r){var t=assignments[r],b='style="width:auto;margin:0;padding:10px 14px"';h+='<div class="rank'+(t===playerPair?' first':t!==undefined?' done':'')+'" data-room-claim="'+(t===undefined?'':t)+'"><div class="g"><b>'+esc(n)+'</b><small>'+(t!==undefined?'Assigned to '+esc(cn(t))+(t===playerPair?' · Your pair':''):'Available')+'</small></div>'+(host&&!last&&t===undefined?'<button '+b+' data-r="'+r+'">Give to this pair</button>':'')+(host&&S.claims[r]!==undefined?'<button class="alt" '+b+' data-f="'+r+'">Free</button>':'')+'</div>'});
+ pickOrder+='</section>';
+ var roomList='<section class="pick-room-list" aria-label="Rooms"><h2>Rooms</h2>';
+ S.rooms.forEach(function(n,r){var t=assignments[r],b='style="width:auto;margin:0;padding:10px 14px"';roomList+='<div class="rank'+(t===playerPair?' first':t!==undefined?' done':'')+'" data-room-claim="'+(t===undefined?'':t)+'"><div class="g"><b>'+esc(n)+'</b><small>'+(t!==undefined?'Assigned to '+esc(cn(t))+(t===playerPair?' · Your pair':''):'Available')+'</small></div>'+(host&&!last&&t===undefined?'<button '+b+' data-r="'+r+'">Give to this pair</button>':'')+(host&&S.claims[r]!==undefined?'<button class="alt" '+b+' data-f="'+r+'">Free</button>':'')+'</div>'});
+ roomList+='</section>';
+ var h=brand("Room Picking","star")+stageIndicator(3)+
+  (host?'<div class="host-picking">'+current+roomList+hb+pickOrder+personal+tools+'</div>':current+personal+tools+pickOrder+roomList);
  A.innerHTML=h;
  var turn=k.i+":"+c,previousTurn=A.dataset.motionTurn;
  var entered=roomEntrance(view,'.brand');
@@ -1328,6 +1335,13 @@ function picking(){
   var assigned=Object.keys(S.claims).some(function(r){return S.claims[r]===c});
   var action=last?'#pe':k.paused?'#pp':assigned?'#pn':'[data-r]';
   A.querySelectorAll(action).forEach(function(button){button.classList.add('current-action')});
+  if(pickingFocus){
+   var give=focus.dataset.r,free=focus.dataset.f;
+   var target=focus.id?document.getElementById(focus.id):
+    give!==undefined?A.querySelector('[data-r="'+give+'"]')||A.querySelector(action):
+    free!==undefined?A.querySelector('[data-f="'+free+'"],[data-r="'+free+'"]'):null;
+   if(target&&!target.disabled)target.focus({preventScroll:true})
+  }
   var g=function(id,f){var e=document.getElementById(id);if(e)e.onclick=f};
   g("organiser-tools",function(){completionHostTools=true;home()});
   g("pn",function(){if(!k.order.slice(0,k.i+1).every(function(pair){return Object.values(S.claims).includes(pair)})){alert("Assign a room to each pair up to this position before moving on.");return}pk({i:k.i+1,rem:DUR[k.i+1]*1000})});
@@ -1658,5 +1672,5 @@ if(code&&roomFilesMatch){host=ls("rwh-"+code)=="1";var m=ls("rwm-"+code);me=m===
  if(host){acquireRoomHost()}else{restorePending();connect();post()}}
 ['click','pointerdown','keydown'].forEach(function(type){A.addEventListener(type,function(event){if(roomHostBlocked()&&event.target.closest('button,input,select,textarea,[role="button"]')){event.preventDefault();event.stopImmediatePropagation()}},true)});
 var bootReload=document.querySelector('#site-boot .boot-actions a');if(bootReload)bootReload.onclick=reloadRoom;
-if(roomFilesMatch){render();JialatUI.ready()}else{var title=document.getElementById('boot-title'),message=document.getElementById('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Reload this page from the JIALAT site to load the matching files for Build 27 · relay 3.';}
+if(roomFilesMatch){render();JialatUI.ready()}else{var title=document.getElementById('boot-title'),message=document.getElementById('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Reload this page from the JIALAT site to load the matching files for Build 28 · relay 3.';}
 </script></body></html>
