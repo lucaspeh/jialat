@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta name="jialat-build" content="26"><meta charset="utf-8">
+<html lang="en"><head><meta name="jialat-build" content="27"><meta charset="utf-8">
 <meta name="robots" content="noindex">
-<meta name="jialat-room-wars-build" content="26-live-3-finale1">
+<meta name="jialat-room-wars-build" content="27">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a">
 <meta name="description" content="Three mini-games. Five pairs. One room-picking order. Hosts set up the game; players join with the shared invite.">
@@ -658,8 +658,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <header class="site-navigation site-utility"><a id="site-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></header>
 <main id="app"></main>
 <script src="../assets/motion.js?v=4.1"></script>
-<script src="../assets/ui.js?v=26"></script>
-<script src="../assets/reliability.js?v=26-live-3"></script>
+<script src="../assets/ui.js?v=27"></script>
+<script src="../assets/reliability.js?v=27"></script>
 <script src="../assets/roomwars-journey.js?v=2"></script>
 <script>
 
@@ -723,7 +723,7 @@ var LOGO="data:image/webp;base64,UklGRhZnAABXRUJQVlA4WAoAAAAQAAAABwIATwEAQUxQSG0
 var G={tap:{n:"Tap Rush",d:"Tap as many times as you can in 10 seconds. Timer starts on your first tap.",hi:true,f:function(v){return v+" taps"}},
 react:{n:"Quick Draw",d:"Wait for the screen to turn green, then tap as fast as you can. Tapping early restarts the wait.",hi:false,f:function(v){return Math.round(v)+" ms"}},
 stop:{n:"Stop at 10.00",d:"A timer runs and then hides. Tap when you think exactly 10.00 seconds has passed. Closest wins.",hi:false,f:function(v){return v.toFixed(3)+"s off"}}};
-var S={names:null,round:"0",roundNo:1,reveal:false,revealPlan:null,revealChangedAt:0,pick:null,pickSession:null,pickSessionAt:0,pickClosed:false,roomResult:null,tb:null,tbs:{},tbh:{},rooms:["Room 1","Room 2","Room 3","Room 4","Room 5"],claims:{},sc:{tap:{},react:{},stop:{}}},A=document.getElementById("app"),tm=null,code="",host=false,me=null,on=false,fl=false,es=null,view="",skip=false,pt=null,DUR=[300,240,180,180,0];
+var S={names:null,round:"0",roundNo:1,reveal:false,revealPlan:null,revealChangedAt:0,pick:null,pickSession:null,pickSessionAt:0,pickClosed:false,roomResult:null,tb:null,tbs:{},tbh:{},tieAt:0,rooms:["Room 1","Room 2","Room 3","Room 4","Room 5"],claims:{},claimWrites:{},scoreWrites:{},sc:{tap:{},react:{},stop:{}}},A=document.getElementById("app"),tm=null,code="",host=false,me=null,on=false,fl=false,es=null,view="",skip=false,pt=null,DUR=[300,240,180,180,0];
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 var SP={trophy:["YYYYYYYYY","Y.YYYYY.Y","Y.YYYYY.Y",".YYYYYYY.","..YYYYY..","...YYY...","....Y....","...YYY...","..YYYYY.."],
 star:["....Y....","....Y....","...YYY...","YYYYYYYYY",".YYYYYYY.","..YYYYY..","..YY.YY..",".YY...YY."],
@@ -767,7 +767,7 @@ function namesFromInvite(raw){
  if(raw.charAt(0)==='n')return raw.slice(1).split(',').map(function(n){return decodeURIComponent(n)});
  return JSON.parse(decodeURIComponent(raw));
 }
-function link(){var u=new URL(location.href);u.hash="";u.search='?v=26-live-3-finale1';
+function link(){var u=new URL(location.href);u.hash="";u.search='?v=27';
  return u.toString()+"#"+code+(S.names?"~"+namesForInvite(S.names):"")}
 function I(x,a,b){return typeof x=="number"&&x%1===0&&x>=a&&x<=b}
 function F(x){return typeof x=="number"&&isFinite(x)}
@@ -804,10 +804,38 @@ function selectionMessageMatches(m){
  if(F(m.at)&&m.at<S.pickSessionAt)return false;
  return !S.pickSession||m.pickSession===S.pickSession
 }
+// Host writes are ordered by their original send time, including after a reload.
+function acceptRoomWrite(versions,key,m){
+ if(!F(m.at))return !versions[key];
+ var previous=versions[key],id=typeof m.mid==="string"?m.mid:"";
+ if(previous&&(m.at<previous.at||m.at===previous.at&&id&&previous.id&&id<=previous.id))return false;
+ versions[key]={at:m.at,id:id};
+ return true
+}
+function acceptStoredWrites(writes){
+ var verified={};
+ if(writes&&typeof writes==="object")Object.keys(writes).forEach(function(key){
+  var stamp=writes[key];
+  if(/^(?:(?:tap|react|stop):[0-9]|[0-4]|snapshot)$/.test(key)&&stamp&&F(stamp.at)&&typeof stamp.id==="string")verified[key]=stamp
+ });
+ return verified
+}
+function claimRoom(claims,r,pair){
+ if(pair===null){delete claims[r];return}
+ for(var old in claims)if(claims[old]===pair)delete claims[old];
+ claims[r]=pair
+}
+function validClaims(claims){
+ if(!claims||typeof claims!=="object"||Array.isArray(claims))return false;
+ var keys=Object.keys(claims),pairs=keys.map(function(r){return claims[r]});
+ return keys.every(function(r){return /^[0-4]$/.test(r)})&&pairs.every(function(pair,i){return I(pair,0,4)&&pairs.indexOf(pair)===i})
+}
 function applyScores(rows,m){
  var changed=false,wasRevealed=revealVisible();
  rows.forEach(function(x){
-  if(m.attempt===true&&S.sc[x.g][x.p]!==undefined)return;
+  if(m.attempt===true){
+   if(S.sc[x.g][x.p]!==undefined)return
+  }else if(!acceptRoomWrite(S.scoreWrites,x.g+":"+x.p,m))return;
   var value=scoreValue(x.g,x.v);
   if(scoreValue(x.g,S.sc[x.g][x.p])===value)return;
   S.sc[x.g][x.p]=value;
@@ -815,6 +843,7 @@ function applyScores(rows,m){
  });
  if(!changed)return;
  S.tbs={};S.tbh={};S.reveal=false;skip=false;
+ if(m.attempt!==true&&F(m.at))S.tieAt=Math.max(S.tieAt,m.at);
  if(wasRevealed){S.revealPlan=null;S.revealChangedAt=Math.max(S.revealChangedAt,F(m.at)?m.at:Date.now())}
  if(S.tb){S.tb=null;showSharedPhase()}
  pauseInvalidSelection(F(m.at)?m.at:Date.now());
@@ -831,9 +860,9 @@ function apply(m){
  else if(t=="cfg"){if(strs(m.names,10))S.names=m.names.map(function(x){return friendName(x.slice(0,20))})}
  else if(t=="reset"){
   if(!I(m.roundNo,1,100000)||m.roundNo<=S.roundNo)return;
-  S.round=m.round||m.mid||"0";S.roundNo=m.roundNo;S.sc={tap:{},react:{},stop:{}};
+  S.round=m.round||m.mid||"0";S.roundNo=m.roundNo;S.sc={tap:{},react:{},stop:{}};S.scoreWrites={};S.claimWrites={};
   S.reveal=false;S.revealPlan=null;S.revealChangedAt=0;S.pickSession=null;S.pickSessionAt=0;S.pickClosed=false;
-  S.pick=null;S.roomResult=null;clearRoomResult();S.claims={};S.tb=null;S.tbs={};S.tbh={};skip=false;
+  S.pick=null;S.roomResult=null;clearRoomResult();S.claims={};S.tb=null;S.tbs={};S.tbh={};S.tieAt=0;skip=false;
   completionHostTools=false;["mv","bc"].forEach(function(id){var e=document.getElementById(id);if(e)e.value=""});showSharedPhase();
  }
  else if(t=="pick"){
@@ -853,7 +882,7 @@ function apply(m){
     S.claims={};resetCompletionCue();
     if(m.restart===true&&!restartComplete){S.reveal=false;S.revealPlan=null;S.revealChangedAt=at}
    }
-   S.pickSession=typeof m.mid==="string"?m.mid:null;S.pickSessionAt=at;S.pickClosed=false;
+   S.pickSession=typeof m.mid==="string"?m.mid:null;S.pickSessionAt=at;S.pickClosed=false;S.claimWrites={};
    S.roomResult=null;completionHostTools=false;clearRoomResult();showSharedPhase()
   }else{
    var legacyResume=S.pickClosed&&!S.pickSession&&S.roomResult&&!S.roomResult.complete&&
@@ -880,13 +909,27 @@ function apply(m){
   if(finished?.complete||view==="final")showSharedPhase();
  }
  else if(t=="tb"){
+  if(F(m.at)&&m.at<=S.tieAt)return;
   if(m.pairs==null){
-   var k=S.tb;if(!k||m.tieId&&m.tieId!==k.id)return;
-   var done=tieFinished(k);
-   k.pairs.forEach(function(c){if(m.cancel===true||!done){delete S.tbs[c*2];delete S.tbs[c*2+1]}else{if(!S.tbh[c])S.tbh[c]=[];S.tbh[c].push(S.tbs[c*2]+S.tbs[c*2+1])}});S.tb=null;
+   var k=S.tb;
+   if(k&&m.tieId&&m.tieId!==k.id)return;
+   var totals=m.totals;
+   var verified=Array.isArray(totals)&&totals.length>0&&totals.length<=5&&totals.every(function(row,i){
+    return row&&I(row.pair,0,4)&&I(row.taps,0,200000)&&totals.findIndex(function(other){return other.pair===row.pair})===i
+   })&&(!k||k.pairs.join()===totals.map(function(row){return row.pair}).join());
+   if(!k&&(typeof m.tieId!=="string"||m.cancel!==true&&!verified))return;
+   if(m.cancel!==true){
+    if(!verified){
+     if(!tieFinished(k))return;
+     totals=tieTotals(k)
+    }
+    totals.forEach(function(row){if(!S.tbh[row.pair])S.tbh[row.pair]=[];S.tbh[row.pair].push(row.taps)})
+   }
+   S.tbs={};S.tb=null;
   }else if(Array.isArray(m.pairs)&&m.pairs.length&&m.pairs.every(function(c,i){return I(c,0,4)&&m.pairs.indexOf(c)===i})){
-   S.tb={pairs:m.pairs.slice(),id:String(m.mid||m.at||Date.now())};S.reveal=false;m.pairs.forEach(function(c){delete S.tbs[c*2];delete S.tbs[c*2+1]});showSharedPhase();
-  }
+   S.tb={pairs:m.pairs.slice(),id:String(m.mid||m.at||Date.now())};S.reveal=false;S.tbs={};showSharedPhase();
+  }else return;
+  if(F(m.at))S.tieAt=m.at;
   pauseInvalidSelection(F(m.at)?m.at:Date.now());
   if(playingTie)showSharedPhase()
  }
@@ -894,7 +937,18 @@ function apply(m){
  else if(t=="rooms"){if(strs(m.names,5))S.rooms=m.names.map(function(x){return x.slice(0,30)})}
  else if(t=="claim"){
   if(!S.pick||!selectionMessageMatches(m)||selectionNeedsReview())return;
-  if(I(m.r,0,4)){if(m.c===null)delete S.claims[m.r];else if(I(m.c,0,4)){for(var old in S.claims)if(S.claims[old]===m.c)delete S.claims[old];S.claims[m.r]=m.c}}
+  if(!I(m.r,0,4)||m.c!==null&&!I(m.c,0,4))return;
+  if(m.claims!==undefined){
+   if(!validClaims(m.claims)||m.claims[m.r]!==(m.c===null?undefined:m.c))return;
+   if(Object.values(S.claimWrites).some(function(stamp){return F(m.at)&&stamp.at>m.at})||
+    !acceptRoomWrite(S.claimWrites,"snapshot",m))return;
+   S.claims=Object.assign({},m.claims);
+   S.claimWrites={snapshot:S.claimWrites.snapshot};
+  }else{
+   var snapshot=S.claimWrites.snapshot;
+   if(snapshot&&(!F(m.at)||m.at<=snapshot.at)||!acceptRoomWrite(S.claimWrites,String(m.r),m))return;
+   claimRoom(S.claims,m.r,m.c)
+  }
  }
  else if(t=="reveal"){
   var changedAt=F(m.at)?m.at:Date.now();
@@ -916,7 +970,7 @@ function apply(m){
 var rt=null,RV=["home","wait","who","final","picking","complete"];
 function rq(){if(rt)return;rt=setTimeout(function(){rt=null;if(view=="home"&&host&&document.activeElement&&["mg","mp","mv","bc"].indexOf(document.activeElement.id)>=0)return;if(RV.indexOf(view)>=0)render()},80)}
 var out=[],posting=false,postRetry=null,postRetryAt=0,postFailures=0,pollTimer=null,polling=false,pollTask=null,pollOk=false,cursor="",seen={},seenOrder=[],postFailed=false,postError="";
-var roomHostTab=null,wantedRoomHost=false,roomFilesMatch=!!(window.JialatUI&&JialatUI.build==='26'&&JialatUI.relayRevision==='3'&&typeof stageIndicator==='function');
+var roomHostTab=null,wantedRoomHost=false,roomFilesMatch=!!(window.JialatUI&&JialatUI.build==='27'&&JialatUI.relayRevision==='3'&&typeof stageIndicator==='function');
 var setupDraft=null,roomHostDenied=false,roomHostProblem='',roomLeaving=false,heldOut=[],queuePaused=false;
 function reloadRoom(event){event.preventDefault();location.reload()}
 function roomHostActive(){return !!(host&&roomHostTab&&roomHostTab.active)}
@@ -996,7 +1050,9 @@ function restoreSnapshot(){
   S.pickSession=typeof x.pickSession==="string"?x.pickSession:null;
   S.pickSessionAt=F(x.pickSessionAt)?x.pickSessionAt:0;
   S.pickClosed=x.pickClosed===true||!!x.roomResult;
-  cursor=cached.relay===BASE&&typeof cached.cursor==='string'?cached.cursor:'';
+  S.tieAt=F(x.tieAt)?x.tieAt:0;
+ S.scoreWrites=acceptStoredWrites(x.scoreWrites);S.claimWrites=acceptStoredWrites(x.claimWrites);
+ cursor=cached.relay===BASE&&typeof cached.cursor==='string'?cached.cursor:'';
   if(Array.isArray(cached.seen))cached.seen.slice(-500).forEach(function(id){if(typeof id==='string')mark(id)});
   return true;
  }catch(e){return false}
@@ -1010,6 +1066,10 @@ function send(m,playerResult){
  if(roundMessage(m.t))m.round=S.round;if(m.t=="reset"){m.round=m.mid;m.roundNo=S.roundNo+1}
  m.at=Date.now();
  if(m.t==="reveal"&&m.on===true){m.start=m.at+REVEAL_DELAY;m.signature=competitionSignature()}
+ if(m.t==="tb"&&m.pairs===null&&!m.cancel&&S.tb&&tieFinished(S.tb))m.totals=tieTotals(S.tb);
+ if(m.t==="claim"&&I(m.r,0,4)&&(m.c===null||I(m.c,0,4))){
+  m.claims=Object.assign({},S.claims);claimRoom(m.claims,m.r,m.c)
+ }
  if(m.t==="claim"||m.t==="pickend"||m.t==="pick"&&!m.start&&!m.resume)m.pickSession=S.pickSession;
  mark(m.mid);apply(m);
  out.push(m);remember();saveSnapshot();stat();post();return m.mid}
@@ -1291,8 +1351,7 @@ var roomResultFocus=false;
 function updatePageChrome(){document.body.classList.toggle("is-host",!code||host);document.body.classList.toggle("is-name-entry",!code||view==="setup"||view==="who");var menu=document.getElementById("site-menu");if(menu)menu.hidden=!!code&&!host}
 function validRoomResult(x){
  if(!x||typeof x.round!=="string"||x.round.length>100||!strs(x.names,10)||!strs(x.rooms,5)||!perm(x.order)||!x.claims||typeof x.claims!=="object"||Array.isArray(x.claims))return false;
- var keys=Object.keys(x.claims),pairs=keys.map(function(r){return x.claims[r]});
- return keys.length<=5&&keys.every(function(r){return /^(0|1|2|3|4)$/.test(r)})&&pairs.every(function(c,i){return I(c,0,4)&&pairs.indexOf(c)===i})&&typeof x.complete==="boolean"&&x.complete===(keys.length===5);
+ return validClaims(x.claims)&&typeof x.complete==="boolean"&&x.complete===(Object.keys(x.claims).length===5);
 }
 function makeRoomResult(pick,at){
  if(!pick||!S.names)return null;
@@ -1356,6 +1415,9 @@ function U(g){return ls(practiceKey(g))=="1"}
 function readyToReveal(){return resultCount()===30&&!S.tb&&ties().length===0}
 function ties(){if(resultCount()<30)return[];var cs=pairStandings();
  for(var i=0;i<4;i++){var grp=[cs[i].c];while(i<4&&pairCompare(cs[i],cs[i+1])===0){grp.push(cs[i+1].c);i++}if(grp.length>1)return grp}return[]}
+function tieTotals(tie){
+ return tie.pairs.map(function(pair){return {pair:pair,taps:S.tbs[pair*2]+S.tbs[pair*2+1]}})
+}
 function tieFinished(tie){
  return tie.pairs.every(function(c){return S.tbs[c*2]!==undefined&&S.tbs[c*2+1]!==undefined});
 }
@@ -1596,5 +1658,5 @@ if(code&&roomFilesMatch){host=ls("rwh-"+code)=="1";var m=ls("rwm-"+code);me=m===
  if(host){acquireRoomHost()}else{restorePending();connect();post()}}
 ['click','pointerdown','keydown'].forEach(function(type){A.addEventListener(type,function(event){if(roomHostBlocked()&&event.target.closest('button,input,select,textarea,[role="button"]')){event.preventDefault();event.stopImmediatePropagation()}},true)});
 var bootReload=document.querySelector('#site-boot .boot-actions a');if(bootReload)bootReload.onclick=reloadRoom;
-if(roomFilesMatch){render();JialatUI.ready()}else{var title=document.getElementById('boot-title'),message=document.getElementById('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Reload this page from the JIALAT site to load the matching files for Build 26 · relay 3.';}
+if(roomFilesMatch){render();JialatUI.ready()}else{var title=document.getElementById('boot-title'),message=document.getElementById('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Reload this page from the JIALAT site to load the matching files for Build 27 · relay 3.';}
 </script></body></html>
