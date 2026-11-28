@@ -1034,6 +1034,7 @@ a[href="../"]:active  {
 .page-wordmark{display:block;width:112px;max-width:34vw;height:auto;flex:none}
 </style>
 <link rel="stylesheet" href="../assets/layout.css?v=26">
+<link rel="stylesheet" href="../assets/motion.css?v=1">
 </head>
 <body data-page="itinerary">
 <a class="skip-link" href="#day-content">Skip to the itinerary</a>
@@ -1121,6 +1122,7 @@ a[href="../"]:active  {
 </main>
 <footer class="footer"><span class="footer-brand"><span>2026 · 18 years · 11 friends</span></span><a href="../">MAIN MENU ↗</a></footer>
 </div>
+<script src="../assets/motion.js?v=1"></script>
 <script>
 (function(){
  'use strict';
@@ -1141,13 +1143,18 @@ a[href="../"]:active  {
  }
  function hashDay(){var match=/^#day-([1-4])$/.exec(location.hash);return match?Number(match[1]):null}
  function show(day,announce){
-  var changed=day!==current;
-  current=Math.max(1,Math.min(4,day));
+  var from=current;
+  var changed=day!==current;  current=Math.max(1,Math.min(4,day));
   panels.forEach(function(panel,i){panel.hidden=i!==current-1});
   tabs.forEach(function(tab,i){var selected=i===current-1;tab.setAttribute('aria-selected',String(selected));tab.tabIndex=selected?0:-1;if(changed)tab.classList.toggle('day-changed',selected&&announce)});
   previous.disabled=current===1;next.disabled=current===4;
   document.getElementById('page-count').textContent='0'+current+' / 04';
   if(announce)document.getElementById('day-announcement').textContent=panels[current-1].querySelector('.eyebrow').textContent;
+  if(from!==current){
+   var heading=panels[current-1].querySelector('.day-heading');
+   window.JialatMotion?.play(heading,'day',{from:{opacity:.75,transform:'translateX('+(current>from?12:-12)+'px)'}});
+   window.JialatMotion?.play(panels[current-1].querySelector('.day-layout'),'enter',{delay:35});
+  }
  }
  function go(day,focus){
   if(day<1||day>4)return;
