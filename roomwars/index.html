@@ -842,9 +842,17 @@ function apply(m){
   if(m.start===true||m.resume===true){
    if(S.revealPlan&&at<S.revealPlan.start+REVEAL_END&&S.revealPlan.signature===competitionSignature())return;
    if(resultCount()===30&&(!readyToReveal()||m.order.join()!==order().join()))return;
-   if(m.restart===true&&!selectionNeedsReview()||m.restart!==true&&S.pick)return;
+   var restartComplete=m.restartComplete===true;
+   if(restartComplete){
+    var previous=S.roomResult||S.pick;
+    if(m.start!==true||m.resume===true||m.i!==0||at<=S.pickSessionAt||
+     selectionNeedsReview()||previous&&m.order.join()!==previous.order.join())return;
+   }else if(m.restart===true&&!selectionNeedsReview()||m.restart!==true&&S.pick)return;
    if(m.resume===true&&(!S.roomResult||S.roomResult.complete||selectionNeedsReview()))return;
-   if(m.start===true){S.claims={};if(m.restart===true){S.reveal=false;S.revealPlan=null;S.revealChangedAt=at}}
+   if(m.start===true){
+    S.claims={};resetCompletionCue();
+    if(m.restart===true&&!restartComplete){S.reveal=false;S.revealPlan=null;S.revealChangedAt=at}
+   }
    S.pickSession=typeof m.mid==="string"?m.mid:null;S.pickSessionAt=at;S.pickClosed=false;
    S.roomResult=null;completionHostTools=false;clearRoomResult();showSharedPhase()
   }else{
