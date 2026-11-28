@@ -1639,6 +1639,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 </style><link rel="stylesheet" href="../assets/layout.css?v=26">
 <link rel="stylesheet" href="../assets/festive.css?v=26">
 <link rel="stylesheet" href="../assets/tv-reveals.css">
+<link rel="stylesheet" href="../assets/motion.css?v=1">
 </head><body data-page="scoreboard"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section>
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
@@ -1647,6 +1648,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <img class="tv-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async">
 <main id="H"></main>
 <div id="T"><div id="msg"></div><div id="bd"><h1 id="th"></h1><p id="boardHint"></p><div id="ban"></div><div id="rows"></div><div id="lg"><span style="color:var(--l)">1ST · S$18 CASH PRIZE</span><span>2–6 SAFE</span><span>7–9 NEXT YEAR’S ORGANISERS</span><span>10TH · THE JIALAT TROPHY</span></div></div></div>
+<script src="../assets/motion.js?v=1"></script>
 <script src="../assets/ui.js?v=26"></script>
 <script src="../assets/reliability.js?v=26-live-3"></script>
 <script>
@@ -2111,8 +2113,8 @@ function tick(){
  if(!Q)return;
  if(Q.clock){
   const f=countdownFrame(Q.clock);
-  if(f.phase==='ready'){if(Q.count!==f.ready){Q.count=f.ready;cue('count')}const c=$('clock');if(c)c.textContent='GO IN '+f.ready;return}
-  if(!Q.go){Q.go=true;if(f.phase==='running')cue('go');host()}
+  if(f.phase==='ready'){if(Q.count!==f.ready){Q.count=f.ready;cue('count');window.JialatMotion?.play($('clock'),'score')}const c=$('clock');if(c)c.textContent='GO IN '+f.ready;return}
+  if(!Q.go){Q.go=true;if(f.phase==='running')cue('go');host();if(f.phase==='running')window.JialatMotion?.play($('clock'),'score')}
   const c=$('clock');if(c)c.textContent=(f.left/1000).toFixed(1)+'s';
   if(f.phase==='ended'&&!Q.expired){Q.expired=true;if(Date.now()-Q.clock.endAt<1500)cue('end');host()}
   return
@@ -2120,8 +2122,8 @@ function tick(){
  const now=performance.now();
  if(!Q.go){
   const remaining=Math.ceil((Q.start-now)/1000);
-  if(remaining>0){if(Q.count!==remaining){Q.count=remaining;cue('count')}const c=$('clock');if(c)c.textContent='GO IN '+remaining;return}
-  Q.go=true;Q.start=now;cue('go');host()
+  if(remaining>0){if(Q.count!==remaining){Q.count=remaining;cue('count');window.JialatMotion?.play($('clock'),'score')}const c=$('clock');if(c)c.textContent='GO IN '+remaining;return}
+  Q.go=true;Q.start=now;cue('go');host();window.JialatMotion?.play($('clock'),'score')
  }
  const elapsed=now-Q.start,left=LIMIT[Q.g]?Math.max(0,LIMIT[Q.g]*1000-elapsed):elapsed;
  const c=$('clock');if(c)c.textContent=(left/1000).toFixed(LIMIT[Q.g]?1:2)+'s';
@@ -2172,6 +2174,7 @@ function resultPanel(g,extras=''){
  return h;
 }
 function host(){
+ const previousGame=$('activeGame')?.dataset.game;
  const syncNode=$('sync'),dotNode=$('dot'),focused=document.activeElement,focusId=focused&&focused.id,focusLabel=focused&&focused.getAttribute('aria-label');
  const opened=id=>!!($(id)&&$(id).open),audioOpen=opened('hostAudio'),judgeOpen=opened('judgingGuide'),namesOpen=opened('playerNames'),settingsOpen=opened('hostSetup'),optionsOpen=opened('gameOptions');
  const g=S.g,x=G[g],done=G.map((_,i)=>S.sc.every(r=>r[i]!=null)),m=S.m,ready=allDone()&&!unresolvedTie();
@@ -2192,7 +2195,7 @@ if(revealCheck&&!ready){
 }
 
  const extras=`<p class="game-brief">${esc(x.r)}</p><div class="quick-tv-actions"><button onclick="tvm(['rules',${g}])">Show rules on TV</button><button onclick="tvm(['board',9])">Show rankings</button></div><details class="game-guide" id="judgingGuide"${judgeOpen?' open':''}><summary>How to judge</summary><p>${esc(GUIDE[g].host)}</p></details>`;
- let c=`<section class="card active-game" id="activeGame" tabindex="-1" aria-labelledby="currentGameTitle"><h2 id="currentGameTitle" tabindex="-1">${esc(x.n)}</h2>`;
+ let c=`<section class="card active-game" id="activeGame" data-game="${g}" tabindex="-1" aria-labelledby="currentGameTitle"><h2 id="currentGameTitle" tabindex="-1">${esc(x.n)}</h2>`;
  c+=resultPanel(g,extras);
  const sum=S.sc.reduce((a,r)=>a+(r[g]||0),0);
  c+=`<p class="hint points-summary">Points given: ${sum} / ${EXP[x.t]}${sum===EXP[x.t]?' · Complete':''}</p><details class="game-options" id="gameOptions"${optionsOpen?' open':''}><summary>Game options</summary><button id="clearGame" class="danger" onclick="clr(${g})">Clear this game</button></details></section>`;
@@ -2202,7 +2205,9 @@ if(revealCheck&&!ready){
  const ties=allDone()?st.filter((o,k)=>k>0&&st[k-1].t===o.t&&st[k-1].b===o.b).map(o=>o.r-1):[];
  if(ties.length)h+=`<p class="hint">Tie for place ${ties.join(', ')}. Replay Snow Blower, then use the player tie-break controls.</p>`;
  h+=`<details class="host-settings" id="hostSetup"${settingsOpen?' open':''}><summary>Sound &amp; settings</summary><details class="host-audio" id="hostAudio"${audioOpen?' open':''}><summary id="hostSoundStatus">Host sound off</summary><div class="soundbar"><button id="hostSoundToggle" onclick="toggleSound()">Turn on host sound</button><button id="hostSoundTest" onclick="testSound()" disabled>Test chime</button><p class="hint">TV countdown and reveal sounds play on the MacBook. Host sound is optional for the person timing the games.</p></div></details><details><summary>Start a new round</summary><p class="hint">Clears all results and tie-breaks. Player names are kept.</p><button id="startNewRound" class="danger" onclick="reset()">Start a new round</button></details>${relayPanelHTML()}</details>`;
- $('H').innerHTML=h;$('hostConnection').append(dotNode,syncNode);relayPanelBind();updateAudioStatus();boardAccess();
+ $('H').innerHTML=h;
+ if(previousGame!==String(g))window.JialatMotion?.play($('currentGameTitle'),'enter');
+ $('hostConnection').append(dotNode,syncNode);relayPanelBind();updateAudioStatus();boardAccess();
  const restore=focusId?$(focusId):focusLabel?Array.from($('H').querySelectorAll('[aria-label]')).find(e=>e.getAttribute('aria-label')===focusLabel):null;
  if(restore&&!restore.disabled)try{restore.focus({preventScroll:true})}catch(e){}
 }
