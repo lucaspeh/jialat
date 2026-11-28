@@ -646,12 +646,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .import-results strong { color:var(--teal); }
 .import-error { color:var(--coral); font-size:calc(14 * var(--font-unit)); font-weight:400; line-height:1.6; }
 </style><link rel="stylesheet" href="../assets/layout.css?v=26">
-<link rel="stylesheet" href="../assets/motion.css?v=1">
+<link rel="stylesheet" href="../assets/motion.css?v=4.1">
 </head><body data-page="roomwars"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section>
 <i id="dot" class="dot"></i>
 <header class="site-navigation site-utility"><a id="site-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></header>
 <main id="app"></main>
-<script src="../assets/motion.js?v=1"></script>
+<script src="../assets/motion.js?v=4.1"></script>
 <script src="../assets/ui.js?v=26"></script>
 <script src="../assets/reliability.js?v=26-live-3"></script>
 <script>
@@ -939,7 +939,9 @@ function stat(){updatePageChrome();roomHostAccess();var d=document.getElementByI
 function roomEntrance(key,selector){
  if(A.dataset.motionView===key)return false;
  A.dataset.motionView=key;
- window.JialatMotion?.play(A.querySelector(selector),'enter');
+ var heading=A.querySelector(selector);
+ heading?.classList.add('arcade-sweep');
+ window.JialatMotion?.play(heading,'enter');
  return true
 }
 function capturePairRows(){
@@ -959,7 +961,8 @@ function movePairRows(pairs){
   changes.push({row:row,offset:offset,points:old.points!==points.textContent?points:null});
  });
  changes.forEach(function(item){
-  if(Math.abs(item.offset)>1)window.JialatMotion?.play(item.row,'enter',{from:{transform:'translateY('+Math.max(-64,Math.min(64,item.offset))+'px)'}});
+  if(Math.abs(item.offset)>1)window.JialatMotion?.play(item.row,'slide',{from:{transform:'translateY('+Math.max(-140,Math.min(140,item.offset))+'px)'}});
+  if(item.points||Math.abs(item.offset)>1)window.JialatMotion?.play(item.row.querySelector('.n'),'score');
   window.JialatMotion?.play(item.points,'score')
  })
 }
@@ -1058,7 +1061,8 @@ function final(){var live=!!A.dataset.motionView;view="final";var cs=pairStandin
  h+='</div><div class="final-actions"><div class="row"><button id="st1">Share results</button><button id="st2">Share as image</button></div><div id="cb"></div><div class="row"><button class="alt" id="sb">View all scores</button>'+(host?'<button class="alt" id="hd">Hide results for everyone</button>':'')+'</div></div></section>';
  A.innerHTML=h;
  if(roomEntrance(view,'.final-summary h1')){
-  window.JialatMotion?.play(A.querySelector('.win .big'),'reveal',{delay:75});
+  A.querySelector('.win').classList.add('arcade-sweep');
+  window.JialatMotion?.play(A.querySelector('.win .big'),'finale',{delay:105});
   A.querySelectorAll('.final-order .rank').forEach(function(row,i){window.JialatMotion?.play(row,'enter',{delay:100+i*35})});
   if(live)window.JialatMotion?.burst(A.querySelector('.room-final'),'room')
  }
@@ -1092,11 +1096,17 @@ function picking(){
  A.innerHTML=h;
  var turn=k.i+":"+c,previousTurn=A.dataset.motionTurn;
  var entered=roomEntrance(view,'.brand');
- if(entered||turn!==previousTurn)window.JialatMotion?.play(A.querySelector('.win .big'),'reveal');
+ if(entered||turn!==previousTurn){
+  A.querySelector('.win').classList.add('arcade-sweep');
+  window.JialatMotion?.play(A.querySelector('.win .big'),'reveal');
+ }
  A.dataset.motionTurn=turn;
  A.querySelectorAll('[data-room-claim]').forEach(function(row,i){
   var old=previousClaims[i];
-  if(old&&old.dataset.roomClaim!==row.dataset.roomClaim)window.JialatMotion?.play(row.querySelector('.g'),'score')
+  if(old&&old.dataset.roomClaim!==row.dataset.roomClaim){
+   row.classList.add('arcade-sweep');
+   window.JialatMotion?.play(row.querySelector('.g'),'score');
+  }
  });
  if(host){
   var assigned=Object.keys(S.claims).some(function(r){return S.claims[r]===c});
@@ -1190,7 +1200,9 @@ document.addEventListener("pointerdown",function(){var a=ac();if(a&&a.state!=="r
 function chime(f){if(!host)return;var a=ac();if(!a||a.state!="running")return;f.forEach(function(fr,i){var o=a.createOscillator(),g=a.createGain(),t=a.currentTime+i*.22;o.type="sine";o.frequency.value=fr;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.12,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.7);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+.75)})}
 function focusGameResult(){
  roomEntrance(view,"h1");
- window.JialatMotion?.play(A.querySelector("#result-score .big"),"reveal");
+ var result=A.querySelector("#result-score");
+ result?.classList.add("arcade-sweep");
+ window.JialatMotion?.play(result?.querySelector(".big"),"reveal");
  var heading=A.querySelector("h1");if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true})}}
 function fin(g,v){view="fin";v=scoreValue(g,v);
  var big='<h1 aria-describedby="result-game result-score" style="text-align:center">'+esc(pn(me))+'</h1><p id="result-game" class="sub" style="text-align:center;margin:-2px 0 12px">'+G[g].n+(practice?' · practice':'')+'</p><div id="result-score" class="arena result-'+g+'"><div class="big">'+G[g].f(v)+'</div>'+(practice?'<small>Practice only. Not scored.</small>':'')+'</div>';
@@ -1206,27 +1218,30 @@ function run(g,pr){view="play";practice=!!pr;
 function arenaInput(node,label){A.dataset.motionView="arena";if(window.JialatUI)JialatUI.arena(node,label,node.onpointerdown)}
 function tapG(g){
  var n=0,t0=0,over=false;
- A.innerHTML='<div class="arena tap-ar" id="ar"><div class="big" id="c">0</div><small id="tl">Tap to start!</small></div>';
- document.getElementById("ar").onpointerdown=function(e){e.preventDefault();if(over||(t0&&Date.now()-t0>=10000))return;
+ A.innerHTML='<div class="arena tap-ar" id="ar"><i class="arena-glint" aria-hidden="true"></i><div class="big" id="c">0</div><small id="tl">Tap to start!</small></div>';
+ var arena=document.getElementById("ar"),count=document.getElementById("c"),glint=arena.querySelector(".arena-glint");
+ arena.onpointerdown=function(e){e.preventDefault();if(over||(t0&&Date.now()-t0>=10000))return;
   if(!t0){t0=Date.now();tm=setInterval(function(){var l=10-(Date.now()-t0)/1000;
    if(l<=0){clearInterval(tm);over=true;fin(g,n)}else document.getElementById("tl").textContent=l.toFixed(1)+"s left"},50)}
-  n++;var cc=document.getElementById("c");cc.textContent=n;window.JialatMotion?.play(cc,"tap")};arenaInput(document.getElementById("ar"),"Tap Rush. Press Space or Enter to tap.")}
+  count.textContent=++n;
+  window.JialatMotion?.play(glint,"pad",{coalesce:true});
+  window.JialatMotion?.play(count,"tap",{coalesce:true})};arenaInput(arena,"Tap Rush. Press Space or Enter to tap.")}
 function reactG(g){
  var ar,go=false,t0=0;
  A.innerHTML='<div class="arena react-ar" id="ar" style="background:#a8262c"><span id="m" role="status" aria-live="assertive" aria-atomic="true">Wait for green…</span></div>';
  ar=document.getElementById("ar");
- function arm(){go=false;ar.style.background="#a8262c";ar.style.setProperty("--reaction-ink","var(--color-text)");document.getElementById("m").textContent="Wait for green…";
-  tm=setTimeout(function(){ar.style.background="#2f9e5b";ar.style.setProperty("--reaction-ink","#0a0a0a");var message=document.getElementById("m");message.textContent="TAP NOW!";window.JialatMotion?.play(message,"signal");requestAnimationFrame(function(){requestAnimationFrame(function(){t0=performance.now();go=true})})},2000+Math.random()*3500)}
+ function arm(){go=false;delete ar.dataset.arenaSignal;ar.style.background="#a8262c";ar.style.setProperty("--reaction-ink","var(--color-text)");document.getElementById("m").textContent="Wait for green…";
+  tm=setTimeout(function(){ar.style.background="#2f9e5b";ar.style.setProperty("--reaction-ink","#0a0a0a");var message=document.getElementById("m");message.textContent="TAP NOW!";requestAnimationFrame(function(){requestAnimationFrame(function(){t0=performance.now();go=true})});ar.dataset.arenaSignal="go";window.JialatMotion?.play(message,"signal")},2000+Math.random()*3500)}
  ar.onpointerdown=function(e){e.preventDefault();
   if(go){go=false;fin(g,performance.now()-t0)}
-  else{clearTimeout(tm);var message=document.getElementById("m");message.innerHTML='Too early!<small>Wait again…</small>';window.JialatMotion?.play(message,"reject");tm=setTimeout(arm,900)}};
+  else{clearTimeout(tm);var message=document.getElementById("m");message.innerHTML='Too early!<small>Wait again…</small>';tm=setTimeout(arm,900);ar.dataset.arenaSignal="early";window.JialatMotion?.play(message,"reject",{coalesce:true})}};
  arenaInput(ar,"Reaction game. Wait for TAP NOW, then press Space or Enter.");arm()}
 function stopG(g){
  var t0=Date.now();
  A.innerHTML='<div class="arena stop-ar" id="ar"><div class="big" id="c">0.00</div><small>Tap when you hit 10.00 seconds</small></div>';
- var c=document.getElementById("c");
+ var c=document.getElementById("c"),arena=document.getElementById("ar");
  tm=setInterval(function(){var s=(Date.now()-t0)/1000;if(s>=2)c.textContent="?";else c.textContent=s.toFixed(2)},30);
- var d=false;document.getElementById("ar").onpointerdown=function(e){e.preventDefault();if(d)return;d=true;clearInterval(tm);var v=Math.abs((Date.now()-t0)/1000-10);c.textContent="LOCKED";window.JialatMotion?.play(c,"score");tm=setTimeout(function(){fin(g,v)},400)};arenaInput(document.getElementById("ar"),"Stop the timer. Press Space or Enter when you estimate ten seconds.")}
+ var d=false;document.getElementById("ar").onpointerdown=function(e){e.preventDefault();if(d)return;d=true;clearInterval(tm);var v=Math.abs((Date.now()-t0)/1000-10);c.textContent="LOCKED";tm=setTimeout(function(){fin(g,v)},400);arena.dataset.arenaSignal="locked";arena.classList.add("arcade-sweep");window.JialatMotion?.play(c,"signal")};arenaInput(document.getElementById("ar"),"Stop the timer. Press Space or Enter when you estimate ten seconds.")}
 window.addEventListener('pagehide',function(){roomLeaving=true});window.addEventListener('pageshow',function(){roomLeaving=false});
 var rawHash=location.hash.slice(1),sep=rawHash.indexOf("~"),parts=[sep<0?rawHash:rawHash.slice(0,sep),sep<0?"":rawHash.slice(sep+1)];code=(parts[0]||"").replace(/[^a-z0-9]/gi,"").toLowerCase();
 if(code&&roomFilesMatch){host=ls("rwh-"+code)=="1";var m=ls("rwm-"+code);me=m===null?null:+m;
