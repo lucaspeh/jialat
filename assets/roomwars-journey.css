@@ -21,7 +21,7 @@
 .journey-stages .stage-done { color:var(--color-teal); }
 .journey-stages [aria-current="step"] { color:var(--color-gold-light); border-color:var(--color-gold); background:#2a210f; }
 
-.pair-dashboard,.journey-complete {
+.pair-dashboard {
   border-color:#8c7135;
   background:radial-gradient(ellipse at top,#302611,#17140e 70%);
 }
@@ -48,7 +48,7 @@
 }
 .pair-progress span { display:block; color:var(--color-muted); font-size:var(--text-secondary); }
 .journey-progress { margin:8px 0; color:var(--color-muted); }
-.journey-progress strong,.journey-complete strong { color:var(--color-gold-light); }
+.journey-progress strong { color:var(--color-gold-light); }
 .journey-progress progress {
   appearance:none;
   -webkit-appearance:none;
@@ -80,3 +80,81 @@
 .host-result-status section { padding:8px 0; border-top:1px solid var(--color-edge); }
 .host-result-status h3 { margin:0; font-size:var(--text-body); }
 #manual-score.current-action summary { color:var(--color-gold-light); }
+
+/* The cabinet's closing screen and personalised room key. */
+.completion-finale,.completion-mission {
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  text-align:center;
+  padding:clamp(20px,6vw,42px) clamp(14px,4vw,30px);
+  border:3px double #8c7135;
+  background:radial-gradient(ellipse at 50% 34%,#362714 0%,#160f08 55%,#0f0d0a 90%);
+}
+.completion-finale {
+  display:grid;
+  justify-items:center;
+  align-content:center;
+  min-height:min(400px,60vh);
+}
+.completion-finale::before {
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:0;
+  background:repeating-linear-gradient(0deg,transparent 0 3px,#0002 3px 4px);
+}
+.completion-finale h1,.completion-mission h1 {
+  margin:0;
+  color:var(--color-gold-light);
+  font-size:clamp(1.6rem,7vw,2.8rem);
+  line-height:1.05;
+}
+.completion-finale p,.completion-placement span {
+  color:#e8ce92;
+  font-size:.875rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.completion-finale p { margin:14px 0 0; }
+.completion-trophy {
+  display:grid;
+  place-items:center;
+  width:148px;
+  height:148px;
+  margin-bottom:18px;
+  background:radial-gradient(circle,#c68d354f,transparent 68%);
+  animation:completion-trophy 1.35s var(--finale-offset,0ms) both;
+}
+.completion-trophy svg { filter:drop-shadow(3px 5px 0 #7f5022); }
+.completion-finale h1,.completion-finale p {
+  animation:completion-type .55s var(--finale-offset,0ms) both;
+}
+@keyframes completion-trophy {
+  0% { opacity:0; transform:translateY(16px) scale(.7); }
+  26% { opacity:1; transform:translateY(-7px) scale(1.09); }
+  46%,100% { opacity:1; transform:none; }
+}
+@keyframes completion-type {
+  0% { clip-path:inset(0 100% 0 0); }
+  100% { clip-path:inset(0); }
+}
+.completion-placement { margin:18px 0; }
+.completion-placement span,.completion-placement strong { display:block; }
+.completion-placement strong {
+  color:var(--color-gold-light);
+  font-size:clamp(2rem,11vw,3.7rem);
+  line-height:1.1;
+}
+.completion-mission .key-tag {
+  max-width:440px;
+  margin:0 auto;
+  padding-block:clamp(18px,5vw,30px);
+  text-align:left;
+}
+.completion-mission .key-tag strong { margin:6px 0; }
+.completion-results { margin-top:12px; }
+.completion-results summary { min-height:24px; cursor:pointer; }
+@media (prefers-reduced-motion:reduce) {
+  .completion-finale *, .completion-finale *::before { animation:none !important; }
+}

@@ -136,21 +136,79 @@ function bindReviewSelection(){
  var restart=document.getElementById("restart-picking");if(restart)restart.onclick=restartRoomPicking;
  var tie=document.getElementById("review-tie");if(tie)tie.onclick=function(){send({t:"tb",pairs:ties()})}
 }
-function completeCompetition(){
- view="complete";
- var result=S.roomResult,pair=me>>1;
- A.innerHTML=brand("Room Wars Complete","trophy")+stageIndicator(4)+
-  '<section class="card journey-complete"><p class="journey-label">All five rooms secured</p><p>Pair '+(pair+1)+' finished <strong>'+ordinalPick(result.order.indexOf(pair))+'</strong>.</p></section>'+
-  roomResultHTML()+'<button id="open-rankings">Final rankings and game results</button>'+
-  (host?'<button class="alt" id="organiser-tools">Open host tools</button>':personalBackup());
- if(roomEntrance(view,'.brand')&&roomResultFocus){
-  window.JialatMotion?.play(A.querySelector('.journey-complete'),'reveal');
-  roomResultFocus=false;
+var COMPLETION_DURATION=2600;
+var completionPageOpened=Date.now(), completionCue=null, completionTimer;
+
+function resetCompletionCue(){
+ clearTimeout(completionTimer);
+ completionCue=null;
+ observedAssignment=null;
+ roomResultFocus=false;
+}
+function restartCompletedPicking(){
+ var result=S.roomResult;
+ if(!roomHostActive()||!result?.complete||selectionNeedsReview())return;
+ JialatUI.confirm({
+  title:"Restart room picking?",
+  message:"This clears all five room assignments and returns everyone to the first pick. Scores, rankings and picking order are kept.",
+  label:"Clear assignments and restart"
+ },function(){
+  if(S.roomResult!==result||!roomHostActive()||selectionNeedsReview())return;
+  send({t:"pick",order:result.order,i:0,rem:DUR[0]*1000,paused:false,start:true,restartComplete:true})
+ });
+}
+function armCompletion(result){
+ if(result.complete&&F(result.endedAt)&&result.endedAt>=completionPageOpened){
+  var now=Date.now();
+  completionCue={start:result.endedAt,end:Math.min(now,result.endedAt)+COMPLETION_DURATION};
  }
- observeAssignment();
+}
+function completeCompetition(){
+ var result=S.roomResult,pair=me>>1;
+ var cue=completionCue;
+ var remaining=cue&&cue.start===result.endedAt?cue.end-Date.now():0;
+ clearTimeout(completionTimer);
+ if(remaining>0){
+  completionTimer=setTimeout(function(){if(view==="complete"&&S.roomResult?.complete)home()},remaining);
+  if(view==="complete"&&A.querySelector(".completion-finale"))return;
+  view="complete";
+  A.innerHTML='<section class="completion-finale" role="status" style="--finale-offset:'+(remaining-COMPLETION_DURATION)+'ms">'+
+   '<div class="completion-trophy">'+spr("trophy",12)+'</div>'+
+   '<h1>ROOM WARS COMPLETE!</h1><p>5/5 ROOMS SECURED</p></section>';
+  if(!cue.played){
+   cue.played=true;
+   if(remaining>=1800)chime([523,659,784,1047],true);
+   A.querySelector(".completion-finale").scrollIntoView({block:"nearest",behavior:"instant"});
+  }
+  return;
+ }
+ var previous=A.querySelector(".completion-finale");
+ var open=A.querySelector("#completion-results[open]");
+ var settingsOpen=A.querySelector("#completion-settings[open]");
+ var focusId=document.activeElement.closest("#completion-results,#completion-settings")?document.activeElement.id:"";
+ view="complete";
+ roomResultFocus=false;
+ var room=Object.keys(result.claims).find(function(r){return result.claims[r]===pair});
+ A.innerHTML='<section class="completion-mission"><h1 id="mission-title" tabindex="-1">MISSION COMPLETE</h1>'+
+  '<p class="completion-placement"><span>Final rank</span><strong>'+ordinalPick(result.order.indexOf(pair))+'</strong></p>'+
+  roomTag(result.rooms[room],resultPair(result,pair),"Your confirmed room",room)+'</section>'+
+  '<details class="card completion-results" id="completion-results"'+(open?' open':'')+'><summary id="completion-summary">View final results</summary>'+
+  '<h2>Room assignments</h2>'+roomAssignmentList(result)+roomCopyControls()+
+  '<h2>Final pair rankings</h2><section class="final-order" aria-label="Final pair rankings">'+finalRankRows(5,true)+'</section>'+
+  '<h2>Individual mini-game results</h2>'+individualScores()+
+  '<button class="alt" id="st1">Share rankings</button>'+(resultCount()===30?'<button class="alt" id="st2">Share as image</button>':'')+
+  (playedGames(me).length?'<button class="alt" id="shh">Share personal score backup</button>':'')+'<div id="cb"></div></details>'+
+  (host?'<details class="card completion-results" id="completion-settings"'+(settingsOpen?' open':'')+'><summary id="completion-settings-summary">Host settings</summary>'+
+   '<button class="alt" id="restart-completed-picking">Restart room picking</button>'+
+   '<button class="alt" id="organiser-tools">Open host tools</button></details><p class="live" id="stat"></p>':'');
+ observedAssignment=A.querySelector(".key-tag").dataset.roomKey;
  var copy=document.getElementById("copy-rooms");if(copy)copy.onclick=copyRooms;
- document.getElementById("open-rankings").onclick=final;
+ document.getElementById("st1").onclick=function(){if(rankingsPublic())share(rtext())};
+ var image=document.getElementById("st2");if(image)image.onclick=function(){if(rankingsPublic())cardImg()};
  var tools=document.getElementById("organiser-tools");if(tools)tools.onclick=function(){completionHostTools=true;home()};
+ var restart=document.getElementById("restart-completed-picking");if(restart)restart.onclick=restartCompletedPicking;
+ if(previous)document.getElementById("mission-title").focus();
+ else if(focusId)document.getElementById(focusId)?.focus({preventScroll:true});
  bindPlayerOverview();stat()
 }
 function ordinalPick(i){return ["1st","2nd","3rd","4th","5th"][i]||"Unranked"}
