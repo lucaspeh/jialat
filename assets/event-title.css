@@ -1,62 +1,65 @@
-/* Same cabinet, sprites and dimensions in both TV activities. */
+/* The same frameless opening screen in both TV activities. */
 body.tv :is(#app,#msg) .event-title {
   font-family:var(--font-ui);
   overflow:hidden;
-  padding:clamp(16px,5vmin,88px);
-  background:radial-gradient(ellipse at 50% 38%,#322619 0%,#130e0c 56%,#09090a 89%);
+  padding:clamp(14px,4vmin,96px);
+  background:radial-gradient(ellipse at 50% 45%,#342414 0%,#14100c 42%,#08080a 78%);
 }
 body.tv .event-title::before { display:none; }
 body.tv .event-title .seasonal-snow { opacity:.44; }
 .event-marquee {
   position:relative;
-  box-sizing:border-box;
-  width:min(100%,1480px);
+  width:min(100%,150vh);
   display:grid;
   justify-items:center;
-  gap:clamp(12px,2.5vh,52px);
-  padding:clamp(22px,5vmin,100px) clamp(10px,3vw,64px);
-  border:clamp(3px,.45vmin,8px) double #bc9b57;
-  background:radial-gradient(ellipse at 50% 42%,#533a2377,#171111cc 75%);
-  box-shadow:inset 0 0 0 8px #110e0fcc,0 20px 64px #0008;
+  gap:clamp(10px,2.8vh,62px);
 }
-.event-marquee::before,.event-marquee::after {
+.event-marquee::before {
   content:"";
-  position:absolute;
-  left:8%;
-  right:8%;
-  height:clamp(14px,2.5vh,46px);
+  width:min(78%,70vh);
+  height:clamp(18px,4vh,82px);
+  margin-bottom:clamp(2px,1vh,20px);
   background:url("pixel-lights.svg") center / contain no-repeat;
   pointer-events:none;
 }
-.event-marquee::before { top:0; transform:translateY(-50%); }
-.event-marquee::after { bottom:0; transform:translateY(50%); }
 body.tv :is(#app,#msg) .event-marquee h1 {
   margin:0;
   font-family:inherit;
-  font-size:calc(clamp(32px,min(13vh,10vw),215px) * var(--display-text-scale));
+  font-size:calc(clamp(32px,min(16vh,12vw),316px) * var(--display-text-scale));
   line-height:1;
-  letter-spacing:-.035em;
+  letter-spacing:-.04em;
   color:#fff0c7;
   text-shadow:0 .045em #a57938,.045em .08em #211508;
 }
 body.tv :is(#app,#msg) .event-marquee .title-icons {
-  gap:clamp(12px,4vw,110px);
+  gap:clamp(12px,4.8vh,120px);
+  filter:drop-shadow(0 8px 0 #120b09a6);
 }
 body.tv :is(#app,#msg) .event-marquee .title-side {
-  width:min(15vh,18vw);
-  flex:0 0 min(15vh,18vw);
+  width:min(23vh,19vw);
+  flex:0 0 min(23vh,19vw);
 }
 body.tv :is(#app,#msg) .event-marquee .title-middle {
-  width:min(21vh,24vw);
-  flex:0 0 min(21vh,24vw);
+  width:min(28vh,24vw);
+  flex:0 0 min(28vh,24vw);
 }
 body.tv .event-marquee .event-season {
-  font-size:calc(clamp(16px,3.4vmin,58px) * var(--display-text-scale));
+  font-size:calc(clamp(16px,3.5vmin,64px) * var(--display-text-scale));
+  letter-spacing:.24em;
 }
+body.tv .event-marquee .event-season::before,
+body.tv .event-marquee .event-season::after { display:none; }
 @media (prefers-reduced-motion:no-preference) {
   body.tv .event-marquee h1 { animation:event-marquee-in 720ms var(--motion-ease) backwards; }
+  .event-marquee::before { animation:festive-light-glimmer 14s steps(1,end) infinite; }
 }
 @keyframes event-marquee-in {
   from { clip-path:inset(0 48%); opacity:.65; }
   to { clip-path:inset(-15% -8%); opacity:1; }
+}
+@media (max-width:600px) {
+  body.tv :is(#app,#msg) .event-marquee .title-icons { gap:12px; }
+}
+@media (max-height:520px) and (orientation:landscape) {
+  .event-marquee { gap:2vh; }
 }
