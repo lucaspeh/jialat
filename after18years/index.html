@@ -911,9 +911,10 @@ a[href="../"]:active  {
 .join-error:empty{display:none}body:not(.host):not(.tv) .shell{padding-bottom:max(16px,env(safe-area-inset-bottom,0px))}
 </style><link rel="stylesheet" href="../assets/layout.css?v=26">
 <link rel="stylesheet" href="../assets/festive.css?v=26">
-<link rel="stylesheet" href="../assets/tv-reveals.css">
-<link rel="stylesheet" href="../assets/motion.css?v=1">
+<link rel="stylesheet" href="../assets/tv-reveals.css?v=4.1">
+<link rel="stylesheet" href="../assets/motion.css?v=4.1">
 </head><body data-page="presentation"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section><div class="shell" id="app"></div>
+<script src="../assets/motion.js?v=4.1"></script>
 <script src="../assets/ui.js?v=26"></script>
 <script src="../assets/reliability.js?v=26-live-3"></script>
 <script>
@@ -992,7 +993,7 @@ let helloChallenge=uid(),answeredChallenges=new Set(),ackTimer=0;
 let relayOpenedAt=0,tvChallenge='',pairingRetried=false;
 let presentationCtx=null,presentationSoundOn=false,soundDraw='',soundEligible=false,soundLastTick=-1,soundTickAt=0;
 const presentationVoices=new Set(),soundRevealed=new Set();
-const reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const reduced=matchMedia('(prefers-reduced-motion: reduce)');
 function $(id){return document.getElementById(id)}
 function read(key){try{return JSON.parse(localStorage.getItem(NS+key)||'null')}catch(e){return null}}
 function write(key,value){try{localStorage.setItem(NS+key,JSON.stringify(value))}catch(e){storageOK=false}}
@@ -1080,7 +1081,7 @@ function paint(){
  const active=!!d&&!settled&&(!ready||remaining>0);
  const players=d?d.players:NAMES.map((_,i)=>i);buildWheel(players,d?d.id:'idle');
  const progress=d&&ready?(active?Math.max(0,1-remaining/(d.endAt-d.startAt)):1):0;
- const angle=d?(reduced?(progress===1?d.to:0):d.to*(1-Math.pow(1-progress,4))):0;
+ const angle=d?(reduced.matches?(progress===1?d.to:0):d.to*(1-Math.pow(1-progress,4))):0;
  $('wheel-disc').setAttribute('transform','rotate('+angle+' 500 500)');
  const busy=!!pending||!!probe||relayWait()>0,noLive=!streamOpen||!!(peer&&peer.live!==true),order=S?(active?S.order.slice(0,d.position-1):announcedOrder()):[],complete=order.length===11,locked=hostLocked();
  const key=[S&&S.id,active,ready,busy,!!peer,noLive,!!errorText,locked].join('|');
@@ -1104,28 +1105,34 @@ function paint(){
   }
  }
  if(discWinner()!==String(d&&!active?d.winner:'')){
-  document.querySelectorAll('#wheel-disc g').forEach(g=>{const path=g.querySelector('path'),hit=!!(d&&!active&&Number(g.dataset.person)===d.winner);path.setAttribute('stroke',hit?'#fff4be':'#0a0a0a');path.setAttribute('stroke-width',hit?12:5)});
+  document.querySelectorAll('#wheel-disc g').forEach(g=>{const path=g.querySelector('path'),hit=!!(d&&!active&&Number(g.dataset.person)===d.winner);path.setAttribute('stroke',hit?'#fff4be':'#0a0a0a');path.setAttribute('stroke-width',hit?12:5);path.toggleAttribute('data-selected',hit)});
   $('wheel-disc').dataset.winner=d&&!active?String(d.winner):'';
  }
  const winnerReady=!!(d&&ready&&!active),area=$('wheel-svg').closest('.wheel-area'),result=$('picked-name').parentElement;
  result.classList.toggle('has-winner',winnerReady);
  result.classList.toggle('closing-card',winnerReady&&complete);
- // Use the last 360 ms of the existing spin for the pointer and rim.
+ // Anchor the rim and pointer to the existing draw deadline.
  // Only a visible spin can lead into an entrance at its deadline.
  const visible=!document.hidden&&(mode==='host'||S&&S.screen!=='title');
- if(!d||!visible||landingDraw!==d.id){
+ if(landingDraw&&(!d||!visible||landingDraw!==d.id)){
   area.classList.remove('wheel-landing','card-landing');
+  window.JialatMotion?.clearBurst(area);
   landingDraw='';
  }
- if(active&&ready&&visible&&remaining<=360&&!reduced&&!landingDraw){
+ if(active&&ready&&visible&&remaining<=640&&!reduced.matches&&!landingDraw){
   landingDraw=d.id;
-  area.style.setProperty('--landing-delay',(remaining-360)+'ms');
+  area.style.setProperty('--landing-delay',(remaining-640)+'ms');
   area.classList.add('wheel-landing');
  }
  if(winnerReady&&!settled){
   settledDraw=d.id;
   if(mode==='tv')write('settled-'+room,d.id);
-  if(landingDraw===d.id&&remaining>-250)area.classList.add('card-landing');
+  if(landingDraw===d.id&&remaining>-250){
+   area.classList.add('card-landing');
+   const entry=$('order-list').querySelector(complete?'.last':'.latest');
+   window.JialatMotion?.play(entry,'score',{delay:100});
+   if(complete&&mode==='tv')window.JialatMotion?.burst(area,'grand');
+  }
  }
  presentationAudio(d,ready,progress,active);updatePresentationSound();status();if(d&&ready&&progress<1)raf=requestAnimationFrame(paint);
 }
