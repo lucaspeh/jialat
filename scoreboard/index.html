@@ -653,7 +653,8 @@ summary {
 #tvClockBar {
   height:100%;
   background:var(--teal);
-  transition:width .1s linear
+  transform-origin:left center;
+  transition:transform .1s linear
 }
 #msg.timer-view.urgent #tvClock {
   color:var(--coral)
@@ -1322,7 +1323,7 @@ summary {
   right:0;
   top:0;
   height:10%;
-  transition:transform .9s steps(10)
+  transition:transform 580ms var(--motion-ease)
 }
 .in {
   height:100%;
@@ -1351,7 +1352,10 @@ summary {
   top:0;
   bottom:0;
   background:var(--c);
-  transition:width .9s steps(12)
+  width:100%;
+  transform:scaleX(0);
+  transform-origin:left center;
+  transition:transform 580ms var(--motion-ease)
 }
 .nm {
   position:relative;
@@ -1427,13 +1431,11 @@ summary {
   --c:#a8262c
 }
 .hid .bar i {
-  width:0!important
+  transform:scaleX(0)!important;
+  transition:none
 }
 .hid .nm {
   color:#555
-}
-.hop .in {
-  animation:hop .5s steps(4)
 }
 #lg {
   display:flex;
@@ -1450,11 +1452,6 @@ summary {
 .wob {
   animation:wob .6s steps(2) infinite
 }
-@keyframes hop {
-  50% {
-    transform:translateY(-1.4vh)
-  }
-}
 @keyframes bob {
   50% {
     transform:translateY(-1.2vh)
@@ -1463,19 +1460,6 @@ summary {
 @keyframes wob {
   50% {
     transform:rotate(-8deg)
-  }
-}
-.cf {
-  position:fixed;
-  top:-3vh;
-  width:1.4vh;
-  height:1.4vh;
-  z-index:9;
-  animation:fall linear forwards
-}
-@keyframes fall {
-  to {
-    transform:translateY(106vh)
   }
 }
 .relay-details {
@@ -1638,8 +1622,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 
 </style><link rel="stylesheet" href="../assets/layout.css?v=26">
 <link rel="stylesheet" href="../assets/festive.css?v=26">
-<link rel="stylesheet" href="../assets/tv-reveals.css">
-<link rel="stylesheet" href="../assets/motion.css?v=1">
+<link rel="stylesheet" href="../assets/tv-reveals.css?v=4.1">
+<link rel="stylesheet" href="../assets/motion.css?v=4.1">
 </head><body data-page="scoreboard"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section>
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
@@ -1648,7 +1632,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <img class="tv-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async">
 <main id="H"></main>
 <div id="T"><div id="msg"></div><div id="bd"><h1 id="th"></h1><p id="boardHint"></p><div id="ban"></div><div id="rows"></div><div id="lg"><span style="color:var(--l)">1ST · S$18 CASH PRIZE</span><span>2–6 SAFE</span><span>7–9 NEXT YEAR’S ORGANISERS</span><span>10TH · THE JIALAT TROPHY</span></div></div></div>
-<script src="../assets/motion.js?v=1"></script>
+<script src="../assets/motion.js?v=4.1"></script>
 <script src="../assets/ui.js?v=26"></script>
 <script src="../assets/reliability.js?v=26-live-3"></script>
 <script>
@@ -2215,18 +2199,7 @@ function dismissRevealCheck(){revealCheck=false;host();const title=$('currentGam
 // ---- tv ----
 const rows=[];
 function mkRows(){for(let i=0;i<10;i++){const d=document.createElement('div');d.className='row';d.innerHTML='<div class="in"><b class="rk"></b><div class="bar"><i></i><span class="nm"></span></div><b class="pt"></b></div>';$('rows').appendChild(d);rows.push(d)}}
-function confetti(card){
- const layer=document.createElement('div');
- layer.className='confetti-overlay';layer.setAttribute('aria-hidden','true');
- const colors=['#f3d77a','#aa803d','#fff1cc','#c95b62','#68ad83'];
- for(let i=0;i<36;i++){
-  const piece=document.createElement('span');
-  piece.className='cf';
-  piece.style.cssText=`left:${Math.random()*100}%;background:${colors[i%colors.length]};animation-duration:${.8+Math.random()*.65}s;animation-delay:${Math.random()*.2}s`;
-  layer.appendChild(piece);
- }
- card.appendChild(layer);setTimeout(()=>layer.remove(),1800);
-}
+let tvScreen="",tvLineup="";
 function showSpotlight(rank,animate){
  const who=stand(9)[rank-1],msg=$('msg');
  let card=msg.querySelector('.spot-card');
@@ -2238,53 +2211,112 @@ function showSpotlight(rank,animate){
  }
  card.querySelector('.spot-name').textContent=rn(who.i);
  if(animate){
+  msg.classList.add('motion-spotlight');
   card.classList.add('on-air');
-  if(rank===1)confetti(card);
+  window.JialatMotion?.burst(msg,rank===1?'grand':'stage');
  }
 }
 function activeCountdown(){return validCountdown(S.timer)&&S.m[0]==='rules'&&S.m[1]===S.timer.g?S.timer:null}
 function drawTvCountdown(c){
- const x=G[c.g];$('msg').className='timer-view';
+ const x=G[c.g];$('msg').classList.add('timer-view');
  $('msg').innerHTML=`<div class="sm">GAME ${String(c.g+1).padStart(2,'0')} / 09 · ${LIMIT[c.g]} SECONDS · ${PRIZE_TAG}</div><h1>${esc(x.n)}</h1><div class="timer-team">TEAM ${'AB'[c.slot]}</div><div class="timer-names">${x.u[c.slot].map(p=>nm(p-1)).join(' · ')}</div><div id="tvClockPhase" role="status" aria-live="polite"></div><div id="tvClock" aria-label="Time remaining"></div><div class="tv-clock-track" role="progressbar" aria-label="Round time remaining" aria-valuemin="0" aria-valuemax="${LIMIT[c.g]}"><div id="tvClockBar"></div></div><div id="tvClockHint"></div>`;
  tickTvCountdown()
 }
 function tickTvCountdown(){
  const c=activeCountdown(),clock=$('tvClock');if(!c||!clock){tvCountdownFrame=null;return}const f=countdownFrame(c),phase=$('tvClockPhase'),hint=$('tvClockHint'),bar=$('tvClockBar');
- const display=f.phase==='ready'?String(f.ready):Math.floor(f.seconds/60)+':'+String(f.seconds%60).padStart(2,'0');if(clock.textContent!==display)clock.textContent=display;
- const clockLabel=f.phase==='ready'?'Starting in '+f.ready+' seconds':f.seconds+' seconds remaining';if(clock.getAttribute('aria-label')!==clockLabel)clock.setAttribute('aria-label',clockLabel);
- const title=f.phase==='ready'?'GET READY':f.phase==='ended'?'TIME! STOP':Date.now()-c.startAt<1000?'GO!':'TIME REMAINING';if(phase.textContent!==title)phase.textContent=title;
+ const previous=tvCountdownFrame,observed=previous?.id===c.id,now=Date.now(),msg=$('msg');
+ const phaseClass=f.phase==='ready'?'ready':f.phase==='ended'?'ended':now-c.startAt<1000?'go':'';
+ const display=f.phase==='ready'?String(f.ready):Math.floor(f.seconds/60)+':'+String(f.seconds%60).padStart(2,'0');
+ if(clock.textContent!==display){
+  clock.textContent=display;
+  const warningAge=now-(c.endAt-f.seconds*1000);
+  const warning=observed&&previous.phase==='running'&&previous.seconds>f.seconds&&f.seconds>=1&&f.seconds<=5&&warningAge>=0&&warningAge<250;
+  if(f.phase==='ready'||warning)window.JialatMotion?.play(clock,'count');
+ }
+ const clockLabel=f.phase==='ready'?'Starting in '+f.ready+' seconds':f.seconds+' seconds remaining';
+ if(clock.getAttribute('aria-label')!==clockLabel)clock.setAttribute('aria-label',clockLabel);
+ const title=f.phase==='ready'?'GET READY':f.phase==='ended'?'TIME! STOP':phaseClass==='go'?'GO!':'TIME REMAINING';
+ if(phase.textContent!==title){
+  phase.textContent=title;
+  msg.classList.remove('clock-impact');
+  if(observed&&(phaseClass==='go'&&previous.phase==='ready'||phaseClass==='ended'&&previous.phase!=='ended'&&now-c.endAt<1500)){
+   msg.classList.add('clock-impact');
+   window.JialatMotion?.play(phase,'reveal');
+  }
+ }
+ msg.classList.toggle('ready',phaseClass==='ready');
+ msg.classList.toggle('go',phaseClass==='go');
  const instruction=f.phase==='ready'?'Wait for GO.':f.phase==='ended'?(c.g===7?'Count only ornaments inside the basket.':'Hands away. Count only cups still balanced without help.'):(c.g===7?'Knees only. Drop, return and tag the next teammate.':'Keep stacking. Hands away when time is up.');if(hint.textContent!==instruction)hint.textContent=instruction;
- bar.style.width=(f.fraction*100)+'%';bar.parentElement.setAttribute('aria-valuenow',String(f.seconds));
+ bar.style.transform='scaleX('+f.fraction+')';
+ if(bar.parentElement.getAttribute('aria-valuenow')!==String(f.seconds))bar.parentElement.setAttribute('aria-valuenow',String(f.seconds));
  $('msg').classList.toggle('urgent',f.phase==='ended'||f.phase==='running'&&f.seconds<=10);$('msg').classList.toggle('ended',f.phase==='ended');
  tvCountdownAudio(c,f)
 }
-function tv(animate){const m=S.m,rank=m[0]=='rev'&&m[1]>0?REVEAL_ORDER[m[1]-1]:null,spot=m[0]=='rev'&&S.spotlight&&(rank===1||rank===10),sealed=m[0]=='board'&&m[1]>=9&&allDone()&&!S.finalShown,b=!sealed&&!spot&&(m[0]=='board'||m[0]=='rev');$('bd').style.display=b?'flex':'none';$('msg').style.display=b?'none':'';
-$('msg').className=spot?'spotlight '+(rank===10?'trophy':'champion'):m[0]=='rules'?'rules':'';
-if(!b){if(spot)showSpotlight(rank,animate);
-else if(sealed){$('msg').innerHTML=`<div class="bob">${spr('screen',8)}</div><h1>ALL NINE GAMES COMPLETE</h1><div class="tag">THE FINAL REVEAL IS COMING</div><div class="prize-label">${PRIZE_TAG}</div>`}
-else if(activeCountdown()){drawTvCountdown(S.timer)}
-else if(m[0]=='rules'){const x=G[m[1]],a=GUIDE[m[1]],kind={s:'SOLO',p:'PAIRS',t:'TEAMS OF FIVE'}[x.t];
-$('msg').innerHTML=`<div class="guide-intro"><div class="sm">GAME ${String(m[1]+1).padStart(2,'0')} / 09 · ${PRIZE_TAG}</div><h1>${esc(x.n)}</h1><div class="tag">${kind}</div><div class="guideGoal">${esc(a.goal)}</div>${scene(m[1])}</div>
-<div class="guideSteps">${a.steps.map((s,i)=>`<div class="guideStep"><b>STEP ${i+1}</b>${esc(s)}</div>`).join('')}</div>
-<div class="guideFacts"><div class="guideFact"><b>PLAY</b>${esc(a.turn)}</div><div class="guideFact"><b>WIN BY</b>${esc(a.win)}</div><div class="guideFact"><b>POINTS</b>${esc(a.points)}</div></div>
-${x.u?`<div class="sm">${x.t=='p'?'PAIR LINEUP':'TEAMS'}</div><div class="gr">${x.u.map((u,k)=>`<div class="gb">${x.t=='t'?'TEAM '+'AB'[k]+'<br>':''}${u.map(p=>nm(p-1)).join(x.t=='t'?' · ':' &amp; ')}</div>`).join('')}</div>`:''}`}
-else if(!$('msg').querySelector('.event-title'))$('msg').innerHTML=`<section class="event-title seasonal-art" aria-label="Event title"><div class="seasonal-snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>${festiveIcons('<div class="bob">'+eventScreenIcon()+'</div>')}<h1>JIALAT 2026</h1><p class="event-season">Christmas</p></section>`;return}
-if($('msg').firstChild)$('msg').replaceChildren();
-const rev=m[0]=='rev',k=rev?m[1]:10,n=rev?9:m[1],fin=rev||(n>=9&&allDone()&&S.finalShown),st=stand(n),top=Math.max(1,st[0].t);
-const hasPoints=S.sc.some(r=>r.slice(0,n).some(v=>v!==null));
-$('th').textContent=!rev&&!hasPoints?'WAITING FOR RESULTS':rev?'THE FINAL VERDICT':n>=9?(fin?'FINAL RANKINGS':'LIVE RANKINGS'):'AFTER GAME '+n;
-$('boardHint').textContent=rev?'':!hasPoints?'Players are unranked until a game is complete.':fin?'All nine games complete.':'Provisional standings · completed game results';
-$('ban').textContent=!rev||!k?'':rank===10?'THE JIALAT TROPHY GOES TO '+rn(st[9].i).toUpperCase():rank===1?'CHAMPION: '+rn(st[0].i).toUpperCase()+' · '+CHAMPION_PRIZE:rank>=7?'NEXT YEAR’S ORGANISER: '+rn(st[rank-1].i).toUpperCase():'#'+rank+' SAFE: '+rn(st[rank-1].i).toUpperCase();
-st.forEach(o=>{const d=rows[o.i],hide=rev&&!REVEAL_ORDER.slice(0,k).includes(o.r),z=o.r==10?3:o.r>=7?2:o.r==1?0:1,old=d.dataset.r;
-d.style.transform=`translateY(${(o.r-1)*100}%)`;d.style.order=String(o.r);d.className='row '+(hasPoints?'z'+z:'unranked')+(hide?' hid':'');
-if(old&&old!=o.r&&!hide){d.classList.add('hop')}d.dataset.r=o.r;
-d.querySelector('.rk').textContent=hasPoints?o.r:'—';d.querySelector('.nm').innerHTML=hide?'???':esc(rn(o.i))+(fin&&o.r==1?cashPrizeIcon():fin&&o.r==10?`<span class="wob">${spr('medal',3)}</span>`:fin&&o.r>=7&&o.r<10?'<small>ORGANISER</small>':'');
-d.querySelector('i').style.width=hide?'0':(o.t/top*100)+'%';d.querySelector('.pt').textContent=hide?'':hasPoints?o.t:'—'});
-if(animate&&rank)rows[st[rank-1].i].querySelector('.bar').animate([
- {borderColor:'#fff1ce',boxShadow:'inset 6px 0 #fff1ce, 0 0 10px #d4af3780'},
- {borderColor:'#d4af37',offset:.56},
- {borderColor:'var(--d)',boxShadow:'inset 0 0 transparent'}
-],{duration:720});
+function tv(animate){
+ const m=S.m,rev=m[0]==='rev',rank=rev&&m[1]>0?REVEAL_ORDER[m[1]-1]:null;
+ const spot=rev&&S.spotlight&&(rank===1||rank===10),sealed=m[0]==='board'&&m[1]>=9&&allDone()&&!S.finalShown;
+ const board=!sealed&&!spot&&(m[0]==='board'||rev),clock=activeCountdown(),msg=$('msg');
+ const screen=spot?'spot:'+S.revealId+':'+rank:sealed?'sealed':clock?'timer:'+clock.id:rev?'reveal:'+S.revealId:m.join(':');
+ const changed=screen!==tvScreen;
+ const lineup=m[0]==='rules'?JSON.stringify(S.nm):'';
+ $('bd').style.display=board?'flex':'none';
+ msg.style.display=board?'none':'';
+ if(changed){
+  window.JialatMotion?.clearBurst(msg);
+  msg.className=spot?'spotlight '+(rank===10?'trophy':'champion'):sealed?'sealed':clock?'timer-view':m[0]==='rules'?'rules':'';
+ }
+ if(!board){
+  if(spot){showSpotlight(rank,animate);tvScreen=screen;return}
+  if(!changed&&lineup===tvLineup)return;
+  tvScreen=screen;
+  tvLineup=lineup;
+  if(sealed){$('msg').innerHTML=`<div class="bob">${spr('screen',8)}</div><h1>ALL NINE GAMES COMPLETE</h1><div class="tag">THE FINAL REVEAL IS COMING</div><div class="prize-label">${PRIZE_TAG}</div>`}
+  else if(clock){drawTvCountdown(clock)}
+  else if(m[0]=='rules'){const x=G[m[1]],a=GUIDE[m[1]],kind={s:'SOLO',p:'PAIRS',t:'TEAMS OF FIVE'}[x.t];
+  $('msg').innerHTML=`<div class="guide-intro"><div class="sm">GAME ${String(m[1]+1).padStart(2,'0')} / 09 · ${PRIZE_TAG}</div><h1>${esc(x.n)}</h1><div class="tag">${kind}</div><div class="guideGoal">${esc(a.goal)}</div>${scene(m[1])}</div>
+  <div class="guideSteps">${a.steps.map((s,i)=>`<div class="guideStep"><b>STEP ${i+1}</b>${esc(s)}</div>`).join('')}</div>
+  <div class="guideFacts"><div class="guideFact"><b>PLAY</b>${esc(a.turn)}</div><div class="guideFact"><b>WIN BY</b>${esc(a.win)}</div><div class="guideFact"><b>POINTS</b>${esc(a.points)}</div></div>
+  ${x.u?`<div class="sm">${x.t=='p'?'PAIR LINEUP':'TEAMS'}</div><div class="gr">${x.u.map((u,k)=>`<div class="gb">${x.t=='t'?'TEAM '+'AB'[k]+'<br>':''}${u.map(p=>nm(p-1)).join(x.t=='t'?' · ':' &amp; ')}</div>`).join('')}</div>`:''}`}
+  else if(!$('msg').querySelector('.event-title'))$('msg').innerHTML=`<section class="event-title seasonal-art" aria-label="Event title"><div class="seasonal-snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>${festiveIcons('<div class="bob">'+eventScreenIcon()+'</div>')}<h1>JIALAT 2026</h1><p class="event-season">Christmas</p></section>`;
+  if(changed&&(sealed||m[0]==='rules')){
+   msg.classList.add('arcade-sweep');
+   window.JialatMotion?.play(msg.querySelector('h1'),sealed?'finale':'reveal');
+   window.JialatMotion?.play(msg.querySelector('.guideSteps,.prize-label'),'enter',{delay:110});
+  }
+  return
+ }
+ tvScreen=screen;
+ if(msg.firstChild)msg.replaceChildren();
+ const k=rev?m[1]:10,n=rev?9:m[1],fin=rev||(n>=9&&allDone()&&S.finalShown),st=stand(n),top=Math.max(1,st[0].t);
+ const hasPoints=S.sc.some(r=>r.slice(0,n).some(v=>v!==null));
+ $('th').textContent=!rev&&!hasPoints?'WAITING FOR RESULTS':rev?'THE FINAL VERDICT':n>=9?(fin?'FINAL RANKINGS':'LIVE RANKINGS'):'AFTER GAME '+n;
+ $('boardHint').textContent=rev?'':!hasPoints?'Players are unranked until a game is complete.':fin?'All nine games complete.':'Provisional standings · completed game results';
+ $('ban').textContent=!rev||!k?'':rank===10?'THE JIALAT TROPHY GOES TO '+rn(st[9].i).toUpperCase():rank===1?'CHAMPION: '+rn(st[0].i).toUpperCase()+' · '+CHAMPION_PRIZE:rank>=7?'NEXT YEAR’S ORGANISER: '+rn(st[rank-1].i).toUpperCase():'#'+rank+' SAFE: '+rn(st[rank-1].i).toUpperCase();
+ st.forEach(o=>{
+  const d=rows[o.i],hide=rev&&!REVEAL_ORDER.slice(0,k).includes(o.r),z=o.r===10?3:o.r>=7?2:o.r===1?0:1;
+  const moved=d.dataset.r&&Number(d.dataset.r)!==o.r;
+  d.style.transform=`translateY(${(o.r-1)*100}%)`;
+  d.style.order=String(o.r);
+  d.className='row '+(hasPoints?'z'+z:'unranked')+(hide?' hid':'');
+  d.dataset.r=o.r;
+  d.querySelector('.rk').textContent=hasPoints?o.r:'—';
+  const label=hide?'???':esc(rn(o.i))+(fin&&o.r===1?cashPrizeIcon():fin&&o.r===10?`<span class="wob">${spr('medal',3)}</span>`:fin&&o.r>=7&&o.r<10?'<small>ORGANISER</small>':'');
+  if(d.dataset.label!==label){d.dataset.label=label;d.querySelector('.nm').innerHTML=label}
+  const bar=d.querySelector('.bar'),points=d.querySelector('.pt'),value=hide?'':hasPoints?String(o.t):'—';
+  bar.querySelector('i').style.transform='scaleX('+(hide?0:o.t/top)+')';
+  if(!rev&&moved&&hasPoints)window.JialatMotion?.play(bar,'rim');
+  if(points.textContent!==value){
+   if(!rev&&hasPoints)window.JialatMotion?.play(points,'score');
+   points.textContent=value;
+  }
+ });
+ if(changed)window.JialatMotion?.play($('th'),'reveal');
+ if(animate&&rank){
+  const row=rows[st[rank-1].i];
+  window.JialatMotion?.play(row.querySelector('.bar'),'rim');
+  window.JialatMotion?.play(row.querySelector('.nm'),'reveal');
+  window.JialatMotion?.play($('ban'),'reveal');
+ }
 }
 // Preserve native Tab order when saving replaces the result form.
 function advanceResultFocus(event){
@@ -2316,7 +2348,7 @@ function enterRole(role,fromEntry=true){
  if(!['host','tv',''].includes(role))return;
  if(role)$('H').querySelectorAll('.seasonal-snow').forEach(node=>node.remove())
  if(hostTab){hostTab.dispose();hostTab=null}localHostBlocked=false;remoteHostBlocked=false;boardAuthorized=false;boardTV='';boardNonce='';boardController='';boardTVGranted=false;clearTimeout(boardProbeTimer);boardProbeTimer=0;if(stream)stream.close();stream=null;streamOpen=false;clearInterval(pollTimer);pollTimer=null;clearTimeout(pt);clearTimeout(retryTimer);retryTimer=null;retryAt=0;sendFailures=0;queued=null;stopCue();
- tvLastFrame=null;tvCountdownFrame=null;tvAudioFrame++;liveRevealStream=false;$('msg').replaceChildren();
+ tvLastFrame=null;tvCountdownFrame=null;tvAudioFrame++;liveRevealStream=false;tvScreen=tvLineup='';window.JialatMotion?.clearBurst($('msg'));$('msg').replaceChildren();
  ROLE=role;if(fromEntry)history.replaceState(null,'',role?'#'+role:location.pathname+location.search);
  if(ROLE==='tv'){Q=null;if(!rows.length)mkRows();if(!tvCountdownInterval)tvCountdownInterval=setInterval(tickTvCountdown,100)}else{clearInterval(tvCountdownInterval);tvCountdownInterval=null}
  if(ROLE==='host')restoreCountdown();
