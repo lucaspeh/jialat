@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta name="jialat-build" content="28">
+<head><meta name="jialat-build" content="29">
 <meta charset="utf-8">
 <meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -20,7 +20,7 @@
 <meta property="og:image" content="https://lucaspeh.github.io/jialat/assets/jialat-share.png?v=brand-1">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="JIALAT logo with the gold trophy. 18 years, 11 friends. 10–13 December 2026.">
+<meta property="og:image:alt" content="JIALAT logo with the gold trophy.">
 <meta name="twitter:card" content="summary_large_image">
 <style>
 :root {
@@ -108,7 +108,7 @@ button:active,.action:active {
   align-items:center;
   justify-content:space-between;
   gap:24px;
-  padding:20px 0 23px
+  padding:10px 0 14px
 }
 .eyebrow {
   color:var(--muted);
@@ -124,13 +124,7 @@ button:active,.action:active {
   text-transform:uppercase;
   letter-spacing:.045em;
   text-shadow:2px 2px 0 var(--d);
-  margin:0 0 10px
-}
-.intro p {
-  margin:0;
-  color:var(--muted);
-  font-size:calc(14 * var(--font-unit));
-  font-weight:400
+  margin:0
 }
 .trip-mark {
   width:96px;
@@ -801,7 +795,7 @@ button:active,.action:active {
   }
   .intro {
     gap:10px;
-    padding:19px 0 20px
+    padding:8px 0 12px
   }
   .day-panel {
     padding-top:23px
@@ -928,7 +922,7 @@ button:active,.action:active {
     color:#111;
     text-shadow:none
   }
-  .intro p,.time-note,.summary,.event p,.note-card p,.section-label,.flight p {
+  .time-note,.summary,.event p,.note-card p,.section-label,.flight p {
     color:#333!important
   }
   .note-card,.flight,.time-note {
@@ -987,49 +981,6 @@ a[href="../"]:active  {
     font-size:calc(16 * var(--font-unit));
   }
 }
-/* Original wordmark in the existing footer. */
-.footer-brand  {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  min-width: 0;
-}
-.footer-brand .brand-wordmark  {
-  display: block;
-  width: 112px;
-  max-width: 100%;
-  height: auto;
-}
-.footer-brand span  {
-  font-size:var(--text-secondary);
-  line-height: 1.45;
-  letter-spacing: 0;
-}
-.intro .eyebrow {
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-  font-size:var(--text-secondary);
-  font-weight:400;
-  line-height:1.45;
-  letter-spacing:.08em;
-  margin:0 0 10px
-}
-.intro .eyebrow span {
-  white-space:nowrap
-}
-@media(min-width:760px) {
-  .intro .eyebrow {
-    flex-direction:row;
-    gap:8px
-  }
-  .intro .eyebrow span+span::before {
-    content:"·";
-    margin-right:8px
-  }
-}
-
 /* Event navigation and display controls. */
 .page-wordmark{display:block;width:112px;max-width:34vw;height:auto;flex:none}
 </style>
@@ -1041,7 +992,7 @@ a[href="../"]:active  {
 <div class="shell">
 <header>
  <div class="topbar site-utility"><a class="home-link" href="../" aria-label="Back to the JIALAT main menu">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div>
- <div class="intro"><div><p class="eyebrow"><span>11 friends</span><span>Ho Chi Minh City</span></p><h1>Itinerary</h1><p>10–13 December 2026</p></div><div class="trip-mark" aria-hidden="true"><svg viewBox="0 0 96 72"><path d="M8 19l25-8 30 9 25-8v44l-25 8-30-9-25 8z" fill="#111" stroke="#6b5a22" stroke-width="3"/><path d="M33 11v44M63 20v44" stroke="#6b5a22" stroke-width="2"/><path class="mark-route" d="M18 45h14V29h22v20h24" fill="none" stroke="#65d9cb" stroke-width="3"/><g class="mark-pin"><path d="M66 18h14v14h-4v6h-6v-6h-4z" fill="#f3d77a"/><path d="M71 23h4v4h-4z" fill="#0a0a0a"/></g></svg></div></div>
+ <div class="intro"><h1>Itinerary</h1><div class="trip-mark" aria-hidden="true"><svg viewBox="0 0 96 72"><path d="M8 19l25-8 30 9 25-8v44l-25 8-30-9-25 8z" fill="#111" stroke="#6b5a22" stroke-width="3"/><path d="M33 11v44M63 20v44" stroke="#6b5a22" stroke-width="2"/><path class="mark-route" d="M18 45h14V29h22v20h24" fill="none" stroke="#65d9cb" stroke-width="3"/><g class="mark-pin"><path d="M66 18h14v14h-4v6h-6v-6h-4z" fill="#f3d77a"/><path d="M71 23h4v4h-4z" fill="#0a0a0a"/></g></svg></div></div>
  <div class="time-note"><b>ALL TIMES: VIETNAM (UTC+7)</b><br><span>1 hour behind Singapore. Optional stops may change.</span></div>
 </header>
 <nav class="day-nav" aria-label="Choose a day">
@@ -1120,7 +1071,7 @@ a[href="../"]:active  {
 <div class="day-pager" hidden><button id="previous-day" class="pager-button" type="button">← Previous day</button><span class="page-count" id="page-count">01 / 04</span><button id="next-day" class="pager-button" type="button">Next day →</button></div>
 <p id="day-announcement" class="sr-only" role="status" aria-live="polite"></p>
 </main>
-<footer class="footer"><span class="footer-brand"><span>2026 · 18 years · 11 friends</span></span><a href="../">MAIN MENU ↗</a></footer>
+<footer class="footer"><a href="../">MAIN MENU ↗</a></footer>
 </div>
 <script src="../assets/motion.js?v=4.1"></script>
 <script>
