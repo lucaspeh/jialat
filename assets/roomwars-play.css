@@ -1,0 +1,214 @@
+/* Room Wars player cabinet. The whole framed surface remains the input target. */
+.play-screen {
+  --game-accent:#ff967e;
+  --game-edge:#a84f3f;
+  --game-surface:#281511;
+  --game-focus:#ffb4a2;
+}
+.play-screen.react-game {
+  --game-accent:#8fe0bc;
+  --game-edge:#3a8b69;
+  --game-surface:#10271f;
+  --game-focus:#acf5d4;
+}
+.play-screen.stop-game {
+  --game-accent:#a7ccff;
+  --game-edge:#547daf;
+  --game-surface:#101f33;
+  --game-focus:#c7deff;
+}
+.play-screen.tie-game { --game-edge:#b68a43; --game-focus:#ffe3a0; }
+
+.play-heading {
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:8px 14px;
+  flex-wrap:wrap;
+  margin:0 0 13px;
+}
+.play-heading h1 {
+  margin:0;
+  color:#fff1d1;
+  font-size:clamp(1.35rem,5.7vw,2.05rem);
+  line-height:1.12;
+  letter-spacing:-.035em;
+}
+.play-mode {
+  margin:0;
+  padding:3px 7px;
+  border:1px solid #80632f;
+  color:#f3d77a;
+  font-size:.78rem;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+
+[data-page="roomwars"] .play-screen .play-arena {
+  position:relative;
+  isolation:isolate;
+  display:grid;
+  grid-template-rows:minmax(min-content,1fr) auto;
+  align-items:stretch;
+  justify-content:stretch;
+  width:100%;
+  height:auto;
+  min-height:clamp(310px,56vh,520px);
+  min-height:clamp(310px,56svh,520px);
+  max-height:none;
+  padding:clamp(15px,4vw,25px);
+  border:2px solid var(--game-edge);
+  color:#fff3dc;
+  background:var(--game-surface);
+  box-shadow:0 5px 0 #070606, 0 7px 0 #594422;
+}
+.play-arena::before {
+  content:"";
+  position:absolute;
+  inset:6px;
+  border:1px solid #e9c6964a;
+  background:
+    linear-gradient(#e0b666,#e0b666) top left / 16px 2px,
+    linear-gradient(#e0b666,#e0b666) top right / 16px 2px,
+    linear-gradient(#e0b666,#e0b666) bottom left / 16px 2px,
+    linear-gradient(#e0b666,#e0b666) bottom right / 16px 2px;
+  background-repeat:no-repeat;
+  pointer-events:none;
+}
+[data-page="roomwars"] .tap-game .play-arena,
+[data-page="roomwars"] .tie-game .play-arena {
+  background:
+    repeating-linear-gradient(135deg,#ffc2a008 0 1px,transparent 1px 11px),
+    radial-gradient(ellipse at 50% 42%,#59271e,var(--game-surface) 75%);
+}
+[data-page="roomwars"] .stop-game .play-arena {
+  background:
+    repeating-linear-gradient(0deg,#a7ccff0d 0 1px,transparent 1px 7px),
+    radial-gradient(ellipse at 50% 44%,#263d60,var(--game-surface) 73%);
+}
+.play-readout {
+  position:relative;
+  display:grid;
+  place-content:center;
+  justify-items:center;
+  min-width:0;
+  gap:3px;
+  padding-block:8px 12px;
+}
+.play-readout .big {
+  color:#fff3dc;
+  font-size:clamp(3.75rem,18vw,7.25rem);
+  font-weight:900;
+  font-variant-numeric:tabular-nums;
+  letter-spacing:-.065em;
+  line-height:1;
+  overflow-wrap:anywhere;
+  text-shadow:0 4px 0 #080608;
+}
+.play-unit,.play-status {
+  color:var(--game-focus);
+  font-size:clamp(.875rem,3.8vw,1rem);
+  font-weight:bold;
+}
+.play-footer {
+  position:relative;
+  display:grid;
+  gap:9px;
+  align-content:center;
+  min-height:3.4rem;
+  padding:8px 10px;
+  background:#08070bcc;
+  border:1px solid #e9c69640;
+}
+.play-clock {
+  color:#fff1d1;
+  font-size:clamp(1.125rem,5vw,1.45rem);
+  font-variant-numeric:tabular-nums;
+  line-height:1.08;
+}
+.play-track {
+  display:block;
+  height:8px;
+  overflow:hidden;
+  background:repeating-linear-gradient(90deg,#211413 0 9px,#3a2921 9px 10px);
+  border:1px solid #e9c69655;
+}
+.play-track i {
+  display:block;
+  width:100%;
+  height:100%;
+  transform:scaleX(var(--play-progress,1));
+  transform-origin:left;
+  background:repeating-linear-gradient(90deg,var(--game-accent) 0 9px,#762e2677 9px 10px);
+}
+.play-arena[data-urgent] .play-clock { color:#ffb19a; }
+.play-arena[data-urgent] .play-track { border-color:#eb8971; }
+
+.play-glow {
+  position:absolute;
+  inset:0;
+  opacity:0;
+  pointer-events:none;
+  z-index:-1;
+  border:3px solid var(--game-focus);
+  box-shadow:inset 0 0 15px 2px #ffb09965,0 0 12px #ffb09955;
+  background:radial-gradient(ellipse at 50% 45%,#ffab883c,#ff997334);
+}
+
+[data-page="roomwars"] .react-game .play-arena[data-arena-signal] {
+  background:#a8262c;
+  border-color:#e17670;
+}
+[data-page="roomwars"] .react-game .play-arena[data-arena-signal="go"] {
+  background:#2f9e5b;
+  border-color:#baf4a8;
+}
+[data-page="roomwars"] .react-game .play-arena[data-arena-signal="early"] {
+  background:#7e251f;
+  border-color:#ffaf90;
+}
+.react-game .play-arena::before {
+  background:repeating-linear-gradient(0deg,transparent 0 5px,#0000000e 5px 6px);
+}
+.react-game .play-readout .big {
+  font-size:clamp(2.3rem,11vw,4.75rem);
+  line-height:1.02;
+  text-wrap:balance;
+}
+.react-game .play-arena[data-arena-signal="go"] .big {
+  color:#07190d;
+  text-shadow:0 1px 0 #c7ffc488;
+}
+.react-game .play-readout small { color:#fff3dc; }
+.stop-game .play-readout .big {
+  font-size:clamp(3.4rem,16vw,6.5rem);
+}
+.stop-game [data-arena-signal="locked"] .play-readout .big {
+  color:#ffe8af;
+  font-size:clamp(2rem,10vw,4.4rem);
+}
+
+[data-page="roomwars"] .play-screen .play-result {
+  min-height:clamp(200px,33svh,310px);
+  grid-template-rows:1fr;
+}
+.play-result .play-readout .big {
+  font-size:clamp(3rem,15vw,6.5rem);
+}
+.play-result .play-unit { margin-top:4px; }
+.play-result .play-status { margin-top:12px; }
+[data-page="roomwars"] .play-screen .play-arena:focus-visible { outline:3px solid #ffe5a5; outline-offset:4px; }
+
+@media (prefers-reduced-motion:no-preference) {
+  .play-screen:is(.tap-game,.tie-game) .play-heading { animation:motion-panel 270ms var(--motion-ease); }
+}
+@media (max-height:500px) {
+  [data-page="roomwars"] .play-screen .play-arena { min-height:194px; }
+  .play-readout .big { font-size:clamp(2.4rem,12vh,4.2rem); }
+  .play-footer { min-height:0; }
+  .tap-game .play-footer,.tie-game .play-footer { grid-template-columns:1fr 1fr; align-items:center; gap:5px; }
+  .play-track { grid-column:1 / -1; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .play-glow { box-shadow:inset 0 0 0 2px var(--game-focus); background:#ffab8825; }
+}
