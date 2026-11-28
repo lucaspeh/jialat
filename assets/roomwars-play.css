@@ -7,6 +7,11 @@ html.roomwars-playing :is(body, .play-arena) {
   touch-action:pinch-zoom;
 }
 
+html.roomwars-playing,html.roomwars-playing body * {
+  -webkit-user-select:none;
+  user-select:none;
+  -webkit-touch-callout:none;
+}
 .play-screen {
   --game-accent:#ff967e;
   --game-edge:#a84f3f;

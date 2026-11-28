@@ -180,43 +180,46 @@ textarea {
   margin-bottom:9px;
   box-shadow:3px 3px 0 #000
 }
-.rank::before {
-  content:"";
-  position:absolute;
-  left:0;
-  top:0;
-  bottom:0;
-  width:var(--w,0%);
-  background:var(--c,transparent)
+.rank :is(.n,.g b,.g small,.pts,.pts small) {
+  text-shadow:none;
 }
-.rank>* {
-  position:relative
+.rank .g b { color:var(--t); overflow-wrap:anywhere; }
+.rank .g small { color:var(--m); }
+.rank .n,.rank .pts { color:var(--l); font-variant-numeric:tabular-nums; }
+.rank.pair-rank {
+  display:grid;
+  grid-template-columns:2.3ch minmax(0,1fr) max-content;
+  gap:7px 10px;
+  border-width:1px;
 }
-.rank .n,.rank .g b,.rank .g small,.rank .pts,.rank .pts small {
-  color:#fff;
-  text-shadow:2px 2px 0 #000,-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000
+.rank.pair-rank .n { width:auto; text-align:left; }
+.pair-rank .pts { align-self:start; line-height:1.2; }
+.pair-rank .pts small { color:var(--m); }
+.pair-member {
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:8px;
 }
-.rank.done .n,.rank.done .g b,.rank.done .g small {
-  color:var(--t)
+.pair-member + .pair-member { margin-top:3px; }
+.pair-member .member-points { white-space:nowrap; font-variant-numeric:tabular-nums; }
+.pair-note { display:block; margin-top:4px; }
+.player-score-list { list-style:none; margin:4px 0 12px; padding:0; }
+.player-score-list .pair-member > span:first-child { color:var(--t); overflow-wrap:anywhere; }
+.rank-track {
+  grid-column:2 / -1;
+  display:block;
+  height:5px;
+  overflow:hidden;
+  background:#342e21;
 }
+.rank-track i { display:block; width:var(--w); height:100%; background:var(--l); }
 .rank.first {
   border-color:var(--g);
   background:#2a2108
 }
 .rank.done {
   opacity:.45
-}
-.z0 {
-  --c:#d4af37
-}
-.z1 {
-  --c:#355b6c
-}
-.z2 {
-  --c:#865047
-}
-.z3 {
-  --c:#a8262c
 }
 .n {
   font-size:calc(22 * var(--font-unit));
@@ -647,7 +650,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .import-error { color:var(--coral); font-size:calc(14 * var(--font-unit)); font-weight:400; line-height:1.6; }
 </style><link rel="stylesheet" href="../assets/layout.css?v=26">
 <link rel="stylesheet" href="../assets/motion.css?v=4.1">
-<link rel="stylesheet" href="../assets/roomwars-play.css?v=2">
+<link rel="stylesheet" href="../assets/roomwars-play.css?v=3">
 </head><body data-page="roomwars"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section>
 <i id="dot" class="dot"></i>
 <header class="site-navigation site-utility"><a id="site-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></header>
@@ -726,7 +729,6 @@ react:["....YYY..","...YYY...","..YYY....",".YYYYYY..","...YYY...","..YYY....","
 stop:[".....YY.....","....YYYY....",".....YY.....","...YYYYYY...","..Y......Y..",".Y........Y.",".Y........Y.",".Y........Y.",".Y........Y.","..Y......Y..","...YYYYYY...","............"]};
 function spr(k,px){var a=SP[k],s="",col={trophy:"#f3d77a",star:"#86baff",tap:"#ff8b78",react:"#65d9cb",stop:"#86baff"}[k]||"#f3d77a",p=0;a.forEach(function(r,y){for(var x=0;x<r.length;x++)if(r[x]=="Y"||r[x]=="B")s+='<rect class="'+(k=="tap"&&r[x]=="Y"?"button-cap":k=="react"?"bolt-pixel":"")+'" style="--p:'+p+++'" x="'+x+'" y="'+y+'" width="1" height="1" fill="'+(r[x]=="B"?"#77504a":col)+'"/>'});if(k=="tap")s+='<g class="press-rays" fill="#f3d77a"><rect x="0" y="0" width="1" height="2"/><rect x="11" y="0" width="1" height="2"/></g>';if(k=="react")s+='<g class="reaction-signal" fill="#ff8b78"><rect x="2" y="9" width="1" height="1"/><rect x="4" y="9" width="1" height="1"/><rect x="6" y="9" width="1" height="1"/></g>';if(k=="stop")s+='<g class="clock-hand" fill="#f3d77a"><rect x="5" y="4" width="1" height="4"/><rect x="5" y="7" width="2" height="1"/></g>';var h=k=="react"?11:a.length;return'<svg class="sp icon-'+k+'" viewBox="0 0 '+a[0].length+' '+h+'" width="'+a[0].length*px+'" height="'+h*px+'" shape-rendering="crispEdges" aria-hidden="true">'+s+'</svg>'}
 function brand(t,k){if(t==="ROOM WARS"&&(!code||host||view==="who"))return'<header class="activity-header"><span class="activity-icon bob">'+spr("trophy",5)+'</span><h1>ROOM WARS</h1><span class="role-label">'+(code&&!host?'PLAYER':'HOST')+'</span></header>';return'<div class="brand"><div class="bob">'+spr(k||"trophy",5)+'</div><h1>'+t+'</h1></div>'}
-function zc(i){return i==0?0:i==4?3:i==3?2:1}
 function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){if(v!==undefined&&window.JialatUI)JialatUI.storageFailure()}return null}
 function pn(i){return S.names[i]}
 function cn(c){return pn(c*2)+" & "+pn(c*2+1)}
@@ -1008,15 +1010,19 @@ function home(){
  var gm='<h2>Play the games</h2><p class="sub" style="text-align:center;margin-top:-4px">Play all 3 games to win points for your pair!</p>',ico={tap:spr("tap",4),react:spr("react",4),stop:spr("stop",4)},num=0;
  for(var g in G){num++;var n=Object.keys(S.sc[g]).length,mine=S.sc[g][me]!==undefined;
   gm+='<div class="card game'+(mine?' dn':'')+'"><div class="gt"><span class="gi">'+ico[g]+'</span><div><div class="gl">GAME '+num+'</div><b class="gn">'+G[g].n+'</b></div><span class="tag">'+n+'/10 played</span></div><div class="sub" style="margin:8px 0 0">'+G[g].d+'</div><button data-g="'+g+'"'+(mine||completed?' disabled':'')+'>'+(mine?'✓ You played':'▶ PLAY NOW')+'</button><button class="alt" data-pr="'+g+'"'+(U(g)||completed?' disabled':'')+'>'+(U(g)?'Practice used ✓':'Practice (1 try only, not scored)')+'</button></div>'}
- var st='<h2 id="pair-rankings" tabindex="-1">Pair rankings</h2>';
- cs.forEach(function(x){st+='<div class="rank z'+zc(x.r-1)+'" data-pair="'+x.c+'" style="--w:'+Math.round(x.t/Math.max(1,cs[0].t)*100)+'%"><div class="n">'+(x.tied?'=':'')+x.r+'</div><div class="g"><b>'+esc(cn(x.c))+'</b><small>'+esc(pn(x.c*2))+' '+p[x.c*2]+' · '+esc(pn(x.c*2+1))+' '+p[x.c*2+1]+'</small>'+(x.h.length?'<small>'+tieNote(x)+'</small>':'')+'</div><div class="pts">'+x.t+'<small>'+(played<30?'Current position':x.tied?'TIED':ord[x.r-1]+' room pick')+'</small></div></div>'});
+ var st='<h2 id="pair-rankings" tabindex="-1">'+(played<30||cs.some(function(x){return x.tied})?"Provisional pair rankings":"Pair rankings")+'</h2>';
+ cs.forEach(function(x){st+=pairRankRow(x,cs[0].t,p,played===30?(x.tied?"Tied":ord[x.r-1]+" room pick"):"","")});
  var tie=cs.some(function(x){return x.tied});
  if(played===30&&tie)st+='<p class="sub">Some pairs are tied. The host can start a 5-second tapping tie-breaker for those pairs.</p>';
  h+=(completed?'<details class="completed-games"><summary>Game results</summary>':'')+tbb()+gm+(host||!any1()?'':'<details class="backup"><summary>Share results if missing</summary><p>If the host cannot see your scores, share this backup.</p><button class="alt" id="shh">Share backup</button></details>')+st+'<button class="alt" id="shs">Share rankings</button>';
  h+='<h2>Player scores</h2><div class="card">';
- for(var g in G){h+='<b>'+G[g].n+'</b><div class="sub">';
+ for(var g in G){
+  h+='<b>'+G[g].n+'</b>';
   var ids=Object.keys(S.sc[g]).sort(function(a,b){return G[g].hi?scoreValue(g,S.sc[g][b])-scoreValue(g,S.sc[g][a]):scoreValue(g,S.sc[g][a])-scoreValue(g,S.sc[g][b])});
-  h+=ids.length?ids.map(function(i){return esc(pn(i))+" "+G[g].f(S.sc[g][i])}).join(" · "):"No scores yet";h+='</div>'}
+  h+=ids.length?'<ul class="sub player-score-list">'+ids.map(function(i){
+   return '<li class="pair-member"><span>'+esc(pn(i))+'</span><span class="member-points">'+G[g].f(S.sc[g][i])+'</span></li>'
+  }).join("")+'</ul>':'<p class="sub">No scores yet</p>'
+ }
  h+='</div>'+(completed?'</details>':'');
  if(host){var ready=readyToReveal();h+='<h2>Host controls</h2><div class="card" id="invite-card"><b>Invite link</b><input id="lk" aria-label="Room Wars invite link" readonly value="'+esc(link())+'"><button id="sh">Share invite link</button></div><div class="card" id="manual-score" tabindex="-1"><b>Enter or correct a score</b><select id="mg" aria-label="Game">'+Object.keys(G).map(function(g){return'<option value="'+g+'">'+G[g].n+'</option>'}).join("")+'</select><select id="mp" aria-label="Player">'+S.names.map(function(n,i){return'<option value="'+i+'">'+esc(n)+'</option>'}).join("")+'</select><input id="mv" aria-label="Result" type="number" step="any" inputmode="decimal" placeholder="Taps, ms, or seconds off"><p class="sub score-unit" id="score-unit"></p><button id="ma" class="alt">Save score</button></div><details class="card backup-import"><summary>Advanced backup</summary><p class="sub">Use this only if a player’s score is missing. Paste the results they shared, then check their name.</p><textarea id="bc" aria-label="Shared result codes" placeholder="Paste the player’s shared results here"></textarea><button id="bb" class="alt">Check results</button><div id="backup-preview" aria-live="polite"></div></details><div id="room-pick-controls" tabindex="-1"><button id="rv"'+(ready?'':' disabled title="Complete all three games and settle ties first"')+'>1. Show final rankings</button><button id="sp"'+(ready&&!completed?'':' disabled')+'>'+(completed?'Rooms confirmed':S.roomResult?'Resume room picking':'2. Start room picking')+'</button>'+(ties().length&&!S.tb?'<button class="alt" id="tbs">Start tie-breaker (tied pairs only)</button>':'')+'<button class="alt" id="er">Edit room names</button><button class="alt" id="en">Edit names</button><p class="sub" style="margin:20px 0 0">Play again with the same people. Clears this round’s results and room picks.</p><button class="alt" id="rs">Start a new round</button></div>'}
  A.innerHTML=h+(host?relayPanelHTML():'');
@@ -1055,10 +1061,23 @@ function home(){
  document.getElementById("bb").onclick=reviewBackup;
  document.getElementById("rs").onclick=newRound}
 function newRound(confirmed){if(confirmed!==true){var options={title:'Start a new round?',message:'Clear all three game results, practice attempts, tie-breaks and room picks for everyone? Player and room names are kept.',label:'Start new round'};if(window.JialatUI)JialatUI.confirm(options,function(){newRound(true)});else if(confirm(options.message))newRound(true);return;}out=out.filter(function(m){return !roundMessage(m.t)&&m.t!=="reset"});remember();send({t:"reset"});home()}
+function pairRankRow(pair,top,points,label,roomName){
+ var first=pair.c*2;
+ var names=points?[first,first+1].map(function(id){
+  return '<div class="pair-member"><b>'+esc(pn(id))+'</b><small class="member-points">'+points[id]+' pts</small></div>'
+ }).join(""):'<b>'+esc(cn(pair.c))+'</b>';
+ var note=label?'<small class="pair-note">'+label+'</small>':'';
+ if(roomName)note+='<small class="pair-note">'+esc(roomName)+'</small>';
+ if(pair.h.length)note+='<small class="pair-note">'+tieNote(pair)+'</small>';
+ return '<div class="rank pair-rank" data-pair="'+pair.c+'" style="--w:'+Math.round(pair.t/Math.max(1,top)*100)+'%">'+
+  '<div class="n">'+(pair.tied?'=':'')+pair.r+'</div><div class="g">'+names+note+'</div>'+
+  '<div class="pts">'+pair.t+'</div>'+
+  '<span class="rank-track" aria-hidden="true"><i></i></span></div>'
+}
 function final(){var live=!!A.dataset.motionView;view="final";var cs=pairStandings(),ord=["1st","2nd","3rd","4th","5th"];
  var ordr=order(),w=cs[0],tie=w.tied;
  var h='<section class="room-final"><div class="final-summary"><div class="brand"><div class="bob">'+spr("trophy",5)+'</div><h1>Congratulations!</h1></div><div class="card win"><div class="sub">'+(tie?'Tied at the top':'Winning pair')+'</div><div class="big" style="font-size:var(--text-feature);line-height:1.2">'+esc(cn(w.c))+'</div><div class="sub" style="margin:8px 0 0">'+w.t+' points'+(tie?' · complete the tapping tie-breaker first':' · picks their room first')+'</div></div></div><div class="final-order"><h2>Room pick order</h2>';
- cs.forEach(function(x){h+='<div class="rank z'+zc(x.r-1)+'" style="--w:'+Math.round(x.t/Math.max(1,w.t)*100)+'%"><div class="n">'+(x.tied?'=':'')+x.r+'</div><div class="g"><b>'+esc(cn(x.c))+'</b><small>'+(x.tied?'TIED':ord[x.r-1]+' pick')+(roomOf(x.c,ordr)?' · '+esc(roomOf(x.c,ordr)):'')+'</small>'+(x.h.length?'<small>'+tieNote(x)+'</small>':'')+'</div><div class="pts">'+x.t+'</div></div>'});
+ cs.forEach(function(x){h+=pairRankRow(x,w.t,null,x.tied?"Tied":ord[x.r-1]+" pick",roomOf(x.c,ordr))});
  h+='</div><div class="final-actions"><div class="row"><button id="st1">Share results</button><button id="st2">Share as image</button></div><div id="cb"></div><div class="row"><button class="alt" id="sb">View all scores</button>'+(host?'<button class="alt" id="hd">Hide results for everyone</button>':'')+'</div></div></section>';
  A.innerHTML=h;
  if(roomEntrance(view,'.final-summary h1')){
@@ -1237,6 +1256,7 @@ function run(g,pr){view="play";practice=!!pr;
  roomEntrance("brief","h1");
  document.getElementById("st").onclick=function(){if(pr)ls(practiceKey(g),"1");g=="tap"?tapG(g):g=="react"?reactG(g):stopG(g)};
  document.getElementById("bk").onclick=home}
+function preventGameCallout(event){event.preventDefault()}
 function preventGamePan(event){
  if(event.cancelable&&event.touches.length===1)event.preventDefault()
 }
@@ -1244,6 +1264,8 @@ var watchGameArena=new MutationObserver(function(){
  if(A.querySelector("#ar.play-arena"))return;
  document.documentElement.classList.remove("roomwars-playing");
  document.removeEventListener("touchmove",preventGamePan);
+ document.removeEventListener("selectstart",preventGameCallout);
+ document.removeEventListener("contextmenu",preventGameCallout);
  watchGameArena.disconnect()
 });
 function arenaInput(node,label){
@@ -1251,6 +1273,9 @@ function arenaInput(node,label){
  document.documentElement.classList.add("roomwars-playing");
  // Safari can still scroll a page during a single-finger drag. Leave pinch zoom available.
  document.addEventListener("touchmove",preventGamePan,{passive:false});
+ document.addEventListener("selectstart",preventGameCallout);
+ document.addEventListener("contextmenu",preventGameCallout);
+ window.getSelection()?.removeAllRanges();
  watchGameArena.observe(A,{childList:true});
  if(window.JialatUI)JialatUI.arena(node,label,node.onpointerdown)
 }
