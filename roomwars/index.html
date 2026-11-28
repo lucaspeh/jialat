@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta name="jialat-build" content="26"><meta charset="utf-8">
 <meta name="robots" content="noindex">
+<meta name="jialat-room-wars-build" content="26-live-3-journey1">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a">
 <meta name="description" content="Three mini-games. Five pairs. One room-picking order. Hosts set up the game; players join with the shared invite.">
@@ -651,6 +652,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 </style><link rel="stylesheet" href="../assets/layout.css?v=26">
 <link rel="stylesheet" href="../assets/motion.css?v=4.1">
 <link rel="stylesheet" href="../assets/roomwars-play.css?v=3">
+<link rel="stylesheet" href="../assets/roomwars-journey.css?v=1">
 </head><body data-page="roomwars"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section>
 <i id="dot" class="dot"></i>
 <header class="site-navigation site-utility"><a id="site-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></header>
@@ -658,6 +660,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <script src="../assets/motion.js?v=4.1"></script>
 <script src="../assets/ui.js?v=26"></script>
 <script src="../assets/reliability.js?v=26-live-3"></script>
+<script src="../assets/roomwars-journey.js?v=1"></script>
 <script>
 
 // Connection state is shared by the three apps on this browser. No game data is stored here.
@@ -720,7 +723,7 @@ var LOGO="data:image/webp;base64,UklGRhZnAABXRUJQVlA4WAoAAAAQAAAABwIATwEAQUxQSG0
 var G={tap:{n:"Tap Rush",d:"Tap as many times as you can in 10 seconds. Timer starts on your first tap.",hi:true,f:function(v){return v+" taps"}},
 react:{n:"Quick Draw",d:"Wait for the screen to turn green, then tap as fast as you can. Tapping early restarts the wait.",hi:false,f:function(v){return Math.round(v)+" ms"}},
 stop:{n:"Stop at 10.00",d:"A timer runs and then hides. Tap when you think exactly 10.00 seconds has passed. Closest wins.",hi:false,f:function(v){return v.toFixed(3)+"s off"}}};
-var S={names:null,round:"0",roundNo:1,reveal:false,pick:null,roomResult:null,tb:null,tbs:{},tbh:{},rooms:["Room 1","Room 2","Room 3","Room 4","Room 5"],claims:{},sc:{tap:{},react:{},stop:{}}},A=document.getElementById("app"),tm=null,code="",host=false,me=null,on=false,fl=false,es=null,view="",skip=false,pt=null,DUR=[300,240,180,180,0];
+var S={names:null,round:"0",roundNo:1,reveal:false,revealPlan:null,revealChangedAt:0,pick:null,pickSession:null,pickSessionAt:0,pickClosed:false,roomResult:null,tb:null,tbs:{},tbh:{},rooms:["Room 1","Room 2","Room 3","Room 4","Room 5"],claims:{},sc:{tap:{},react:{},stop:{}}},A=document.getElementById("app"),tm=null,code="",host=false,me=null,on=false,fl=false,es=null,view="",skip=false,pt=null,DUR=[300,240,180,180,0];
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 var SP={trophy:["YYYYYYYYY","Y.YYYYY.Y","Y.YYYYY.Y",".YYYYYYY.","..YYYYY..","...YYY...","....Y....","...YYY...","..YYYYY.."],
 star:["....Y....","....Y....","...YYY...","YYYYYYYYY",".YYYYYYY.","..YYYYY..","..YY.YY..",".YY...YY."],
@@ -764,7 +767,7 @@ function namesFromInvite(raw){
  if(raw.charAt(0)==='n')return raw.slice(1).split(',').map(function(n){return decodeURIComponent(n)});
  return JSON.parse(decodeURIComponent(raw));
 }
-function link(){var u=new URL(location.href);u.hash="";u.search='?v=26-live-3-stop4';
+function link(){var u=new URL(location.href);u.hash="";u.search='?v=26-live-3-journey1';
  return u.toString()+"#"+code+(S.names?"~"+namesForInvite(S.names):"")}
 function I(x,a,b){return typeof x=="number"&&x%1===0&&x>=a&&x<=b}
 function F(x){return typeof x=="number"&&isFinite(x)}
@@ -774,38 +777,138 @@ function strs(a,n){return Array.isArray(a)&&a.length==n&&a.every(function(x){ret
 function perm(o){return Array.isArray(o)&&o.length==5&&o.every(function(x,i){return I(x,0,4)&&o.indexOf(x)==i})}
 function roundMessage(t){return ["score","scores","tb","tbs","pick","pickend","claim","reveal"].indexOf(t)>=0}
 function showSharedPhase(){clearTimeout(tm);clearInterval(tm);tm=null;playingTie=false;practice=false;if(S.names&&me!==null)view="home"}
+var REVEAL_DELAY=250, REVEAL_FIRST=1100, REVEAL_STEP=1000, REVEAL_END=6600;
+function competitionSignature(){
+ return JSON.stringify([Object.keys(G).map(function(g){return standardNames().map(function(_,i){return S.sc[g][i]})}),[0,1,2,3,4].map(function(i){return S.tbh[i]||[]})])
+}
+function revealVisible(){
+ return readyToReveal()&&(S.revealPlan?S.revealPlan.signature===competitionSignature():S.reveal)
+}
+function revealRunning(){return revealVisible()&&!!S.revealPlan&&Date.now()<S.revealPlan.start+REVEAL_END}
+function rankingsPublic(){
+ return !selectionNeedsReview()&&!revealRunning()&&(revealVisible()||!!S.pick||!!S.roomResult)
+}
+function selectionNeedsReview(){
+ var selection=S.pick||S.roomResult;
+ // A recovered assignment record may arrive before the game history.
+ if(!selection||resultCount()<30)return false;
+ return !readyToReveal()||selection.order.join()!==order().join()
+}
+function pauseInvalidSelection(at){
+ if(S.pick&&selectionNeedsReview()&&!S.pick.paused){
+  S.pick.rem=Math.max(0,S.pick.rem-Math.max(0,at-S.pick.at));
+  S.pick.paused=true
+ }
+}
+function selectionMessageMatches(m){
+ if(F(m.at)&&m.at<S.pickSessionAt)return false;
+ return !S.pickSession||m.pickSession===S.pickSession
+}
+function applyScores(rows,m){
+ var changed=false,wasRevealed=revealVisible();
+ rows.forEach(function(x){
+  if(m.attempt===true&&S.sc[x.g][x.p]!==undefined)return;
+  var value=scoreValue(x.g,x.v);
+  if(scoreValue(x.g,S.sc[x.g][x.p])===value)return;
+  S.sc[x.g][x.p]=value;
+  changed=true
+ });
+ if(!changed)return;
+ S.tbs={};S.tbh={};S.reveal=false;skip=false;
+ if(wasRevealed){S.revealPlan=null;S.revealChangedAt=Math.max(S.revealChangedAt,F(m.at)?m.at:Date.now())}
+ if(S.tb){S.tb=null;showSharedPhase()}
+ pauseInvalidSelection(F(m.at)?m.at:Date.now());
+}
 function apply(m){
  if(!m||typeof m!="object")return;var t=m.t;
  if(roundMessage(t)&&(m.round||"0")!==S.round)return;
- if(t==="scores"){if(!Array.isArray(m.rows)||!m.rows.length||m.rows.length>30||!m.rows.every(validResultRow))return;var unique={};if(!m.rows.every(function(x){var key=x.g+":"+x.p;if(unique[key])return false;unique[key]=true;return true}))return;m.rows.forEach(function(x){apply({t:"score",g:x.g,p:x.p,v:x.v,round:S.round})});return}
- if(t=="cfg"){if(strs(m.names,10))S.names=m.names.map(function(x){return friendName(x.slice(0,20))})}
- else if(t=="score"){if(I(m.p,0,9)&&validScore(m.g,m.v)){var value=scoreValue(m.g,m.v);if(scoreValue(m.g,S.sc[m.g][m.p])!==value){S.tbs={};S.tbh={};S.reveal=false;if(S.tb){S.tb=null;showSharedPhase()}}S.sc[m.g][m.p]=value;if(!readyToReveal())S.reveal=false}}
- else if(t=="reset"){if(!I(m.roundNo,1,100000)||m.roundNo<=S.roundNo)return;S.round=m.round||m.mid||"0";S.roundNo=I(m.roundNo,1,100000)?m.roundNo:S.roundNo+1;S.sc={tap:{},react:{},stop:{}};S.reveal=false;S.pick=null;S.roomResult=null;clearRoomResult();S.claims={};S.tb=null;S.tbs={};S.tbh={};skip=false;practice=false;playingTie=false;["mv","bc"].forEach(function(id){var e=document.getElementById(id);if(e)e.value=""});clearTimeout(tm);clearInterval(tm);tm=null;if(S.names&&me!==null)view="home"}
- else if(t=="pick"){if(m.start===true&&!readyToReveal())return;if(perm(m.order)&&I(m.i,0,4)&&F(m.rem)&&m.rem>=0){var entering=!S.pick;S.roomResult=null;clearRoomResult();if(m.start===true){S.claims={};showSharedPhase()}else if(entering)showSharedPhase();S.pick={order:m.order.slice(),i:m.i,rem:m.rem,paused:m.paused===true,at:F(m.at)?m.at:Date.now()}}}
+ if(t==="scores"){
+  if(!Array.isArray(m.rows)||!m.rows.length||m.rows.length>30||!m.rows.every(validResultRow))return;
+  if(new Set(m.rows.map(function(x){return x.g+":"+x.p})).size!==m.rows.length)return;
+  applyScores(m.rows,m)
+ }
+ else if(t=="score"){if(!validResultRow(m))return;applyScores([m],m)}
+ else if(t=="cfg"){if(strs(m.names,10))S.names=m.names.map(function(x){return friendName(x.slice(0,20))})}
+ else if(t=="reset"){
+  if(!I(m.roundNo,1,100000)||m.roundNo<=S.roundNo)return;
+  S.round=m.round||m.mid||"0";S.roundNo=m.roundNo;S.sc={tap:{},react:{},stop:{}};
+  S.reveal=false;S.revealPlan=null;S.revealChangedAt=0;S.pickSession=null;S.pickSessionAt=0;S.pickClosed=false;
+  S.pick=null;S.roomResult=null;clearRoomResult();S.claims={};S.tb=null;S.tbs={};S.tbh={};skip=false;
+  completionHostTools=false;["mv","bc"].forEach(function(id){var e=document.getElementById(id);if(e)e.value=""});showSharedPhase();
+ }
+ else if(t=="pick"){
+  var at=F(m.at)?m.at:Date.now();
+  if(!perm(m.order)||!I(m.i,0,4)||!F(m.rem)||m.rem<0||at<S.pickSessionAt)return;
+  if(m.start===true||m.resume===true){
+   if(S.revealPlan&&at<S.revealPlan.start+REVEAL_END&&S.revealPlan.signature===competitionSignature())return;
+   if(resultCount()===30&&(!readyToReveal()||m.order.join()!==order().join()))return;
+   if(m.restart===true&&!selectionNeedsReview()||m.restart!==true&&S.pick)return;
+   if(m.resume===true&&(!S.roomResult||S.roomResult.complete||selectionNeedsReview()))return;
+   if(m.start===true){S.claims={};if(m.restart===true){S.reveal=false;S.revealPlan=null;S.revealChangedAt=at}}
+   S.pickSession=typeof m.mid==="string"?m.mid:null;S.pickSessionAt=at;S.pickClosed=false;
+   S.roomResult=null;completionHostTools=false;clearRoomResult();showSharedPhase()
+  }else{
+   var legacyResume=S.pickClosed&&!S.pickSession&&S.roomResult&&!S.roomResult.complete&&
+    at>S.roomResult.endedAt&&m.order.join()===S.roomResult.order.join();
+   if(S.pickClosed&&!legacyResume||!selectionMessageMatches(m)||selectionNeedsReview())return;
+   if(legacyResume)S.pickClosed=false;
+   if(S.pick&&at<S.pick.at||S.pick&&m.order.join()!==S.pick.order.join())return;
+   if(!S.pick){if(S.pickSession||revealRunning())return;showSharedPhase()}
+   S.roomResult=null;clearRoomResult()
+  }
+  S.pick={order:m.order.slice(),i:m.i,rem:m.rem,paused:m.paused===true,at:at};
+ }
  else if(t=="pickend"){
+  if(S.pickClosed||!selectionMessageMatches(m)||selectionNeedsReview()||S.pick&&F(m.at)&&m.at<S.pick.at)return;
   var finished=m.result||makeRoomResult(S.pick,m.at);if(finished&&!validRoomResult(finished))return;
-  if(finished&&finished.round!==S.round)return;
-  if(finished){finished.names=finished.names.map(friendName);S.roomResult=finished;S.claims=Object.assign({},finished.claims);saveRoomResult()}
-  S.pick=null;skip=true;roomResultFocus=!!finished;
+  if(finished&&(finished.round!==S.round||S.pick&&finished.order.join()!==S.pick.order.join()))return;
+  if(finished){
+   finished.names=finished.names.map(friendName);S.roomResult=finished;S.claims=Object.assign({},finished.claims);
+   if(!S.pickSession&&typeof m.pickSession==="string")S.pickSession=m.pickSession;
+   finished.pickSession=S.pickSession;finished.pickSessionAt=S.pickSessionAt;
+   saveRoomResult()
+  }
+  S.pickClosed=true;S.pick=null;skip=true;completionHostTools=false;roomResultFocus=!!finished;
+  if(view==="final")showSharedPhase();
  }
  else if(t=="tb"){
   if(m.pairs==null){
    var k=S.tb;if(!k||m.tieId&&m.tieId!==k.id)return;
-   var done=k.pairs.every(function(c){return S.tbs[c*2]!==undefined&&S.tbs[c*2+1]!==undefined});
+   var done=tieFinished(k);
    k.pairs.forEach(function(c){if(m.cancel===true||!done){delete S.tbs[c*2];delete S.tbs[c*2+1]}else{if(!S.tbh[c])S.tbh[c]=[];S.tbh[c].push(S.tbs[c*2]+S.tbs[c*2+1])}});S.tb=null;
-  }else if(Array.isArray(m.pairs)&&m.pairs.length&&m.pairs.every(function(c,i){return I(c,0,4)&&m.pairs.indexOf(c)===i})){S.tb={pairs:m.pairs.slice(),id:String(m.mid||m.at||Date.now())};S.reveal=false;m.pairs.forEach(function(c){delete S.tbs[c*2];delete S.tbs[c*2+1]});showSharedPhase()}
+  }else if(Array.isArray(m.pairs)&&m.pairs.length&&m.pairs.every(function(c,i){return I(c,0,4)&&m.pairs.indexOf(c)===i})){
+   S.tb={pairs:m.pairs.slice(),id:String(m.mid||m.at||Date.now())};S.reveal=false;m.pairs.forEach(function(c){delete S.tbs[c*2];delete S.tbs[c*2+1]});showSharedPhase();
+  }
+  pauseInvalidSelection(F(m.at)?m.at:Date.now());
   if(playingTie)showSharedPhase()
  }
- else if(t=="tbs"){if(S.tb&&m.tieId===S.tb.id&&I(m.p,0,9)&&S.tb.pairs.indexOf(m.p>>1)>=0&&I(m.v,0,100000))S.tbs[m.p]=m.v}
+ else if(t=="tbs"){if(S.tb&&m.tieId===S.tb.id&&I(m.p,0,9)&&I(m.v,0,100000)&&S.tb.pairs.indexOf(m.p>>1)>=0)S.tbs[m.p]=m.v}
  else if(t=="rooms"){if(strs(m.names,5))S.rooms=m.names.map(function(x){return x.slice(0,30)})}
- else if(t=="claim"){if(I(m.r,0,4)){if(m.c===null)delete S.claims[m.r];else if(I(m.c,0,4)){for(var old in S.claims)if(S.claims[old]===m.c)delete S.claims[old];S.claims[m.r]=m.c}}}
- else if(t=="reveal"){if(m.on===true&&!readyToReveal())return;S.reveal=m.on===true;skip=false;if(S.reveal)showSharedPhase()}
+ else if(t=="claim"){
+  if(!S.pick||!selectionMessageMatches(m)||selectionNeedsReview())return;
+  if(I(m.r,0,4)){if(m.c===null)delete S.claims[m.r];else if(I(m.c,0,4)){for(var old in S.claims)if(S.claims[old]===m.c)delete S.claims[old];S.claims[m.r]=m.c}}
+ }
+ else if(t=="reveal"){
+  var changedAt=F(m.at)?m.at:Date.now();
+  if(changedAt<S.revealChangedAt||S.pick||S.roomResult||revealRunning())return;
+  if(m.on===true){
+   if(typeof m.signature==="string"&&m.signature.length<=2048&&F(m.start)&&m.start>=changedAt&&m.start<=changedAt+2000){
+    S.revealPlan={start:m.start,signature:m.signature};
+   }else if(readyToReveal())S.revealPlan=null;
+   else return;
+   S.reveal=true;skip=false;
+   if(revealVisible())showSharedPhase();
+  }else{S.reveal=false;S.revealPlan=null;skip=false}
+  S.revealChangedAt=changedAt;
+ }
  if(S.roomResult&&(t==="cfg"||t==="rooms")){S.roomResult.names=S.names.slice();S.roomResult.rooms=S.rooms.slice();saveRoomResult()}
- if(view=="home"||view=="wait"||view=="who"||view=="final"||view=="picking")rq()}
-var rt=null,RV=["home","wait","who","final","picking"];
+ if((t==="score"||t==="scores"||t==="tb")&&revealRunning()&&view==="fin")showSharedPhase();
+ if(RV.indexOf(view)>=0)rq()
+}
+var rt=null,RV=["home","wait","who","final","picking","complete"];
 function rq(){if(rt)return;rt=setTimeout(function(){rt=null;if(view=="home"&&host&&document.activeElement&&["mg","mp","mv","bc"].indexOf(document.activeElement.id)>=0)return;if(RV.indexOf(view)>=0)render()},80)}
 var out=[],posting=false,postRetry=null,postRetryAt=0,postFailures=0,pollTimer=null,polling=false,pollTask=null,pollOk=false,cursor="",seen={},seenOrder=[],postFailed=false,postError="";
-var roomHostTab=null,wantedRoomHost=false,roomFilesMatch=!!(window.JialatUI&&JialatUI.build==='26'&&JialatUI.relayRevision==='3');
+var roomHostTab=null,wantedRoomHost=false,roomFilesMatch=!!(window.JialatUI&&JialatUI.build==='26'&&JialatUI.relayRevision==='3'&&typeof stageIndicator==='function');
 var setupDraft=null,roomHostDenied=false,roomHostProblem='',roomLeaving=false,heldOut=[],queuePaused=false;
 function reloadRoom(event){event.preventDefault();location.reload()}
 function roomHostActive(){return !!(host&&roomHostTab&&roomHostTab.active)}
@@ -880,6 +983,11 @@ function restoreSnapshot(){
   if(x.tb&&(!Array.isArray(x.tb.pairs)||!x.tb.pairs.length||x.tb.pairs.length>5||!x.tb.pairs.every(function(p,i){return I(p,0,4)&&x.tb.pairs.indexOf(p)===i})||typeof x.tb.id!=='string'))return false;
   if(x.roomResult&&!validRoomResult(x.roomResult))return false;
   ['names','round','roundNo','reveal','pick','roomResult','tb','tbs','tbh','rooms','claims','sc'].forEach(function(k){if(Object.prototype.hasOwnProperty.call(x,k))S[k]=x[k]});
+  if(x.revealPlan&&F(x.revealPlan.start)&&typeof x.revealPlan.signature==="string"&&x.revealPlan.signature.length<=2048)S.revealPlan=x.revealPlan;
+  S.revealChangedAt=F(x.revealChangedAt)?x.revealChangedAt:0;
+  S.pickSession=typeof x.pickSession==="string"?x.pickSession:null;
+  S.pickSessionAt=F(x.pickSessionAt)?x.pickSessionAt:0;
+  S.pickClosed=x.pickClosed===true||!!x.roomResult;
   cursor=cached.relay===BASE&&typeof cached.cursor==='string'?cached.cursor:'';
   if(Array.isArray(cached.seen))cached.seen.slice(-500).forEach(function(id){if(typeof id==='string')mark(id)});
   return true;
@@ -892,7 +1000,10 @@ function send(m,playerResult){
  if(roomHostBlocked()||(!playerQueueMessage(m)&&!roomHostActive()))return '';
  m.mid=Date.now().toString(36)+Math.random().toString(36).slice(2,9);
  if(roundMessage(m.t))m.round=S.round;if(m.t=="reset"){m.round=m.mid;m.roundNo=S.roundNo+1}
- m.at=Date.now();mark(m.mid);apply(m);
+ m.at=Date.now();
+ if(m.t==="reveal"&&m.on===true){m.start=m.at+REVEAL_DELAY;m.signature=competitionSignature()}
+ if(m.t==="claim"||m.t==="pickend"||m.t==="pick"&&!m.start&&!m.resume)m.pickSession=S.pickSession;
+ mark(m.mid);apply(m);
  out.push(m);remember();saveSnapshot();stat();post();return m.mid}
 async function post(){
  if(posting||!out.length||queuePaused||roomHostBlocked()||(!playerQueueMessage(out[0])&&!roomHostActive())||Date.now()<postRetryAt||navigator.onLine===false)return;
@@ -935,10 +1046,21 @@ function connect(){
 function resume(event){if(code&&!document.hidden){if(roomHostBlocked()){acquireRoomHost();return}if(event&&event.type==='online'){clearTimeout(postRetry);postRetry=null;postRetryAt=0;postFailures=0}if(!es||es.readyState===2)connect();post();if(!es||es.readyState===2)poll()}}
 document.addEventListener("visibilitychange",resume);window.addEventListener("online",resume);window.addEventListener("pageshow",function(e){if(e.persisted)resume()});
 window.addEventListener('jialat-relay-status',function(){stat()});
-function stat(){updatePageChrome();roomHostAccess();var d=document.getElementById("dot"),e=document.getElementById("stat"),help=document.getElementById("syncHelp"),result=document.getElementById("resultSync"),label=roomHostTab&&!roomHostTab.active?'Host controls open in another tab':relayWait()>0?relayWaitLabel():postFailed&&out.length?"Could not send · retrying":out.length?"Sending updates…":on?"Connected":pollOk?"Connected · checking for updates":fl?"Connection lost · retrying":"Connecting";
+function stat(){updatePageChrome();roomHostAccess();updateHostPending();var d=document.getElementById("dot"),e=document.getElementById("stat"),help=document.getElementById("syncHelp"),result=document.getElementById("resultSync"),label=roomHostTab&&!roomHostTab.active?'Host controls open in another tab':relayWait()>0?relayWaitLabel():postFailed&&out.length?"Could not send · retrying":out.length?"Sending updates…":on?"Connected":pollOk?"Connected · checking for updates":fl?"Connection lost · retrying":"Connecting";
  if(d)d.className="dot "+((postFailed&&out.length)||fl&&!on&&!pollOk?"bad":on||pollOk?"ok":"");if(e){if(window.JialatUI)JialatUI.status(e,label);else e.textContent=label;e.setAttribute("role","status");e.style.setProperty("--connection-color",(postFailed&&out.length)||fl&&!on&&!pollOk?"#ff8b78":on||pollOk?"#65d9cb":"#d4af37")}
- if(help){help.textContent=postFailed&&out.length?"Your updates are saved here but may not reach others yet. Wait for the displayed retry time, or use backup sharing below.":"";help.style.display=postFailed&&out.length?"block":"none"}
- if(result&&result.dataset&&result.dataset.mid){var waiting=out.some(function(m){return m.mid===result.dataset.mid});result.className="sub result-sync"+(waiting&&postFailed?" retry":"");result.textContent=waiting?(postFailed?"Saved on this phone. Reconnecting. Share a backup if the host cannot see it.":"Saved. Sending to the host… You can go back to Room Wars."):"Result sent. You can go back to Room Wars."}}
+ if(help){help.textContent=postFailed&&out.length?"Your updates are saved here but may not reach others yet. Wait for the displayed retry time, or use backup sharing below.":"";help.hidden=!(postFailed&&out.length);help.style.display=postFailed&&out.length?"block":"none"}
+ ["personal-submission","personal-tie-submission"].forEach(function(id){
+  var receipt=document.getElementById(id);if(!receipt)return;
+  var receiptText=personalSubmission(receipt.dataset.kind||"score");if(receipt.textContent!==receiptText)receipt.textContent=receiptText
+ });
+ if(result&&result.dataset.mid){
+  var waiting=out.some(function(m){return m.mid===result.dataset.mid});
+  result.className="sub result-sync"+(waiting&&postFailed?" retry":"");
+  var resultText=waiting?personalSubmission(result.dataset.kind||"score"):"Result submitted to the relay.";
+  if(result.textContent!==resultText)result.textContent=resultText
+ }
+}
+
 function roomEntrance(key,selector){
  if(A.dataset.motionView===key)return false;
  A.dataset.motionView=key;
@@ -974,9 +1096,9 @@ function render(){updatePageChrome();clearTimeout(tm);clearInterval(tm);
  if(!S.names)return setupDraft?setup():wait();
  if(me==null)return who();
  home()}
-function wait(){view="wait";A.innerHTML='<p class="live" id="stat"></p>'+brand("ROOM WARS","trophy")+'<div class="card">Waiting for the host’s names. Ask the host to share the invite link again if this takes more than a few seconds.<button id="retry" class="alt">Retry connection</button></div>';roomEntrance(view,".activity-header");stat();document.getElementById("retry").onclick=resume}
+function wait(){view="wait";A.innerHTML='<p class="live" id="stat"></p>'+brand("ROOM WARS","trophy")+stageIndicator(0)+'<div class="card">Waiting for the host’s names. Ask the host to share the invite link again if this takes more than a few seconds.<button id="retry" class="alt">Retry connection</button></div>';roomEntrance(view,".activity-header");stat();document.getElementById("retry").onclick=resume}
 function setup(){view="setup";updatePageChrome();var names=S.names||setupDraft;
- var h=brand("ROOM WARS","trophy")+'<p class="sub">'+(code&&!setupDraft?'Edit the five pairs, then save.':'Enter the five pairs, then share the invite.')+'</p>';
+ var h=brand("ROOM WARS","trophy")+stageIndicator(0)+'<p class="sub">'+(code&&!setupDraft?'Edit the five pairs, then save.':'Enter the five pairs, then share the invite.')+'</p>';
  h+='<div class="pair-setup-list">';
  for(var c=0;c<5;c++)h+='<div class="card pair-setup"><b>Pair '+(c+1)+'</b><div class="row"><input id="p'+(c*2)+'" aria-label="Pair '+(c+1)+', first player" placeholder="Person A" maxlength="14" value="'+(names?esc(names[c*2]):"")+'"><input id="p'+(c*2+1)+'" aria-label="Pair '+(c+1)+', second player" placeholder="Person B" maxlength="14" value="'+(names?esc(names[c*2+1]):"")+'"></div></div>';
  h+='</div><div class="setup-actions"><button id="go">'+(code&&!setupDraft?'Save names':'Create game')+'</button>'+(code&&!setupDraft?'<button class="alt" id="bk">Cancel</button>':'')+'</div>';
@@ -986,7 +1108,7 @@ function setup(){view="setup";updatePageChrome();var names=S.names||setupDraft;
   if(!code||setupDraft){if(!code){var al="abcdefghjkmnpqrstuvwxyz23456789";for(var i=0;i<8;i++)code+=al[Math.floor(Math.random()*al.length)];ls("rwh-"+code,"1");location.hash=code}
    saveSetupDraft(nm);acquireRoomHost();return}
   send({t:"cfg",names:nm});render()};roomHostAccess()}
-function who(){view="who";var h=brand("ROOM WARS","trophy")+'<p class="sub name-entry-intro">Tap your name to join your pair.</p><div class="pair-setup-list player-choices" aria-label="Choose your name">';
+function who(){view="who";var h=brand("ROOM WARS","trophy")+stageIndicator(0)+'<p class="sub name-entry-intro">Tap your name to join your pair.</p><div class="pair-setup-list player-choices" aria-label="Choose your name">';
  for(var c=0;c<5;c++)h+='<div class="card pair-setup" role="group" aria-labelledby="pair-choice-'+c+'"><b id="pair-choice-'+c+'">Pair '+(c+1)+'</b><div class="row"><button class="alt" data-i="'+(c*2)+'">'+esc(pn(c*2))+'</button><button class="alt" data-i="'+(c*2+1)+'">'+esc(pn(c*2+1))+'</button></div></div>';
  h+='</div><p class="live selection-status" id="stat"></p><p class="sub" id="syncHelp" style="display:none"></p>';A.innerHTML=h;roomEntrance(view,".activity-header");stat();
  Array.prototype.forEach.call(A.querySelectorAll('.player-choices button'),function(b){b.onclick=function(){me=+b.dataset.i;ls("rwm-"+code,me);render()}})}
@@ -998,36 +1120,39 @@ function pairCompare(x,y){var d=y.t-x.t;if(d)return d;for(var i=0;i<Math.max(x.h
 function pairStandings(){var p=pts(),cs=[];for(var c=0;c<5;c++)cs.push({c:c,t:p[c*2]+p[c*2+1],h:(S.tbh[c]||[]).slice()});cs.sort(function(x,y){return pairCompare(x,y)||x.c-y.c});cs.forEach(function(x,i){x.r=i&&pairCompare(cs[i-1],x)===0?cs[i-1].r:i+1;x.tied=!!(i&&pairCompare(cs[i-1],x)===0||i<4&&pairCompare(x,cs[i+1])===0)});return cs}
 function tieNote(x){return x.h.length?'Tie-break: '+x.h.join(' → ')+' taps':''}
 function home(){
- if(S.pick)return picking();
- if(S.reveal&&!skip&&!S.roomResult)return final();
+ clearTimeout(revealTimer);
+ if(revealRunning()||view==="final"&&rankingsPublic()&&(S.pick||S.roomResult))return final();
+ if(S.pick&&!selectionNeedsReview()&&!completionHostTools)return picking();
+ if(S.roomResult?.complete&&!selectionNeedsReview()&&!completionHostTools)return completeCompetition();
+ if(revealVisible()&&!skip&&!S.roomResult&&!S.pick)return final();
+ if(!host)return playerHome();
+ hostHome()
+}
+function hostHome(){
  var previousPairs=capturePairRows();
  var backupCard=host&&A.querySelector(".backup-import"),backupFocus=backupCard&&backupCard.contains(document.activeElement)?document.activeElement:null;
+ var manualOpen=!!A.querySelector('#manual-score[open]'),checklistOpen=!!A.querySelector('.host-result-status[open]');
  var draft={};if(host)["mg","mp","mv","bc"].forEach(function(id){var e=document.getElementById(id);if(e)draft[id]=e.value});
- view="home";var completed=!!(S.roomResult&&S.roomResult.complete),p=pts(),cs=pairStandings(),ord=["1st","2nd","3rd","4th","5th"],played=0;
- for(var g in G)played+=Object.keys(S.sc[g]).length;
- var h=brand("ROOM WARS","trophy")+'<p class="live host-status"><span id="stat"></span> · You: <b>'+esc(pn(me))+'</b> <a href="#" id="chg">change</a></p><p class="sub" id="syncHelp" style="display:none"></p>'+(S.roundNo>1?'<p class="sub" style="text-align:center">ROUND '+S.roundNo+'</p>':'')+(completed?'':'<p class="sub">1st place in each game = 10 pts, 2nd = 9, and so on. Equal game results share points. Pair score = both partners added.</p><p class="sub">After all 3 games, equal pair totals use a 5-second tapping tie-break. Both partners’ taps are added. Only pairs still tied replay.</p>')+roomResultHTML();
- if(host)h+='<section class="host-overview" aria-label="Room Wars progress"><div><span>Results recorded</span><strong>'+played+' / 30</strong></div><div><span>Rooms chosen</span><strong>'+Object.keys(S.claims).length+' / 5</strong></div></section><nav class="host-shortcuts" aria-label="Host shortcuts"><button class="alt" data-jump="manual-score">Enter scores</button><button class="alt" data-jump="pair-rankings">Pair rankings</button><button class="alt" data-jump="room-pick-controls">Room picking</button></nav>';
- var gm='<h2>Play the games</h2><p class="sub" style="text-align:center;margin-top:-4px">Play all 3 games to win points for your pair!</p>',ico={tap:spr("tap",4),react:spr("react",4),stop:spr("stop",4)},num=0;
- for(var g in G){num++;var n=Object.keys(S.sc[g]).length,mine=S.sc[g][me]!==undefined;
-  gm+='<div class="card game'+(mine?' dn':'')+'"><div class="gt"><span class="gi">'+ico[g]+'</span><div><div class="gl">GAME '+num+'</div><b class="gn">'+G[g].n+'</b></div><span class="tag">'+n+'/10 played</span></div><div class="sub" style="margin:8px 0 0">'+G[g].d+'</div><button data-g="'+g+'"'+(mine||completed?' disabled':'')+'>'+(mine?'✓ You played':'▶ PLAY NOW')+'</button><button class="alt" data-pr="'+g+'"'+(U(g)||completed?' disabled':'')+'>'+(U(g)?'Practice used ✓':'Practice (1 try only, not scored)')+'</button></div>'}
+ view="home";var completed=!!(S.roomResult&&S.roomResult.complete),p=pts(),cs=pairStandings(),ord=["1st","2nd","3rd","4th","5th"],played=resultCount();
+ var h=brand("ROOM WARS","trophy")+stageIndicator(completed?4:S.pick||S.roomResult?3:revealVisible()?2:1)+
+  '<p class="live host-status"><span id="stat"></span> · You: <b>'+esc(pn(me))+'</b> <a href="#" id="chg">Change player</a></p><p class="sub" id="syncHelp" hidden></p>'+
+  (S.roundNo>1?'<p class="sub">Round '+S.roundNo+'</p>':'')+reviewSelectionHTML()+tbb()+
+  pairDashboard(played)+'<p class="card"><strong>Next for the host</strong><br>'+hostNextStep()+'</p>'+hostResultStatus()+
+  (S.pick&&!selectionNeedsReview()?'<button id="return-picking" class="current-action">Return to room picking</button>':'')+(S.roomResult?roomResultHTML():'');
+ var gm=(!completed&&!S.pick&&!S.roomResult&&!revealVisible()&&!S.tb)?gameCards():'';
  var st='<h2 id="pair-rankings" tabindex="-1">'+(played<30||cs.some(function(x){return x.tied})?"Provisional pair rankings":"Pair rankings")+'</h2>';
  cs.forEach(function(x){st+=pairRankRow(x,cs[0].t,p,played===30?(x.tied?"Tied":ord[x.r-1]+" room pick"):"","")});
  var tie=cs.some(function(x){return x.tied});
  if(played===30&&tie)st+='<p class="sub">Some pairs are tied. The host can start a 5-second tapping tie-breaker for those pairs.</p>';
- h+=(completed?'<details class="completed-games"><summary>Game results</summary>':'')+tbb()+gm+(host||!any1()?'':'<details class="backup"><summary>Share results if missing</summary><p>If the host cannot see your scores, share this backup.</p><button class="alt" id="shh">Share backup</button></details>')+st+'<button class="alt" id="shs">Share rankings</button>';
- h+='<h2>Player scores</h2><div class="card">';
- for(var g in G){
-  h+='<b>'+G[g].n+'</b>';
-  var ids=Object.keys(S.sc[g]).sort(function(a,b){return G[g].hi?scoreValue(g,S.sc[g][b])-scoreValue(g,S.sc[g][a]):scoreValue(g,S.sc[g][a])-scoreValue(g,S.sc[g][b])});
-  h+=ids.length?'<ul class="sub player-score-list">'+ids.map(function(i){
-   return '<li class="pair-member"><span>'+esc(pn(i))+'</span><span class="member-points">'+G[g].f(S.sc[g][i])+'</span></li>'
-  }).join("")+'</ul>':'<p class="sub">No scores yet</p>'
- }
- h+='</div>'+(completed?'</details>':'');
- if(host){var ready=readyToReveal();h+='<h2>Host controls</h2><div class="card" id="invite-card"><b>Invite link</b><input id="lk" aria-label="Room Wars invite link" readonly value="'+esc(link())+'"><button id="sh">Share invite link</button></div><div class="card" id="manual-score" tabindex="-1"><b>Enter or correct a score</b><select id="mg" aria-label="Game">'+Object.keys(G).map(function(g){return'<option value="'+g+'">'+G[g].n+'</option>'}).join("")+'</select><select id="mp" aria-label="Player">'+S.names.map(function(n,i){return'<option value="'+i+'">'+esc(n)+'</option>'}).join("")+'</select><input id="mv" aria-label="Result" type="number" step="any" inputmode="decimal" placeholder="Taps, ms, or seconds off"><p class="sub score-unit" id="score-unit"></p><button id="ma" class="alt">Save score</button></div><details class="card backup-import"><summary>Advanced backup</summary><p class="sub">Use this only if a player’s score is missing. Paste the results they shared, then check their name.</p><textarea id="bc" aria-label="Shared result codes" placeholder="Paste the player’s shared results here"></textarea><button id="bb" class="alt">Check results</button><div id="backup-preview" aria-live="polite"></div></details><div id="room-pick-controls" tabindex="-1"><button id="rv"'+(ready?'':' disabled title="Complete all three games and settle ties first"')+'>1. Show final rankings</button><button id="sp"'+(ready&&!completed?'':' disabled')+'>'+(completed?'Rooms confirmed':S.roomResult?'Resume room picking':'2. Start room picking')+'</button>'+(ties().length&&!S.tb?'<button class="alt" id="tbs">Start tie-breaker (tied pairs only)</button>':'')+'<button class="alt" id="er">Edit room names</button><button class="alt" id="en">Edit names</button><p class="sub" style="margin:20px 0 0">Play again with the same people. Clears this round’s results and room picks.</p><button class="alt" id="rs">Start a new round</button></div>'}
+ h+=gm+st+'<button class="alt" id="shs">Share rankings</button><details class="card"><summary>Individual game results</summary>'+individualScores()+'</details>';
+ if(host){var ready=readyToReveal(),canPick=ready&&rankingsPublic()&&!selectionNeedsReview()&&!S.pick&&!completed;h+='<h2>Host controls</h2><div class="card" id="invite-card"><b>Invite link</b><input id="lk" aria-label="Room Wars invite link" readonly value="'+esc(link())+'"><button id="sh">Share invite link</button></div><details class="card" id="manual-score"'+(manualOpen?' open':'')+'><summary>Enter or correct a score</summary><select id="mg" aria-label="Game">'+Object.keys(G).map(function(g){return'<option value="'+g+'">'+G[g].n+'</option>'}).join("")+'</select><select id="mp" aria-label="Player">'+S.names.map(function(n,i){return'<option value="'+i+'">'+esc(n)+'</option>'}).join("")+'</select><input id="mv" aria-label="Result" type="number" step="any" inputmode="decimal" placeholder="Taps, ms, or seconds off"><p class="sub score-unit" id="score-unit"></p><button id="ma" class="alt">Save score</button></details><details class="card backup-import"><summary>Advanced backup</summary><p class="sub">Use this only if a player’s score is missing. Paste the results they shared, then check their name.</p><textarea id="bc" aria-label="Shared result codes" placeholder="Paste the player’s shared results here"></textarea><button id="bb" class="alt">Check results</button><div id="backup-preview" aria-live="polite"></div></details><div id="room-pick-controls" tabindex="-1"><button id="rv"'+(ready&&!S.pick&&!S.roomResult?'':' disabled title="Complete all three games and settle ties first"')+'>1. Show final rankings</button><button id="sp"'+(canPick?'':' disabled')+'>'+(completed?'Rooms confirmed':S.roomResult?'Resume room picking':'2. Start room picking')+'</button>'+(ties().length&&!S.tb&&!selectionNeedsReview()?'<button class="alt" id="tbs">Start tie-breaker (tied pairs only)</button>':'')+'<details class="card" id="room-advanced"'+(A.querySelector('#room-advanced[open]')?' open':'')+'><summary>Room and round settings</summary><button class="alt" id="er">Edit room names</button><button class="alt" id="en">Edit names</button><p class="sub" style="margin:20px 0 0">Play again with the same people. Clears this round’s results and room picks.</p><button class="alt" id="rs">Start a new round</button></details></div>'}
  A.innerHTML=h+(host?relayPanelHTML():'');
  roomEntrance(view,'.activity-header,.brand');
  movePairRows(previousPairs);
+ if(checklistOpen)A.querySelector(".host-result-status").open=true;
+ bindReviewSelection();observeAssignment();
+ var returnPick=document.getElementById("return-picking");
+ if(returnPick)returnPick.onclick=function(){completionHostTools=false;home()};
  if(backupCard){var nextBackup=A.querySelector('.backup-import');if(nextBackup)nextBackup.parentNode.replaceChild(backupCard,nextBackup);if(backupFocus&&backupFocus.isConnected)backupFocus.focus({preventScroll:true})}relayPanelBind();Object.keys(draft).forEach(function(id){var e=document.getElementById(id);if(e)e.value=draft[id]});stat();var roomCopy=document.getElementById("copy-rooms");if(roomCopy)roomCopy.onclick=copyRooms;var summary=document.querySelector(".room-confirmation");if(roomResultFocus&&summary){roomResultFocus=false;summary.scrollIntoView({block:"start",behavior:"auto"});summary.querySelector("h2").focus({preventScroll:true});window.JialatMotion?.play(summary.querySelector("h2"),"reveal")}
  Array.prototype.forEach.call(A.querySelectorAll("button[data-g]"),function(b){b.onclick=function(){run(b.dataset.g,false)}});
  Array.prototype.forEach.call(A.querySelectorAll("button[data-pr]"),function(b){b.onclick=function(){run(b.dataset.pr,true)}});
@@ -1037,21 +1162,17 @@ function home(){
  var t2=document.getElementById("tbx");if(t2)t2.onclick=function(){var done=tieFinished(S.tb);send({t:"tb",pairs:null,tieId:S.tb.id,cancel:!done})};
  document.getElementById("chg").onclick=function(e){e.preventDefault();me=null;render()};
  if(!host)return;
- var nextAction=played?'ma':'sh';
- if(completed)nextAction='copy-rooms';
+ var nextAction=played?'manual-score':'sh';
+ if(completed&&!selectionNeedsReview())nextAction='copy-rooms';
  else if(S.tb)nextAction=tieFinished(S.tb)?'tbx':'tbp';
- else if(ready)nextAction=S.reveal||S.roomResult?'sp':'rv';
+ else if(ready)nextAction=selectionNeedsReview()?'restart-picking':rankingsPublic()?'sp':'rv';
  else if(ties().length)nextAction='tbs';
  var currentButton=document.getElementById(nextAction);
  if(currentButton)currentButton.classList.add('current-action');
  document.getElementById("sh").onclick=shareInvite;
  Array.prototype.forEach.call(A.querySelectorAll('[data-jump]'),function(button){button.onclick=function(){var target=document.getElementById(button.dataset.jump);if(target){target.scrollIntoView({block:'start',behavior:'auto'});target.focus({preventScroll:true})}}});
- document.getElementById("sp").onclick=function(){
-  if(completed)return;var previous=S.roomResult;
-  if(previous){var next=previous.order.findIndex(function(pair){return !Object.keys(S.claims).some(function(r){return S.claims[r]===pair})});if(next<0)return;send({t:"pick",order:previous.order,i:next,rem:DUR[next]*1000,paused:false})}
-  else send({t:"pick",order:order(),i:0,rem:DUR[0]*1000,paused:false,start:true})
- };
- document.getElementById("rv").onclick=function(){send({t:"reveal",on:true})};
+ document.getElementById("sp").onclick=startRoomPicking;
+ document.getElementById("rv").onclick=function(){if(readyToReveal()&&!S.pick&&!S.roomResult&&!revealRunning())send({t:"reveal",on:true})};
  var t3=document.getElementById("tbs");if(t3)t3.onclick=function(){send({t:"tb",pairs:ties()})};
  document.getElementById("er").onclick=rooms;
  document.getElementById("en").onclick=setup;
@@ -1074,21 +1195,14 @@ function pairRankRow(pair,top,points,label,roomName){
   '<div class="pts">'+pair.t+'</div>'+
   '<span class="rank-track" aria-hidden="true"><i></i></span></div>'
 }
-function final(){var live=!!A.dataset.motionView;view="final";var cs=pairStandings(),ord=["1st","2nd","3rd","4th","5th"];
- var ordr=order(),w=cs[0],tie=w.tied;
- var h='<section class="room-final"><div class="final-summary"><div class="brand"><div class="bob">'+spr("trophy",5)+'</div><h1>Congratulations!</h1></div><div class="card win"><div class="sub">'+(tie?'Tied at the top':'Winning pair')+'</div><div class="big" style="font-size:var(--text-feature);line-height:1.2">'+esc(cn(w.c))+'</div><div class="sub" style="margin:8px 0 0">'+w.t+' points'+(tie?' · complete the tapping tie-breaker first':' · picks their room first')+'</div></div></div><div class="final-order"><h2>Room pick order</h2>';
- cs.forEach(function(x){h+=pairRankRow(x,w.t,null,x.tied?"Tied":ord[x.r-1]+" pick",roomOf(x.c,ordr))});
- h+='</div><div class="final-actions"><div class="row"><button id="st1">Share results</button><button id="st2">Share as image</button></div><div id="cb"></div><div class="row"><button class="alt" id="sb">View all scores</button>'+(host?'<button class="alt" id="hd">Hide results for everyone</button>':'')+'</div></div></section>';
- A.innerHTML=h;
- if(roomEntrance(view,'.final-summary h1')){
-  A.querySelector('.win').classList.add('arcade-sweep');
-  window.JialatMotion?.play(A.querySelector('.win .big'),'finale',{delay:105});
-  A.querySelectorAll('.final-order .rank').forEach(function(row,i){window.JialatMotion?.play(row,'enter',{delay:100+i*35})});
-  if(live)window.JialatMotion?.burst(A.querySelector('.room-final'),'room')
- }
- document.getElementById("sb").onclick=function(){skip=true;home()};
- document.getElementById("st1").onclick=function(){share(rtext())};document.getElementById("st2").onclick=cardImg;
- var hd=document.getElementById("hd");if(hd)hd.onclick=function(){send({t:"reveal",on:false})}}
+function individualScores(){
+ return Object.keys(G).map(function(g){
+  var ids=Object.keys(S.sc[g]).sort(function(a,b){return G[g].hi?scoreValue(g,S.sc[g][b])-scoreValue(g,S.sc[g][a]):scoreValue(g,S.sc[g][a])-scoreValue(g,S.sc[g][b])});
+  return '<h3>'+G[g].n+'</h3>'+(ids.length?'<ul class="sub player-score-list">'+ids.map(function(i){
+   return '<li class="pair-member"><span>'+esc(pn(i))+'</span><span class="member-points">'+G[g].f(S.sc[g][i])+'</span></li>'
+  }).join("")+'</ul>':'<p class="sub">No scores available on this device yet.</p>')
+ }).join("")
+}
 function order(){return pairStandings().map(function(x){return x.c})}
 function left(){var k=S.pick;if(!k)return 0;return k.paused?k.rem:Math.max(0,k.rem-(Date.now()-k.at))}
 function fmt(ms){var t=Math.ceil(ms/1000);return Math.floor(t/60)+":"+("0"+t%60).slice(-2)}
@@ -1108,11 +1222,22 @@ function picking(){
  view="picking";var k=S.pick,c=k.order[k.i],nx=k.order[k.i+1],last=k.i==4,ord=["1st","2nd","3rd","4th","5th"];
  if(k.i!==lastI){lastI=k.i;chime([880])}
  var hb=!host?'':(k.i>0?'<button class="alt" id="pb">← Previous pair</button>':'')+(last?'':'<button id="pn">Next pair →</button>')+'<div class="row" style="margin-top:8px">'+(last?'':'<button id="pp" class="alt pb">'+(k.paused?'▶ Resume':'⏸ Pause')+'</button><button id="pm" class="alt pb">+1 min</button>')+'<button class="alt pb" id="pe">'+(last?'Finish picking':'End picking')+'</button></div>';
- var myRoom=me===null?undefined:Object.keys(S.claims).find(function(r){return S.claims[r]===Math.floor(me/2)});
- var h=''+brand("ROOM PICKING","star")+'<div class="card win"><div class="sub">'+ord[k.i]+' pick · now choosing</div><div class="big" style="font-size:var(--text-feature);line-height:1.2">'+esc(cn(c))+'</div>'+(last?'<div class="sub" style="margin:10px 0 0">No timer. This pair takes the last room'+(roomOf(c,k.order)?': <b>'+esc(roomOf(c,k.order))+'</b>':'')+'.</div>':'<div class="cd" id="cd"></div><div class="hp"><i id="hpb"></i></div><div class="sub" id="cs" style="margin:0;min-height:20px"></div>')+(nx!==undefined?'<div class="sub" style="margin:10px 0 0">Up next: <b>'+esc(cn(nx))+'</b></div>':'')+'</div>'+hb+(myRoom!==undefined?roomTag(S.rooms[myRoom],cn(Math.floor(me/2))):'')+'<p class="sub" style="text-align:center;margin:12px 0 4px">Everyone can look around the whole building. Only the pair above chooses now.</p><h2>Pick order</h2>';
- k.order.forEach(function(x,i){h+='<div class="rank'+(i==k.i?' first':'')+(i<k.i?' done':'')+'"><div class="n">'+(i<k.i?'✓':i+1)+'</div><div class="g"><b>'+esc(cn(x))+'</b><small>'+ord[i]+' pick'+(i==4?' · last room':'')+'</small></div></div>'});
+ var playerPair=me>>1,assignments=visibleAssignments(k);
+ var myRoom=Object.keys(assignments).find(function(r){return assignments[r]===playerPair});
+ var h=brand("Room Picking","star")+stageIndicator(3)+'<div class="card win pick-current"><p class="journey-label">Pick '+(k.i+1)+' / 5</p><div class="big" style="font-size:var(--text-feature);line-height:1.2">'+esc(cn(c))+'</div>'+
+  (last?'<p class="sub">'+(roomFromAssignments(assignments,c)?'The remaining room is assigned automatically. The host confirms all five rooms.':'The first four rooms must be assigned to determine the remaining room.')+'</p>':
+   '<div class="cd" id="cd"></div><div class="hp"><i id="hpb"></i></div><div class="sub" id="cs" style="min-height:20px"></div>')+
+  (nx!==undefined?'<p class="sub">Up next: <b>'+esc(cn(nx))+'</b></p>':'')+'</div>'+
+  (myRoom!==undefined?roomTag(S.rooms[myRoom],cn(playerPair),S.claims[myRoom]===undefined?"Your room · automatic, awaiting confirmation":"Your room · awaiting confirmation",myRoom):
+   '<p class="card pick-status">'+(playerPair===c&&!last?"Your pair is choosing. Tell the host which room you want.":"Your pair is waiting for its room.")+'</p>')+
+  hb+'<button class="alt" id="open-rankings">Final rankings and game results</button>'+(host?'<button class="alt" id="organiser-tools">Open host tools</button>':'')+'<h2>Pick order</h2>';
+ k.order.forEach(function(x,i){
+  var room=roomFromAssignments(assignments,x);
+  h+='<div class="rank'+(i===k.i?' first':'')+(room?' done':'')+'"><div class="n">'+(i+1)+'</div><div class="g"><b>'+esc(cn(x))+'</b><small>'+
+   (room?esc(room)+(x===playerPair?' · Your pair':''):i===k.i?'Choosing now':'Waiting')+'</small></div></div>'
+ });
  h+='<h2>Rooms</h2>';
- S.rooms.forEach(function(n,r){var t=S.claims[r],b='style="width:auto;margin:0;padding:10px 14px"';h+='<div class="rank'+(t!==undefined?' done':'')+'" data-room-claim="'+(t===undefined?'':t)+'"><div class="g"><b>'+esc(n)+'</b><small>'+(t!==undefined?'Taken by '+esc(cn(t)):'Available')+'</small></div>'+(host&&!last&&t===undefined?'<button '+b+' data-r="'+r+'">Give to this pair</button>':'')+(host&&t!==undefined?'<button class="alt" '+b+' data-f="'+r+'">Free</button>':'')+'</div>'});
+ S.rooms.forEach(function(n,r){var t=assignments[r],b='style="width:auto;margin:0;padding:10px 14px"';h+='<div class="rank'+(t===playerPair?' first':t!==undefined?' done':'')+'" data-room-claim="'+(t===undefined?'':t)+'"><div class="g"><b>'+esc(n)+'</b><small>'+(t!==undefined?'Assigned to '+esc(cn(t))+(t===playerPair?' · Your pair':''):'Available')+'</small></div>'+(host&&!last&&t===undefined?'<button '+b+' data-r="'+r+'">Give to this pair</button>':'')+(host&&S.claims[r]!==undefined?'<button class="alt" '+b+' data-f="'+r+'">Free</button>':'')+'</div>'});
  A.innerHTML=h;
  var turn=k.i+":"+c,previousTurn=A.dataset.motionTurn;
  var entered=roomEntrance(view,'.brand');
@@ -1121,6 +1246,9 @@ function picking(){
   window.JialatMotion?.play(A.querySelector('.win .big'),'reveal');
  }
  A.dataset.motionTurn=turn;
+ observeAssignment();
+ document.getElementById("open-rankings").onclick=final;
+ roomHostAccess();
  A.querySelectorAll('[data-room-claim]').forEach(function(row,i){
   var old=previousClaims[i];
   if(old&&old.dataset.roomClaim!==row.dataset.roomClaim){
@@ -1133,7 +1261,8 @@ function picking(){
   var action=last?'#pe':k.paused?'#pp':assigned?'#pn':'[data-r]';
   A.querySelectorAll(action).forEach(function(button){button.classList.add('current-action')});
   var g=function(id,f){var e=document.getElementById(id);if(e)e.onclick=f};
-  g("pn",function(){if(!Object.keys(S.claims).some(function(r){return S.claims[r]===c})){alert("Give this pair a room before moving to the next pair.");return}pk({i:k.i+1,rem:DUR[k.i+1]*1000})});
+  g("organiser-tools",function(){completionHostTools=true;home()});
+  g("pn",function(){if(!k.order.slice(0,k.i+1).every(function(pair){return Object.values(S.claims).includes(pair)})){alert("Assign a room to each pair up to this position before moving on.");return}pk({i:k.i+1,rem:DUR[k.i+1]*1000})});
   g("pp",function(){if(S.pick)pk({i:S.pick.i,rem:left(),paused:!S.pick.paused})});
   g("pm",function(){if(S.pick)pk({i:S.pick.i,rem:left()+60000,paused:S.pick.paused})});
   g("pb",function(){if(S.pick&&S.pick.i>0)pk({i:S.pick.i-1,rem:0,paused:true})});
@@ -1153,25 +1282,23 @@ function validRoomResult(x){
  return keys.length<=5&&keys.every(function(r){return /^(0|1|2|3|4)$/.test(r)})&&pairs.every(function(c,i){return I(c,0,4)&&pairs.indexOf(c)===i})&&typeof x.complete==="boolean"&&x.complete===(keys.length===5);
 }
 function makeRoomResult(pick,at){
- if(!pick||!S.names)return null;var claims=Object.assign({},S.claims);
- if(pick.i===4&&Object.keys(claims).length===4&&pick.order.slice(0,4).every(function(c){return Object.keys(claims).some(function(r){return claims[r]===c})})){
-  for(var r=0;r<5;r++)if(claims[r]===undefined){claims[r]=pick.order[4];break}
- }
+ if(!pick||!S.names)return null;
+ var claims=visibleAssignments(pick);
  return {round:S.round,roundNo:S.roundNo,names:S.names.slice(),rooms:S.rooms.slice(),claims:claims,order:pick.order.slice(),complete:Object.keys(claims).length===5,endedAt:at};
 }
 function saveRoomResult(){if(!code||!validRoomResult(S.roomResult))return;try{localStorage.setItem("rw-final-"+code,JSON.stringify(S.roomResult))}catch(e){}}
 function clearRoomResult(){try{localStorage.removeItem("rw-final-"+code)}catch(e){}}
-function restoreRoomResult(){try{var x=JSON.parse(localStorage.getItem("rw-final-"+code)||"null");if(validRoomResult(x)){x.names=x.names.map(friendName);S.roomResult=x;roomResultFocus=true;S.round=x.round;S.roundNo=I(x.roundNo,1,100000)?x.roundNo:1;S.claims=Object.assign({},x.claims);S.rooms=x.rooms.slice();S.names=x.names.slice()}}catch(e){}}
+function restoreRoomResult(){try{var x=JSON.parse(localStorage.getItem("rw-final-"+code)||"null");if(validRoomResult(x)){x.names=x.names.map(friendName);S.roomResult=x;S.pickClosed=true;S.pickSession=typeof x.pickSession==="string"?x.pickSession:null;S.pickSessionAt=F(x.pickSessionAt)?x.pickSessionAt:0;S.round=x.round;S.roundNo=I(x.roundNo,1,100000)?x.roundNo:1;S.claims=Object.assign({},x.claims);S.rooms=x.rooms.slice();S.names=x.names.slice()}}catch(e){}}
 function chosenRoom(x,pair){for(var r in x.claims)if(x.claims[r]===pair)return x.rooms[r];return ""}
 function resultPair(x,pair){return x.names[pair*2]+" & "+x.names[pair*2+1]}
 function roomListText(){var x=S.roomResult;if(!x)return "";return "JIALAT | "+(x.complete?"Rooms confirmed":"Room choices so far")+"\n"+x.order.map(function(pair){return resultPair(x,pair)+": "+(chosenRoom(x,pair)||"Not chosen yet")}).join("\n")}
-function roomTag(roomName,pairName){
- return '<div class="key-tag"><span>Your room</span><strong>'+esc(roomName)+'</strong><p>'+esc(pairName)+'</p></div>';
+function roomTag(roomName,pairName,label,index){
+ return '<div class="key-tag" data-room-key="'+esc(S.round+":"+(me>>1)+":"+index)+'"><span>'+esc(label||"Your room")+'</span><strong>'+esc(roomName)+'</strong><p>'+esc(pairName)+'</p></div>';
 }
 function roomResultHTML(){
  var x=S.roomResult;if(!validRoomResult(x))return "";var mine=me===null?"":chosenRoom(x,Math.floor(me/2));
  var h='<section class="room-confirmation" aria-label="Room assignments"><p class="sub">'+(x.complete?'ROOM PICKING COMPLETE':'ROOM PICKING PAUSED')+'</p><h2 class="room-result-title" tabindex="-1">'+(x.complete?'Rooms confirmed':'Room choices so far')+'</h2>';
- if(mine)h+=roomTag(mine,resultPair(x,Math.floor(me/2)));
+ if(mine)h+=roomTag(mine,resultPair(x,Math.floor(me/2)),x.complete?"Your room · confirmed":"Your room · awaiting confirmation",Object.keys(x.claims).find(function(r){return x.claims[r]===(me>>1)}));
  else if(me!==null)h+='<div class="your-room"><span>Your room</span><strong>Not chosen yet</strong><p>'+esc(resultPair(x,Math.floor(me/2)))+'</p></div>';
  h+='<div class="room-list">'+x.order.map(function(pair){return '<div class="room-assignment'+(me!==null&&pair===Math.floor(me/2)?' is-yours':'')+'"><b>'+esc(resultPair(x,pair))+'</b><span>'+esc(chosenRoom(x,pair)||'Not chosen yet')+'</span></div>'}).join('')+'</div>';
  if(host)h+='<button class="alt" id="copy-rooms">Copy room list</button><p class="sub" id="room-copy-status" role="status"></p><textarea id="room-copy-fallback" aria-label="Room list to copy" readonly hidden></textarea>';
@@ -1179,7 +1306,19 @@ function roomResultHTML(){
 }
 async function copyRooms(){var status=document.getElementById("room-copy-status");try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error("Clipboard unavailable");await navigator.clipboard.writeText(roomListText());status.textContent="Room list copied."}catch(e){var field=document.getElementById("room-copy-fallback");field.hidden=false;field.value=roomListText();field.focus();field.select();status.textContent="Select and copy the room list above."}}
 
-function roomOf(c,o){for(var r in S.claims)if(S.claims[r]==c)return S.rooms[r];if(Object.keys(S.claims).length==4&&o[4]==c){for(var r=0;r<5;r++)if(S.claims[r]===undefined)return S.rooms[r]}return""}
+function visibleAssignments(pick){
+ var claims=Object.assign({},S.claims);
+ if(pick&&pick.i===4&&Object.keys(claims).length===4&&pick.order.slice(0,4).every(function(pair){return Object.values(claims).includes(pair)})){
+  var remaining=S.rooms.findIndex(function(_,room){return claims[room]===undefined});
+  if(remaining>=0)claims[remaining]=pick.order[4]
+ }
+ return claims
+}
+function roomFromAssignments(assignments,pair){
+ var room=Object.keys(assignments).find(function(r){return assignments[r]===pair});
+ return room===undefined?"":S.rooms[room]
+}
+function roomOf(pair){return roomFromAssignments(visibleAssignments(S.pick),pair)}
 function rtext(){var o=order(),t="🏆 Room Wars "+(readyToReveal()?"results":"current rankings")+"\n";pairStandings().forEach(function(x){var r=roomOf(x.c,o);t+=(x.tied?'TIED ':x.r+'. ')+cn(x.c)+" – "+x.t+" pts"+(x.h.length?' · '+tieNote(x):'')+(r?" · "+r:"")+"\n"});return t}
 function rooms(){view="rooms";var h='<h1 style="text-align:center">Room names</h1><p class="sub">Type the names from the Airbnb listing, like "Bedroom 3 – ensuite". You can change them any time.</p>';
  S.rooms.forEach(function(n,i){h+='<input id="r'+i+'" aria-label="Room '+(i+1)+' name" maxlength="30" value="'+esc(n)+'">'});
@@ -1194,20 +1333,30 @@ function cardImg(){var o=order(),p=pts(),cv=document.createElement("canvas");cv.
   o.forEach(function(c,i){var t=p[c*2]+p[c*2+1],r=roomOf(c,o),sx=(i+1)+"  "+cn(c).toUpperCase()+(r?" · "+r.toUpperCase():"");x.fillStyle="#111";x.fillRect(90,y-46,900,70);x.fillStyle=cols[i];x.fillRect(90,y-46,900*t/top,70);x.strokeStyle="#6b5a22";x.lineWidth=5;x.strokeRect(90,y-46,900,70);
    x.font="bold 29px "+M;x.textAlign="left";x.fillStyle="#000";x.fillText(sx,110+3,y+3);x.fillStyle="#f2ead3";x.fillText(sx,110,y);x.textAlign="right";x.fillStyle="#000";x.fillText(String(t),970+3,y+3);x.fillStyle="#f3d77a";x.fillText(String(t),970,y);y+=94});
   cv.toBlob(function(b){var e=document.getElementById("cb"),data=cv.toDataURL("image/png");if(e)e.innerHTML='<img src="'+data+'" alt="Room Wars result card" style="width:100%;margin-top:10px"><p class="sub"><a href="'+data+'" download="room-wars.png">Save result image</a></p>';if(!b)return;try{var f=new File([b],"room-wars.png",{type:"image/png"});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f]}).catch(function(){})}catch(err){}})};im.src=LOGO}
-function any1(){for(var g in G)if(S.sc[g][me]!==undefined)return true;return false}
 function practiceKey(g){return "rwp-"+code+"-"+S.round+"-"+me+"-"+g}
 function U(g){return ls(practiceKey(g))=="1"}
-function readyToReveal(){var played=0;for(var g in G)played+=Object.keys(S.sc[g]).length;return played===30&&!S.tb&&ties().length===0}
-function ties(){var cs=pairStandings(),pl=0;for(var g in G)pl+=Object.keys(S.sc[g]).length;if(pl<30)return[];
+function readyToReveal(){return resultCount()===30&&!S.tb&&ties().length===0}
+function ties(){if(resultCount()<30)return[];var cs=pairStandings();
  for(var i=0;i<4;i++){var grp=[cs[i].c];while(i<4&&pairCompare(cs[i],cs[i+1])===0){grp.push(cs[i+1].c);i++}if(grp.length>1)return grp}return[]}
 function tieFinished(tie){
  return tie.pairs.every(function(c){return S.tbs[c*2]!==undefined&&S.tbs[c*2+1]!==undefined});
 }
-function tbb(){var k=S.tb;if(!k)return"";var done=tieFinished(k),h='<div class="card win"><b>Tie-breaker!</b><div class="sub" style="margin:6px 0">Tied pairs only: 5 seconds of tapping. Both partners’ taps are added.</div>';
- k.pairs.forEach(function(c){var a=S.tbs[c*2],b=S.tbs[c*2+1];h+='<div class="sub" style="margin:2px 0"><b>'+esc(cn(c))+'</b>'+(a!==undefined&&b!==undefined?': '+(a+b)+' taps':'')+'</div>'});
- if(k.pairs.indexOf(me>>1)>=0&&S.tbs[me]===undefined)h+='<button id="tbp">Play tie-breaker</button>';
- if(host)h+='<button class="alt" id="tbx">'+(done?'Close tie-breaker':'Cancel tie-breaker')+'</button>';
- return h+'</div>'}
+function tbb(){
+ var tie=S.tb;if(!tie)return "";
+ var involved=tie.pairs.includes(me>>1),recorded=S.tbs[me]!==undefined,done=tieFinished(tie);
+ var h='<section class="card win tie-stage"><h2>'+(involved?'Your pair is in the tie-breaker':'Tie-breaker in progress')+'</h2><p class="sub">'+
+  (involved?'Tap as many times as you can in five seconds. Both partners’ taps are added.':
+   'Tied pairs are determining the final room-picking order.')+'</p>';
+ if(involved)h+=recorded?'<p>Your tie-breaker is complete.</p><p class="sub" id="personal-tie-submission" data-kind="tbs" role="status"></p>':
+  '<button id="tbp" class="current-action">Play tie-breaker</button>';
+ if(host){
+  h+=tie.pairs.map(function(pair){
+   return '<p class="sub"><b>'+esc(cn(pair))+'</b> · '+[pair*2,pair*2+1].filter(function(i){return S.tbs[i]!==undefined}).length+' / 2 results</p>'
+  }).join("");
+  h+='<button class="alt" id="tbx">'+(done?'Close tie-breaker':'Cancel tie-breaker')+'</button>'
+ }
+ return h+'</section>'
+}
 function tbG(){
  if(!S.tb||S.tb.pairs.indexOf(me>>1)<0||S.tbs[me]!==undefined)return home();
  view="play";practice=false;playingTie=true;
@@ -1215,16 +1364,16 @@ function tbG(){
  timedTapGame("tie","Tie-breaker",5000,function(total){
   playingTie=false;
   if(!S.tb||S.tb.id!==tieId)return home();
-  send({t:"tbs",p:me,v:total,tieId:tieId},true);
+  var mid=send({t:"tbs",p:me,v:total,tieId:tieId},true);
   view="fin";
-  A.innerHTML=gameResultMarkup("tie","Tie-breaker",total)+'<button id="nx">Back to Room Wars</button>';
+  A.innerHTML=gameResultMarkup("tie","Tie-breaker",total)+resultReceipt(mid,"tbs")+'<button id="nx">Back to Room Wars</button>';
   document.getElementById("nx").onclick=home;
-  focusGameResult()
+  focusGameResult();stat()
  })
 }
 function ac(){if(!snd||snd.state==="closed"){var C=window.AudioContext||window.webkitAudioContext;if(C)try{snd=new C()}catch(e){}}return snd}
 document.addEventListener("pointerdown",function(){var a=ac();if(a&&a.state!=="running")try{var p=a.resume();if(p&&p.catch)p.catch(function(){})}catch(e){}});
-function chime(f){if(!host)return;var a=ac();if(!a||a.state!="running")return;f.forEach(function(fr,i){var o=a.createOscillator(),g=a.createGain(),t=a.currentTime+i*.22;o.type="sine";o.frequency.value=fr;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.12,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.7);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+.75)})}
+function chime(f,local){if((!host&&!local)||document.hidden)return;var a=ac();if(!a||a.state!="running")return;f.forEach(function(fr,i){var o=a.createOscillator(),g=a.createGain(),t=a.currentTime+i*.22;o.type="sine";o.frequency.value=fr;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.12,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.7);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+.75)})}
 function focusGameResult(){
  roomEntrance(view,"h1");
  var result=A.querySelector("#result-score");
@@ -1245,17 +1394,44 @@ function gameResultMarkup(game,title,value){
  return gameScreen(game,title,'<div class="big">'+score+'</div><div class="play-unit">'+unit+'</div>'+
   (practice?'<div class="play-status">Practice only</div>':''),null)
 }
-function fin(g,v){view="fin";v=scoreValue(g,v);
+function resultReceipt(mid,type){
+ return '<p class="sub result-sync" id="resultSync" data-kind="'+type+'"'+(mid?' data-mid="'+esc(mid)+'"':'')+' role="status">'+(mid?'':'Could not submit this result.')+'</p>'
+}
+function fin(g,v){
+ view="fin";
+ v=scoreValue(g,v);
  var big=gameResultMarkup(g,pn(me),v);
- if(practice){A.innerHTML=big+'<button id="nx">Back to Room Wars</button>';document.getElementById("nx").onclick=home;focusGameResult();return}
- var mid=send({t:"score",g:g,p:me,v:v},true);
- A.innerHTML=big+'<p class="sub result-sync" id="resultSync" data-mid="'+mid+'" role="status"></p><button id="nx">Back to Room Wars</button><details class="backup"><summary>Share result if missing</summary><p>If the host cannot see this result, share this backup.</p><button class="alt" id="sh">Share backup</button></details>';
- document.getElementById("sh").onclick=function(){share(mine())};document.getElementById("nx").onclick=home;focusGameResult();stat()}
-function run(g,pr){view="play";practice=!!pr;
- A.innerHTML='<h1 style="text-align:center">'+G[g].n+'</h1>'+(pr?'<p class="sub" style="text-align:center"><b>Practice round: 1 try only, not scored.</b></p>':'')+'<p class="sub">'+G[g].d+'</p><div class="card" style="text-align:center"><div class="sub">Playing as</div><div style="font-size:var(--text-feature);font-weight:700">'+esc(pn(me))+'</div></div><button id="st">I’m ready!</button><button class="alt" id="bk">Back</button>';
+ if(practice){
+  A.innerHTML=big+(canPlay(g,false)?'<button id="play-scored" class="current-action">Play scored round</button>':'')+'<button class="alt" id="nx">Back to Room Wars</button>';
+  var scored=document.getElementById("play-scored");if(scored)scored.onclick=function(){run(g,false)};
+ }else{
+  if(!canPlay(g,false))return home();
+  var mid=send({t:"score",g:g,p:me,v:v,attempt:true},true);
+  var next=nextGame();
+  A.innerHTML=big+resultReceipt(mid,"score")+
+   (next&&canPlay(next,false)?'<button id="next-game">Next game · '+G[next].n+'</button>':'')+
+   '<button class="alt" id="nx">Back to Room Wars</button>'+personalBackup();
+  var onward=document.getElementById("next-game");if(onward)onward.onclick=function(){run(next,false)};
+  bindPlayerOverview()
+ }
+ document.getElementById("nx").onclick=home;
+ focusGameResult();stat()
+}
+function run(g,pr){
+ if(!canPlay(g,pr))return home();
+ view="play";practice=!!pr;
+ var player=me,round=S.round;
+ A.innerHTML='<div class="card journey-brief"><p class="journey-label">'+(pr?'Practice':'Scored round')+'</p><h1>'+G[g].n+'</h1><p>'+G[g].d+'</p><p class="sub">'+
+  (pr?'One attempt. This result does not count.':U(g)?'Practice used. This result counts for your pair.':'This result counts for your pair. One practice attempt is still available from the dashboard.')+
+  '</p><p class="sub">Playing as <b>'+esc(pn(me))+'</b></p></div><button id="st">'+(pr?'Start practice':'Start scored round')+'</button><button class="alt" id="bk">Back</button>';
  roomEntrance("brief","h1");
- document.getElementById("st").onclick=function(){if(pr)ls(practiceKey(g),"1");g=="tap"?tapG(g):g=="react"?reactG(g):stopG(g)};
- document.getElementById("bk").onclick=home}
+ document.getElementById("st").onclick=function(){
+  if(player!==me||round!==S.round||!canPlay(g,pr))return home();
+  if(pr)ls(practiceKey(g),"1");
+  g==="tap"?tapG(g):g==="react"?reactG(g):stopG(g)
+ };
+ document.getElementById("bk").onclick=home
+}
 function preventGameCallout(event){event.preventDefault()}
 function preventGamePan(event){
  if(event.cancelable&&event.touches.length===1)event.preventDefault()
