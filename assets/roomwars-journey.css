@@ -1,0 +1,82 @@
+/* Lobby and ceremony accents, scoped to Room Wars. */
+.journey-stages {
+  list-style:none;
+  margin:0 0 16px;
+  padding:0;
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:4px;
+  text-align:center;
+  font-size:clamp(.65rem,2.6vw,.8rem);
+  line-height:1.2;
+}
+.journey-stages li {
+  color:var(--color-muted);
+  background:var(--color-surface);
+  border-bottom:2px solid var(--color-edge);
+  padding:5px 2px 7px;
+  overflow-wrap:anywhere;
+}
+.journey-stages li span { display:block; font-size:.82rem; margin-bottom:3px; }
+.journey-stages .stage-done { color:var(--color-teal); }
+.journey-stages [aria-current="step"] { color:var(--color-gold-light); border-color:var(--color-gold); background:#2a210f; }
+
+.pair-dashboard,.journey-complete {
+  border-color:#8c7135;
+  background:radial-gradient(ellipse at top,#302611,#17140e 70%);
+}
+.journey-label {
+  color:var(--color-gold-light);
+  margin:0 0 6px;
+  font-size:var(--text-secondary);
+  letter-spacing:.11em;
+  text-transform:uppercase;
+}
+.pair-dashboard h2,.journey-brief h1,.reveal-winner h2 { overflow-wrap:anywhere; }
+.pair-progress {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+  margin:14px 0;
+}
+.pair-progress div {
+  min-width:0;
+  padding:8px;
+  background:#100e0b;
+  border:1px solid var(--color-edge);
+  overflow-wrap:anywhere;
+}
+.pair-progress span { display:block; color:var(--color-muted); font-size:var(--text-secondary); }
+.journey-progress { margin:8px 0; color:var(--color-muted); }
+.journey-progress strong,.journey-complete strong { color:var(--color-gold-light); }
+.journey-progress progress {
+  appearance:none;
+  -webkit-appearance:none;
+  display:block;
+  width:100%;
+  height:8px;
+  border:0;
+  margin-top:8px;
+  background:#3a3020;
+}
+.journey-progress progress::-webkit-progress-bar { background:#3a3020; }
+.journey-progress progress::-webkit-progress-value { background:#d4af37; }
+.journey-progress progress::-moz-progress-bar { background:#d4af37; }
+.journey-wait,.rankings-locked { border-color:#7b612c; }
+.journey-wait h2,.rankings-locked h2 { margin-top:0; }
+.journey-game .gt h3 { margin:0; overflow-wrap:anywhere; }
+.journey-game { --game-accent:#ff8b78; border-inline-start:4px solid var(--game-accent); }
+.journey-game.game-react { --game-accent:#65d9cb; }
+.journey-game.game-stop { --game-accent:#86baff; }
+.personal-score { color:var(--game-accent); font-size:var(--text-section); margin:8px 0 2px; }
+.pick-current { text-align:center; }
+.pick-current .cd { font-variant-numeric:tabular-nums; }
+.pick-status { color:var(--color-gold-light); }
+.reveal-winner {
+  border-color:#eac86c;
+  box-shadow:inset 0 0 0 1px #9a7435,3px 3px 0 #000;
+  text-align:center;
+}
+.host-result-status section { padding:8px 0; border-top:1px solid var(--color-edge); }
+.host-result-status h3 { margin:0; font-size:var(--text-body); }
+#manual-score.current-action summary { color:var(--color-gold-light); }
