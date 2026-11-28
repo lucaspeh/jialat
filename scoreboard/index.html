@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta name="jialat-build" content="28"><meta name="jialat-scoreboard-build" content="28"><meta charset="utf-8"><meta name="robots" content="noindex">
+<html lang="en"><head><meta name="jialat-build" content="29"><meta name="jialat-scoreboard-build" content="29"><meta charset="utf-8"><meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a">
 <meta name="description" content="Nine Christmas games. One overall champion. S$18 for the winner. Choose the host controls or the TV display.">
@@ -17,7 +17,7 @@
 <meta property="og:image" content="https://lucaspeh.github.io/jialat/assets/jialat-share.png?v=brand-1">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="JIALAT logo with the gold trophy. 18 years, 11 friends. 10–13 December 2026.">
+<meta property="og:image:alt" content="JIALAT logo with the gold trophy.">
 <meta name="twitter:card" content="summary_large_image">
 <style>
 :root {
@@ -1651,8 +1651,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <main id="H"></main>
 <div id="T"><div id="msg"></div><section id="bd" aria-labelledby="th"><div class="board-head"><div><h1 id="th" tabindex="-1"></h1><p id="boardHint"></p></div><button class="tv-return" id="backToClosing" type="button" hidden>Championship summary</button></div><div id="ban" aria-live="polite"></div><div id="rows"></div><div id="lg"><span style="color:var(--l)">1ST · S$18 CASH PRIZE</span><span>2–6 SAFE</span><span>7–9 NEXT YEAR’S ORGANISERS</span><span>10TH · THE JIALAT TROPHY</span></div></section></div>
 <script src="../assets/motion.js?v=4.1"></script>
-<script src="../assets/ui.js?v=28"></script>
-<script src="../assets/reliability.js?v=28"></script>
+<script src="../assets/ui.js?v=29"></script>
+<script src="../assets/reliability.js?v=29"></script>
 <script>
 
 // Connection state is shared by the three apps on this browser. No game data is stored here.
@@ -1840,7 +1840,7 @@ function requestBoardControl(takeover=false){
  if(ROLE!=='host'||localHostBlocked)return;boardTakeover=takeover;boardAuthorized=false;boardNonce=boardToken();clearTimeout(boardProbeTimer);
  if(!streamOpen){conn();return}
  status('','Checking TV host control…');boardControl('host',{host:hostIdentity,nonce:boardNonce,target:boardTV,takeover});
- boardProbeTimer=setTimeout(()=>{if(!boardAuthorized&&ROLE==='host')status('bad','TV not responding. Check both screens show Build 28. Your changes are saved here.')},20000);
+ boardProbeTimer=setTimeout(()=>{if(!boardAuthorized&&ROLE==='host')status('bad','TV not responding. Check both screens show Build 29. Your changes are saved here.')},20000);
 }
 function announceBoardDisplay(){
  if(!displayAnnouncementPending||!streamOpen||document.hidden)return;
@@ -1911,7 +1911,7 @@ function poll(confirmPending=false){if(pollTask)return confirmPending===true?pol
 // Later relay timestamps also work when the same TV reconnects without a new handshake.
 let liveRevealStream=false;
 function conn(){
- if(!window.JialatUI||JialatUI.build!=='28'||!ROLE||ROLE==='host'&&localHostBlocked)return;
+ if(!window.JialatUI||JialatUI.build!=='29'||!ROLE||ROLE==='host'&&localHostBlocked)return;
  if(relayWait()>0){if(stream)stream.close();streamOpen=false;clearInterval(pollTimer);pollTimer=relayLater(()=>{pollTimer=null;conn()},relayWait());status('bad',relayWaitLabel());return}
  status('','Connecting…');if(stream)stream.close();streamOpen=false;boardAuthorized=false;boardControlSince=0;boardNonce='';
  try{stream=JialatUI.relayStream(URL_+'/sse?since='+encodeURIComponent(boardCursor||'all'),relayWait,relayRetryDelay);
@@ -2480,11 +2480,11 @@ function enterRole(role,fromEntry=true){
 }
 $('H').addEventListener('keydown',advanceResultFocus);
 $('T').ondblclick=()=>document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();
-if(window.JialatUI&&JialatUI.build==='28'&&JialatUI.relayRevision==='3'){
+if(window.JialatUI&&JialatUI.build==='29'&&JialatUI.relayRevision==='3'){
 if(!validBoard(S)){S=D();JialatUI.storageFailure()}
 enterRole(ROLE,false);
 JialatUI.ready();
-}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Reload this page from the JIALAT site to load the matching files for Build 28 · relay 3.';document.body.className='landing';}
+}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Reload this page from the JIALAT site to load the matching files for Build 29 · relay 3.';document.body.className='landing';}
 function followRoleLink(){const role=(location.hash.match(/host|tv/)||[''])[0];if(role!==ROLE)enterRole(role,false)}
 window.addEventListener('hashchange',followRoleLink);window.addEventListener('popstate',followRoleLink);
 for(const id of ['tvAudio','tvAudioTests'])$(id).addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();$(id).open=false;$(id).querySelector('summary').focus()}});
