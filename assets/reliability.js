@@ -1,7 +1,7 @@
 /* Shared relay transport, local host coordination and traffic counters. */
 (function () {
   'use strict';
-  var ui = window.JialatUI || {}, build = '30', relayRevision = '3';
+  var ui = window.JialatUI || {}, build = '31', relayRevision = '3';
   var complete = ['ready', 'bind', 'status', 'arena'].every(function (key) { return typeof ui[key] === 'function'; });
   function token() {
     var bytes = new Uint8Array(8); crypto.getRandomValues(bytes);

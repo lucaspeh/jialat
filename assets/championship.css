@@ -413,3 +413,82 @@
   [data-page="scoreboard"].tv #msg.rules .gameScene { height:clamp(90px,24vh,146px); }
   [data-page="scoreboard"].tv #msg.timer-view { gap:1.5vh; }
 }
+
+/* Rules: one aligned reading order with an optional final lineup row. */
+[data-page="scoreboard"].tv #msg.rules {
+  grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);
+  align-content:start;
+  align-items:stretch;
+  gap:clamp(10px,1.75vh,38px) clamp(14px,2vw,52px);
+  padding:clamp(16px,6vh,130px) 0 0;
+}
+.rules .guide-intro {
+  grid-column:1 / -1;
+  justify-items:start;
+  gap:clamp(5px,.85vh,18px);
+}
+.rules .guide-demo,.rules .guide-instructions { min-width:0; }
+.rules .guide-demo { display:grid; align-items:center; }
+[data-page="scoreboard"].tv #msg.rules .gameScene {
+  height:clamp(112px,32vh,700px);
+  padding:clamp(4px,.8vh,20px) clamp(6px,1vw,26px);
+}
+[data-page="scoreboard"].tv .rules .guide-instructions { display:block; }
+[data-page="scoreboard"].tv .rules .guideSteps {
+  height:100%;
+  grid-template-rows:repeat(3,minmax(min-content,1fr));
+  gap:clamp(6px,.85vh,18px);
+}
+[data-page="scoreboard"].tv .rules .guideStep {
+  align-items:center;
+  font-size:calc(clamp(15px,2.78vh,59px) * var(--display-text-scale));
+}
+[data-page="scoreboard"].tv .rules .guideFacts { grid-column:1 / -1; }
+[data-page="scoreboard"].tv .rules .guideFact {
+  background:#15130f;
+  font-size:calc(clamp(14px,2.45vh,52px) * var(--display-text-scale));
+  padding:clamp(8px,1.05vh,24px) clamp(9px,1vw,24px);
+}
+[data-page="scoreboard"].tv #msg.rules .gr { grid-template-columns:repeat(5,minmax(0,1fr)); }
+[data-page="scoreboard"].tv #msg.rules[data-game-type="t"] .gr { grid-template-columns:repeat(2,minmax(0,1fr)); }
+[data-page="scoreboard"].tv #msg.rules .gb { text-align:left; font-size:calc(clamp(14px,2.4vh,50px) * var(--display-text-scale)); }
+.rules .gb b { display:block; color:var(--level-accent); margin-bottom:.2em; font-size:.7em; }
+@media (max-width:760px) {
+  [data-page="scoreboard"].tv #msg.rules { grid-template-columns:minmax(0,1fr); padding-top:12px; }
+  [data-page="scoreboard"].tv #msg.rules .gameScene { height:clamp(110px,21vh,185px); }
+  [data-page="scoreboard"].tv #msg.rules .gr { grid-template-columns:repeat(auto-fit,minmax(min(100%,120px),1fr)); }
+  [data-page="scoreboard"].tv #msg.rules[data-game-type="t"] .gr { grid-template-columns:1fr; }
+}
+@media (min-width:761px) and (max-height:650px) {
+  [data-page="scoreboard"].tv #msg.rules { padding-top:10px; gap:8px 14px; }
+  [data-page="scoreboard"].tv #msg.rules .gameScene { height:clamp(100px,26vh,160px); }
+}
+
+/* Keep operational controls compact and fixed in place during a two-player race. */
+.host .game-title-row { display:flex; gap:10px; flex-wrap:wrap; align-items:baseline; justify-content:space-between; }
+.host #gameResultCount { color:#e5ce9e; font-size:var(--text-secondary); }
+.host #turnNotice { margin:.45em 0; color:#ffc7a6; }
+.host #turnNotice:empty { display:none; }
+.host .active-game .turn { margin:10px 0; padding:12px; }
+.host .active-game .quick-tv-actions { margin:8px 0; }
+.host .active-game #hostScreens { margin:8px 0 12px; }
+.host .finish-actions { display:grid; grid-auto-columns:minmax(0,1fr); grid-auto-flow:column; gap:8px; }
+.host .finish-actions button { min-height:72px; line-height:1.15; margin:0; padding:8px 4px; }
+.host .finish-actions button span { display:block; }
+.host .finish-verb { margin-bottom:.25em; font-size:var(--text-secondary); }
+.host .quick-tv-actions [aria-pressed="true"] { border-color:#dfbc7a; color:#ffdfa0; }
+
+[data-page="scoreboard"].tv #msg.timer-view #tvClock {
+  font-size:calc(clamp(52px,min(21vh,17vw),440px) * var(--display-text-scale));
+}
+[data-page="scoreboard"].tv #msg.timer-view #tvClock[hidden] { display:none; }
+[data-page="scoreboard"].tv #msg.timer-view.ended:not([data-play-kind="countdown"]) { --signal:#91dfbc; }
+[data-page="scoreboard"].tv #msg.timer-view.ended:not([data-play-kind="countdown"]) #tvClockPhase { color:var(--signal); }
+[data-page="scoreboard"].tv #msg.timer-view.ended:not([data-play-kind="countdown"]) .turn-display { order:1; }
+[data-page="scoreboard"].tv #msg.timer-view .turn-rules { order:3; }
+.show-results { order:2; }
+.show-results li { border-color:#8bd5ae; padding:.65em clamp(14px,2vw,48px); }
+.show-results .turn-saved {
+  font-size:calc(clamp(30px,5.3vh,106px) * var(--display-text-scale));
+  font-variant-numeric:tabular-nums;
+}

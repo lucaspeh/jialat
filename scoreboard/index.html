@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta name="jialat-build" content="30"><meta name="jialat-scoreboard-build" content="30"><meta charset="utf-8"><meta name="robots" content="noindex">
+<html lang="en"><head><meta name="jialat-build" content="31"><meta name="jialat-scoreboard-build" content="31"><meta charset="utf-8"><meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a">
 <meta name="description" content="Nine Christmas games. One overall champion. S$18 for the winner. Choose the host controls or the TV display.">
@@ -1641,7 +1641,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <link rel="stylesheet" href="../assets/motion.css?v=4.1">
 <link rel="stylesheet" href="../assets/event-title.css?v=2">
 <script src="../assets/event-title.js?v=1"></script>
-<link rel="stylesheet" href="../assets/championship.css?v=2">
+<link rel="stylesheet" href="../assets/championship.css?v=3">
 </head><body data-page="scoreboard"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section>
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
@@ -1651,8 +1651,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <main id="H"></main>
 <div id="T"><div id="msg"></div><section id="bd" aria-labelledby="th"><div class="board-head"><div><h1 id="th" tabindex="-1"></h1><p id="boardHint"></p></div><button class="tv-return" id="backToClosing" type="button" hidden>Championship summary</button></div><div id="ban" aria-live="polite"></div><div id="rows"></div><div id="lg"><span style="color:var(--l)">1ST · S$18 CASH PRIZE</span><span>2–6 SAFE</span><span>7–9 NEXT YEAR’S ORGANISERS</span><span>10TH · THE JIALAT TROPHY</span></div></section></div>
 <script src="../assets/motion.js?v=4.1"></script>
-<script src="../assets/ui.js?v=30"></script>
-<script src="../assets/reliability.js?v=30"></script>
+<script src="../assets/ui.js?v=31"></script>
+<script src="../assets/reliability.js?v=31"></script>
 <script>
 
 // Connection state is shared by the three apps on this browser. No game data is stored here.
@@ -1805,7 +1805,7 @@ const save=()=>{try{localStorage.setItem('jialat26',JSON.stringify(S))}catch(e){
 const status=(kind,label)=>{if(ROLE==='host'&&localHostBlocked){kind='bad';label='Host controls open in another tab'}else if(ROLE==='host'&&remoteHostBlocked){kind='bad';label='Read-only · another device is hosting'}$('dot').className='dot '+kind;if(window.JialatUI)JialatUI.status($('sync'),label);else $('sync').textContent=label};
 const BOARD_PROTOCOL='26',hostIdentity=window.JialatUI&&/^[a-f0-9]{16}$/.test(JialatUI.deviceId||'')?JialatUI.deviceId:boardToken(),displayIdentity=boardToken();
 let hostTab=null,localHostBlocked=false,remoteHostBlocked=false,boardAuthorized=false,boardController='',boardTV='',boardNonce='',boardTakeover=false,boardProbeTimer=0,boardControlSince=0,boardTVGranted=false,boardCursor='';
-let displayAnnouncementPending=false;
+let displayAnnouncementPending=false,turnProbe=null, tvTurnProbe=null, tvTurnAck='', tvInterruptedTurn='',tvClockAnchor=null,turnNotice='';
 let pt,retryTimer=null,retryAt=0,sendFailures=0,sending=false,queued=null,inFlightBody=null,stream=null,pollTimer=null,streamOpen=false,polling=false,pollTask=null;
 const deliveredStates=new Set(),handledControls=new Set();
 function boardHostLocked(){if(hostTab&&!hostTab.active)localHostBlocked=true;return localHostBlocked||remoteHostBlocked}
@@ -1818,6 +1818,8 @@ function validBoard(x){
  if(!Array.isArray(x.m)||!['idle','rules','board','rev'].includes(x.m[0])||x.m[1]!==undefined&&(!Number.isInteger(x.m[1])||x.m[1]<0||x.m[1]>10))return false;
  if(x.writer!==undefined&&!/^[a-f0-9]{16}$/.test(x.writer))return false;
  if(x.timer&&!validCountdown(x.timer)||x.play&&!validPlay(x.play)||x.timer&&x.play)return false;
+ const sync=(x.timer||x.play)?.sync;
+ if(sync&&(!/^[a-f0-9]{16}$/.test(sync.display||'')||!Number.isFinite(sync.offset)))return false;
  return true;
 }
 function boardStateKey(x){return String(x.v)+':'+(x.writer||'')}
@@ -1840,7 +1842,7 @@ function requestBoardControl(takeover=false){
  if(ROLE!=='host'||localHostBlocked)return;boardTakeover=takeover;boardAuthorized=false;boardNonce=boardToken();clearTimeout(boardProbeTimer);
  if(!streamOpen){conn();return}
  status('','Checking TV host control…');boardControl('host',{host:hostIdentity,nonce:boardNonce,target:boardTV,takeover});
- boardProbeTimer=setTimeout(()=>{if(!boardAuthorized&&ROLE==='host')status('bad','TV not responding. Check both screens show Build 30. Your changes are saved here.')},20000);
+ boardProbeTimer=setTimeout(()=>{if(!boardAuthorized&&ROLE==='host')status('bad','TV not responding. Check both screens show Build 31. Your changes are saved here.')},20000);
 }
 function announceBoardDisplay(){
  if(!displayAnnouncementPending||!streamOpen||document.hidden)return;
@@ -1849,6 +1851,7 @@ function announceBoardDisplay(){
 function receiveControl(m){
  if(m.build!==BOARD_PROTOCOL||typeof m.mid!=='string'||handledControls.has(m.mid))return;
  handledControls.add(m.mid);if(handledControls.size>200)handledControls.delete(handledControls.values().next().value);
+ if(['turn-probe','turn-clock','turn-ready','turn-abort'].includes(m.type)){receiveTurnControl(m);return}
  if(ROLE==='tv'){
   if(m.type!=='host'||m.target&&m.target!==displayIdentity||!/^[a-f0-9]{16}$/.test(m.host||''))return;
   if(document.hidden){displayAnnouncementPending=true;return}
@@ -1886,10 +1889,10 @@ async function sendLatest(){
   sendFailures++;const delay=e.status===429?Math.max(1,relayWait()):relayRetryDelay(sendFailures);retryAt=Date.now()+delay;clearTimeout(retryTimer);retryTimer=relayLater(sendLatest,delay);
  }finally{clearTimeout(limit);inFlightBody=null;sending=false;if(queued&&!retryTimer){clearTimeout(pt);pt=setTimeout(sendLatest,250)}}
 }
-function commit(){if(boardHostLocked()){try{const saved=JSON.parse(localStorage.getItem('jialat26'));if(validBoard(saved))S=saved}catch(e){}render();return}S.v=Math.max(Date.now(),S.v+1);S.writer=hostIdentity;S.build=BOARD_PROTOCOL;save();render();push()}
+function commit(turnOnly=false){if(boardHostLocked()){try{const saved=JSON.parse(localStorage.getItem('jialat26'));if(validBoard(saved))S=saved}catch(e){}render();return}S.v=Math.max(Date.now(),S.v+1);S.writer=hostIdentity;S.build=BOARD_PROTOCOL;save();if(turnOnly)refreshTurnControls();else render();push()}
 function receive(j,fromStream=false){try{
  if(!j)return;if(j.event==='open'){if(Number.isFinite(j.time))boardControlSince=Math.max(boardControlSince,j.time);return}if(j.event!=='message')return;const x=JSON.parse(j.message);
- if(x&&x._jialat==='control'){if(Number.isFinite(j.time)&&j.time<boardControlSince||Math.abs(Date.now()-(j.time*1000||x.at))>25000)return;receiveControl(x);return}
+ if(x&&x._jialat==='control'){if(!x.type?.startsWith('turn-')&&(Number.isFinite(j.time)&&j.time<boardControlSince||Math.abs(Date.now()-(j.time*1000||x.at))>25000))return;receiveControl(x);return}
  if(!validBoard(x))return;if(j.id)boardCursor=j.id;
  if(ROLE==='tv'&&boardTVGranted&&x.writer!==boardController)return;if(ROLE==='host'&&boardController&&x.writer&&x.writer!==boardController)return;
  if(ROLE==='host'&&x.writer===hostIdentity){const key=boardStateKey(x);deliveredStates.add(key);if(deliveredStates.size>200)deliveredStates.delete(deliveredStates.values().next().value);if(queued&&boardStateKey(JSON.parse(queued))===key){queued=null;pending(null);clearTimeout(retryTimer);retryTimer=null;retryAt=0;sendFailures=0;status('ok','Update confirmed by relay')}}
@@ -1911,7 +1914,7 @@ function poll(confirmPending=false){if(pollTask)return confirmPending===true?pol
 // Later relay timestamps also work when the same TV reconnects without a new handshake.
 let liveRevealStream=false;
 function conn(){
- if(!window.JialatUI||JialatUI.build!=='30'||!ROLE||ROLE==='host'&&localHostBlocked)return;
+ if(!window.JialatUI||JialatUI.build!=='31'||!ROLE||ROLE==='host'&&localHostBlocked)return;
  if(relayWait()>0){if(stream)stream.close();streamOpen=false;clearInterval(pollTimer);pollTimer=relayLater(()=>{pollTimer=null;conn()},relayWait());status('bad',relayWaitLabel());return}
  status('','Connecting…');if(stream)stream.close();streamOpen=false;boardAuthorized=false;boardControlSince=0;boardNonce='';
  try{stream=JialatUI.relayStream(URL_+'/sse?since='+encodeURIComponent(boardCursor||'all'),relayWait,relayRetryDelay);
@@ -2016,11 +2019,11 @@ async function previewTvCue(kind){tvMuted(false);tvSoundOn=true;await playCue(ki
 function tvCue(kind){
  if(tvSoundOn&&audioCtx?.state==='running'&&!document.hidden)playCue(kind,true)
 }
-function tvCountdownAudio(c,f,fresh){
- const old=tvCountdownFrame,same=old?.id===c.id,kind=playKind(c.g),now=Date.now();
+function tvCountdownAudio(c,f,fresh,now){
+ const old=tvCountdownFrame,same=old?.id===c.id,kind=playKind(c.g);
  tvCountdownFrame={id:c.id,phase:f.phase,ready:f.ready,seconds:f.seconds};
  let cue='',suffix='';
- if(f.phase==='ready'&&(fresh&&!same||same&&f.ready<old.ready&&now-(c.startAt-f.ready*1000)<250)){
+ if(f.phase==='ready'&&(fresh&&!same||same&&(old.phase==='waiting'||f.ready<old.ready)&&now-(c.startAt-f.ready*1000)<250)){
   cue='count';suffix='ready:'+f.ready;
  }else if(f.phase==='running'&&(same&&old.phase==='ready'&&now-c.startAt<300||
     kind==='attempt'&&fresh&&!same)){
@@ -2109,6 +2112,7 @@ function setResult(g,i,raw,fromTimer=false,confirmed=false){
   const input=$('result'+g+'-'+i);if(input)input.value=input.defaultValue;
   return
  }
+ if(turnProbe?.g===g)clearTurnProbe();
  vals(g)[i]=v;S.ow[g]=null;S.finalShown=false;if(S.m[0]=='rev')S.m=['board',9];
  if(Q&&Q.g===g&&Q.slots.includes(i)&&!fromTimer){
   if(playKind(g)==='attempt'&&v!==null){
@@ -2116,7 +2120,7 @@ function setResult(g,i,raw,fromTimer=false,confirmed=false){
    Q=null;
   }else clearGameplay()
  }
- recalc(g);commit();
+ recalc(g);commit(fromTimer&&!!Q);
 }
 function chooseWinner(g,i,confirmed=false){if(!leaders(g).includes(i)||S.ow[g]===i)return;if(!confirmed&&confirmRevealInterruption('Update game winner','The correction will close the current reveal and update the standings.',()=>chooseWinner(g,i,true)))return;S.ow[g]=i;S.finalShown=false;if(S.m[0]=='rev')S.m=['board',9];recalc(g);commit()}
 function revealInProgress(){return S.m[0]==='rev'&&!championshipComplete()}
@@ -2131,13 +2135,14 @@ function confirmRevealInterruption(label,message,action){
 function askHost(options,action){if(window.JialatUI)JialatUI.confirm(options,action);else if(confirm(options.message))action()}
 function clr(g,confirmed=false){
  if((filled(g)||S.sc.some(r=>r[g]!==null)||Q&&Q.g===g)&&confirmed!==true){askHost({title:'Clear game '+(g+1)+'?',message:'Clear every result and score for '+G[g].n+' and cancel its timer? Other games and player names are kept.',label:'Clear this game'},()=>clr(g,true));return}
- if(S.timer?.g===g||S.play?.g===g)clearGameplay();S.rs[g]=[];S.ow[g]=null;S.sc.forEach(r=>r[g]=null);S.finalShown=false;if(S.m[0]=='rev')S.m=['board',9];commit()
+ if(turnProbe?.g===g||S.timer?.g===g||S.play?.g===g)clearGameplay();S.rs[g]=[];S.ow[g]=null;S.sc.forEach(r=>r[g]=null);S.finalShown=false;if(S.m[0]=='rev')S.m=['board',9];commit()
 }
-function clearGameplay(){Q=null;S.timer=null;S.play=null}
+function clearGameplay(){clearTurnProbe();Q=null;S.timer=null;S.play=null}
 function sg(i){
  if(i===S.g){if(revealCheck){revealCheck=false;host()}return}
- if(Q&&Q.g!==i&&!confirm('Close the current turn and switch games? Recorded results are kept.'))return;
+ if((turnProbe||Q&&Q.g!==i)&&!confirm('Close the current turn and switch games? Recorded results are kept.'))return;
  if(S.timer?.g!==i&&S.play?.g!==i)clearGameplay();
+ turnNotice='';
  revealCheck=false;S.g=i;if(S.m[0]==='rules')S.m=['rules',i];commit()
 }
 const playKind=g=>LIMIT[g]?'countdown':MODE[g]==='time'?'stopwatch':'attempt';
@@ -2170,9 +2175,49 @@ function hostFrame(){
  return gameplayFrame(turn.clock,turn.clock.startAt+performance.now()-turn.start)
 }
 function hostClockText(f=hostFrame()){
+ if(Q.awaitingTV)return 'CHECKING TV';
+ if(f.phase==='ready'&&Q.start-performance.now()>3000)return 'READY';
  if(playKind(Q.g)==='attempt')return 'IN PLAY';
  if(f.phase==='ready')return 'GO IN '+f.ready;
  return LIMIT[Q.g]?(f.left/1000).toFixed(1)+'s':(f.elapsed/1000).toFixed(2)+'s'
+}
+function storedTurn(key,id){
+ try{
+  if(id!==undefined)sessionStorage.setItem('jialat-turn-'+key,id);
+  return sessionStorage.getItem('jialat-turn-'+key)||'';
+ }catch(e){return ''}
+}
+function clearTurnProbe(){
+ if(turnProbe){clearTimeout(turnProbe.timeout);turnProbe=null}
+}
+function failTurn(message){
+ clearTurnProbe();turnNotice=message;
+ if(Q?.awaitingTV){clearGameplay();commit()}else host();
+}
+function receiveTurnControl(m){
+ if(ROLE==='tv'&&m.type==='turn-probe'){
+  if(!streamOpen||document.hidden||m.target!==displayIdentity||m.host!==boardController||
+    !/^[a-f0-9]{16}$/.test(m.turn||''))return;
+  tvTurnProbe=m.turn;
+  const received=Date.now();
+  boardControl('turn-clock',{turn:m.turn,target:m.host,display:displayIdentity,received,sent:Date.now()});
+  return
+ }
+ if(ROLE!=='host'||boardHostLocked()||!boardAuthorized||m.target!==hostIdentity||m.display!==boardTV)return;
+ if(m.type==='turn-clock'&&turnProbe?.id===m.turn){
+  const probe=turnProbe,rtt=performance.now()-probe.monotonic;
+  if(!Number.isFinite(m.received)||!Number.isFinite(m.sent)||m.sent<m.received||rtt>2200){
+   failTurn('TV response was slow. Start again when the connection is stable.');return
+  }
+  const offset=(m.received+m.sent)/2-(probe.wall+rtt/2);
+  clearTurnProbe();
+  launchTurn(probe.g,probe.slots,probe.id,3000+Math.max(1200,2*rtt+750),{display:boardTV,offset});
+ }else if(m.type==='turn-abort'&&Q?.clock.id===m.turn&&!Q.go){
+  Q.awaitingTV=true;failTurn('TV was interrupted before GO. No round started.');
+ }else if(m.type==='turn-ready'&&Q?.awaitingTV&&Q.clock.id===m.turn){
+  if(performance.now()>Q.start-3000)return;
+  Q.awaitingTV=false;storedTurn('host',m.turn);refreshTurnControls();
+ }
 }
 function restoreCountdown(){
  const old=Q,c=activeGameplay();Q=null;
@@ -2181,20 +2226,33 @@ function restoreCountdown(){
  if(ends.every(v=>v!==null))return;
  const start=old?.clock.id===c.id&&old.clock.startAt===c.startAt?old.start:performance.now()+c.startAt-Date.now();
  const f=gameplayFrame(c,c.startAt+performance.now()-start);
- Q={g:c.g,slots,start,clock:c,ends,expired:f.phase==='ended',go:f.phase!=='ready',count:f.ready}
+ const awaitingTV=!!c.sync&&old?.clock.id!==c.id&&storedTurn('host')!==c.id;
+ Q={g:c.g,slots,start,clock:c,ends,awaitingTV:old?.clock.id===c.id?old.awaitingTV:awaitingTV,
+   expired:f.phase==='ended',go:!awaitingTV&&f.phase!=='ready',count:f.ready}
 }
 function startTimer(g,confirmed=false){
- if(g!==S.g||boardHostLocked()||Q)return;
+ if(g!==S.g||boardHostLocked()||Q||turnProbe)return;
  if(!confirmed&&confirmRevealInterruption('Start turn','This closes the current reveal and puts the game on TV.',()=>startTimer(g,true)))return;
  const open=Array.from({length:size(g)},(_,i)=>i).filter(i=>value(g,i)===null);
  if(!open.length)return;
- const kind=playKind(g),delay=kind==='attempt'?0:3000,startAt=Date.now()+delay,start=performance.now()+delay;
- const id=boardToken(),slots=open.slice(0,kind==='stopwatch'&&G[g].t==='s'?2:1);
+ const kind=playKind(g),id=boardToken(),slots=open.slice(0,kind==='stopwatch'&&G[g].t==='s'?2:1);
+ turnNotice='';
+ if(kind==='attempt'){launchTurn(g,slots,id,0);cue('tap');return}
+ if(!boardAuthorized||!streamOpen||!boardTV){
+  failTurn('TV is not connected. Open the TV display, then try again.');return
+ }
+ turnProbe={g,id,slots,wall:Date.now(),monotonic:performance.now(),
+  timeout:setTimeout(()=>failTurn('TV did not answer. Check the display, then try again.'),3200)};
+ host();cue('tap');boardControl('turn-probe',{turn:id,host:hostIdentity,target:boardTV})
+}
+function launchTurn(g,slots,id,delay,sync){
+ const startAt=Date.now()+delay,start=performance.now()+delay;
  clearGameplay();
- const clock=kind==='countdown'?S.timer={id,g,slot:slots[0],startAt,endAt:startAt+LIMIT[g]*1000}:
+ const clock=playKind(g)==='countdown'?S.timer={id,g,slot:slots[0],startAt,endAt:startAt+LIMIT[g]*1000}:
   S.play={id,g,slots,startAt,endedAt:null};
- Q={g,slots,start,clock,ends:[],expired:false,go:!delay,count:0};
- S.m=['rules',g];commit();cue('tap')
+ if(sync)clock.sync=sync;
+ Q={g,slots,start,clock,ends:[],awaitingTV:!!sync,expired:false,go:!delay,count:0};
+ S.m=['rules',g];commit()
 }
 function finishTimer(j){
  if(boardHostLocked()||!Q||!Q.go||playKind(Q.g)!=='stopwatch'||Q.ends[j]!=null||!Number.isInteger(j)||j<0||j>=Q.slots.length)return;
@@ -2206,23 +2264,30 @@ function finishTimer(j){
  }
  setResult(g,i,v,true);cue('tap')
 }
-function cancelTimer(){if(!Q||boardHostLocked())return;clearGameplay();commit();cue('tap')}
+function cancelTimer(){if((!Q&&!turnProbe)||boardHostLocked())return;const shared=!!Q;clearGameplay();turnNotice='';if(shared)commit();else host();cue('tap')}
 function tick(){
- if(!Q||playKind(Q.g)==='attempt')return;
+ if(ROLE!=='host'||!Q||playKind(Q.g)==='attempt')return;
+ if(Q.awaitingTV){
+  if(performance.now()>=Q.start-3000)failTurn('TV did not confirm the countdown. No round started. Try again.');
+  return
+ }
+ if(Q.clock.sync&&!Q.go&&(!streamOpen||!boardAuthorized)){
+  Q.awaitingTV=true;failTurn('Connection was interrupted before GO. No round started.');return
+ }
  const f=hostFrame();
- if(f.phase==='ready'&&Q.count!==f.ready){Q.count=f.ready;window.JialatMotion?.play($('clock'),'score')}
- if(!Q.go&&f.phase!=='ready'){Q.go=true;host();if(f.phase==='running')window.JialatMotion?.play($('clock'),'score')}
- if(f.phase==='ended'&&!Q.expired){Q.expired=true;host()}
+ if(f.phase==='ready'&&Q.start-performance.now()<=3000&&Q.count!==f.ready){Q.count=f.ready;window.JialatMotion?.play($('clock'),'score')}
+ if(!Q.go&&f.phase!=='ready'){Q.go=true;refreshTurnControls();if(f.phase==='running')window.JialatMotion?.play($('clock'),'score')}
+ if(f.phase==='ended'&&!Q.expired){Q.expired=true;refreshTurnControls()}
  const c=$('clock');if(c){const text=hostClockText(f);if(c.textContent!==text)c.textContent=text}
 }
 setInterval(tick,50);
 function tvm(m,confirmed=false){
- const changed=S.m[0]!==m[0]||S.m[1]!==m[1];
- if(!changed)return;
+ const changed=S.m[0]!==m[0]||S.m[1]!==m[1]||!!activeGameplay()||!!turnProbe;
+ if(!changed){cue('tap');return}
  if(m[0]==='rev'&&(!allDone()||unresolvedTie())){tryReveal();return}
  if(!confirmed&&confirmRevealInterruption('Switch TV screen','This ends the current reveal. Restarting it begins with all ten ranks sealed.',()=>tvm(m,true)))return;
- if(activeGameplay()){
-  if(Q&&!Q.expired&&!confirm('Close the current turn and switch the TV screen?'))return;
+ if(activeGameplay()||turnProbe){
+  if((turnProbe||Q&&!Q.expired)&&!confirm('Close the current turn and switch the TV screen?'))return;
   clearGameplay();
  }
  S.m=m;commit();cue('tap')
@@ -2230,6 +2295,8 @@ function tvm(m,confirmed=false){
 function tryReveal(){
  if(S.m[0]==='rev'){$('revealHeading')?.focus({preventScroll:true});return}
  if(allDone()&&!unresolvedTie()){
+  if((turnProbe||Q&&!Q.expired)&&!confirm('Close the current turn and start the final reveal?'))return;
+  if(activeGameplay()||turnProbe)clearGameplay();
   revealCheck=false;S.revealId=Math.max(Date.now(),Number(S.revealId||0)+1);
   S.finalShown=false;S.spotlight=false;tvm(['rev',0]);return
  }
@@ -2242,29 +2309,50 @@ function closeSpotlight(){if(S.m[0]!=='rev'||!S.spotlight)return;S.spotlight=fal
 // Keep the name fields in place during entry; closing the section refreshes game labels.
 function nn(i,v){const next=friendName(v.trim().slice(0,14)),field=$('playerName'+i);if(field)field.value=next;if(S.nm[i]===next)return;S.nm[i]=next;if($('playerNames')&&$('playerNames').open){S.v=Math.max(Date.now(),S.v+1);save();push()}else commit()}
 function tbb(i,d,confirmed=false){const next=Math.max(0,(S.tb[i]||0)+d);if(next===(S.tb[i]||0))return;if(!confirmed&&confirmRevealInterruption('Update tie-break','The correction will close the current reveal and update the standings.',()=>tbb(i,d,true)))return;S.tb[i]=next;S.finalShown=false;if(S.m[0]=='rev')S.m=['board',9];commit()}
-function reset(confirmed=false){if(confirmed!==true){askHost({title:'Start a new round?',message:(revealInProgress()?'This ends the final reveal. ':'')+'Clear every result and tie-break from all nine games? Player names are kept.',label:'Start new round'},()=>reset(true));return}const n=S.nm;Q=null;revealCheck=false;stopCue();S=D();S.nm=n;commit()}
+function reset(confirmed=false){if(confirmed!==true){askHost({title:'Start a new round?',message:(revealInProgress()?'This ends the final reveal. ':'')+'Clear every result and tie-break from all nine games? Player names are kept.',label:'Start new round'},()=>reset(true));return}const n=S.nm;clearGameplay();revealCheck=false;stopCue();S=D();S.nm=n;commit()}
 async function copyRes(){const t='🎄 JIALAT Christmas 2026\n'+stand(9).map(o=>`${o.r}. ${rn(o.i)} - ${o.t}`).join('\n');try{if(!navigator.clipboard?.writeText)throw Error('Clipboard unavailable');await navigator.clipboard.writeText(t);const b=$('copyResults');if(b){b.textContent='Copied';setTimeout(()=>{if(b.isConnected)b.textContent='Copy results'},2000)}}catch(e){prompt('Copy these results:',t)}}
 // ---- host ----
+function refreshTurnControls(){
+ if(!Q||!$('clock'))return;
+ const g=Q.g;
+ $('clock').textContent=hostClockText();
+ Q.slots.forEach((slot,j)=>{
+  const finish=$('finish'+j),input=$('result'+g+'-'+slot),saved=Q.ends[j]!=null;
+  if(finish){
+   finish.disabled=!Q.go||saved;finish.classList.toggle('on',saved);
+   const verb=finish.querySelector('.finish-verb');
+   verb.textContent=saved?shown(g,Q.ends[j])+'s saved':'Finish';
+  }
+  if(input&&saved){input.value=input.defaultValue=shown(g,Q.ends[j]);input.closest('.result').classList.remove('result-missing');input.closest('.result').querySelector('small')?.remove()}
+  if(input&&LIMIT[g])input.disabled=!Q.expired;
+ });
+ if($('gameResultCount'))$('gameResultCount').textContent=filled(g)+' / '+size(g)+' recorded';
+ const hint=$('turnHint');
+ if(hint&&Q.go){
+  hint.textContent=Q.expired?'Time’s up. Enter the team’s count below.':'Enter the team’s count when time is up.';
+  hint.className=Q.expired?'warn':'hint';
+ }
+ if($('cancelTurn')&&Q.expired)$('cancelTurn').textContent='Close timer';
+}
 function resultPanel(g,extras=''){
  const mode=MODE[g],x=G[g],n=size(g),kind=playKind(g);
  const next=Array.from({length:n},(_,i)=>i).filter(i=>value(g,i)===null);
  let h='';
- const active=Q&&Q.g===g,slots=active?Q.slots:next.slice(0,mode=='time'&&x.t=='s'?2:1);
- h+='<div class="turn"><div class="lb">'+(active?'CURRENT TURN':'NEXT TURN')+'</div>';
- if(!active)h+=slots.length?'<div>'+slots.map(i=>label(g,i)).join(' <span style="color:var(--g)">vs</span> ')+'</div><div class="rw" style="margin-top:10px"><button class="go timer-primary" onclick="startTimer('+g+')">Start '+(kind==='countdown'?LIMIT[g]+'s countdown':kind==='attempt'?'attempt on TV':'timer')+'</button></div>':'<div>All results recorded. Edit a result below to correct or replay it.</div>';
+ const active=Q&&Q.g===g,checking=turnProbe?.g===g,slots=active?Q.slots:next.slice(0,mode=='time'&&x.t=='s'?2:1);
+ h+='<p id="turnNotice" role="status">'+esc(turnNotice)+'</p><div class="turn"><div class="lb">'+(active?'CURRENT TURN':'NEXT TURN')+'</div>';
+ if(!active)h+=slots.length?'<div>'+slots.map(i=>label(g,i)).join(' <span style="color:var(--g)">vs</span> ')+'</div><div class="rw" style="margin-top:10px"><button class="go timer-primary" id="startTurn" onclick="startTimer('+g+')" '+(checking?'disabled':'')+'>'+(checking?'Checking TV…':'Start '+(kind==='countdown'?LIMIT[g]+'s countdown':kind==='attempt'?'attempt on TV':'timer'))+'</button>'+(checking?'<button class="timer-reset" onclick="cancelTimer()">Cancel</button>':'')+'</div>':'<div>All results recorded. Edit a result below to correct or replay it.</div>';
  else{
   h+='<div>'+slots.map(i=>label(g,i)).join(' <span style="color:var(--g)">vs</span> ')+'</div><div class="clock" id="clock">'+hostClockText()+'</div>';
-  if(mode=='time')h+='<div class="rw">'+slots.map((i,j)=>'<button class="timer-primary '+(Q.ends[j]!=null?'on':'go')+'" onclick="finishTimer('+j+')" '+(Q.ends[j]!=null||!Q.go?'disabled':'')+'>'+(Q.ends[j]!=null?'Saved '+shown(g,Q.ends[j])+'s':'Finish '+label(g,i))+'</button>').join('')+'</div>';
+  if(mode=='time')h+='<div class="finish-actions">'+slots.map((i,j)=>'<button id="finish'+j+'" class="timer-primary '+(Q.ends[j]!=null?'on':'go')+'" onclick="finishTimer('+j+')" '+(Q.ends[j]!=null||!Q.go?'disabled':'')+'><span class="finish-verb">'+(Q.ends[j]!=null?shown(g,Q.ends[j])+'s saved':'Finish')+'</span><span>'+label(g,i)+'</span></button>').join('')+'</div>';
   if(kind==='attempt')h+='<p class="hint">Record the result below to finish this attempt. There is no time limit.</p>';
-  if(LIMIT[g])h+='<div class="'+(Q.expired?'warn':'hint')+'">'+(Q.expired?'TIME! Count the successful items and enter the result below.':!Q.go?'Get ready. The round begins on GO.':'Count the successful items when the clock reaches zero.')+'</div>';
-  h+='<div class="rw" style="margin-top:16px"><button class="timer-reset" onclick="cancelTimer()">'+(Q.expired?'Close timer':kind==='attempt'?'Cancel attempt':'Cancel timer')+'</button></div>';
+  if(LIMIT[g])h+='<div id="turnHint" class="'+(Q.expired?'warn':'hint')+'">'+(Q.expired?'TIME! Count the successful items and enter the result below.':!Q.go?'Get ready. The round begins on GO.':'Count the successful items when the clock reaches zero.')+'</div>';
+  h+='<div class="rw" style="margin-top:16px"><button id="cancelTurn" class="timer-reset" onclick="cancelTimer()">'+(Q.expired?'Close timer':kind==='attempt'?'Cancel attempt':'Cancel timer')+'</button></div>';
  }
  h+='</div>';
  h+=extras;
- h+='<div class="lb">RECORD '+(mode=='time'?'TIME IN SECONDS':mode=='distance'?'DISTANCE IN CM':'SUCCESSFUL COUNT')+' · '+filled(g)+' / '+n+'</div>';
+ h+='<div class="lb">RECORD '+(mode=='time'?'TIME IN SECONDS':mode=='distance'?'DISTANCE IN CM':'SUCCESSFUL COUNT')+'</div>';
  if(g===3)h+='<div class="hint">Tied candle counts share the points for those places. No replay needed.</div>';
- if(mode=='time')h+='<div class="hint">One observer taps Finish for each player or pair. Hand them this device if you are playing. Correct any time below if needed.</div>';
- if(LIMIT[g])h+='<div class="hint">Enter each team’s count after its countdown. The page picks the higher count.</div>';
+ if(LIMIT[g])h+='<div id="turnHint" class="hint">Enter each team’s count after its countdown. The page picks the higher count.</div>';
  h+='<div class="results">'+Array.from({length:n},(_,i)=>{
   const p=x.t=='s'?S.sc[i][g]:x.u?S.sc[x.u[i][0]-1][g]:null;
   return '<label class="result'+(value(g,i)===null?' result-missing':'')+'"><span class="who">'+label(g,i)+(value(g,i)===null?'<small>Missing</small>':'')+'</span><input id="result'+g+'-'+i+'" data-result-slot="'+i+'" type="number" inputmode="decimal" min="'+(mode=='time'?'0.01':'0')+'" '+(g===3?'max="8" ':'')+(Q&&LIMIT[g]&&Q.g===g&&Q.slots.includes(i)&&!Q.expired?'disabled ':'')+'step="'+(mode=='count'?'1':mode=='time'?'0.01':'0.1')+'" value="'+shown(g,value(g,i))+'" aria-label="'+(mode=='time'?'Seconds':mode=='distance'?'Centimetres':'Count')+' for '+esc(x.t=='s'?rn(i):x.t=='t'?'Team '+'AB'[i]:'pair '+(i+1))+'" onchange="setResult('+g+','+i+',this.value)"><b>'+(p===null?'': '+'+p)+'</b></label>'
@@ -2277,16 +2365,16 @@ function resultPanel(g,extras=''){
  return h;
 }
 function host(){
- const previousGame=$('activeGame')?.dataset.game;
+ const previousGame=$('activeGame')?.dataset.game,scrollBefore=window.scrollY;
  const syncNode=$('sync'),dotNode=$('dot'),focused=document.activeElement,focusId=focused&&focused.id,focusLabel=focused&&focused.getAttribute('aria-label');
  const opened=id=>!!($(id)&&$(id).open),audioOpen=opened('hostAudio'),judgeOpen=opened('judgingGuide'),namesOpen=opened('playerNames'),settingsOpen=opened('hostSetup'),optionsOpen=opened('gameOptions');
  const g=S.g,x=G[g],done=G.map((_,i)=>S.sc.every(r=>r[i]!=null)),m=S.m,ready=allDone()&&!unresolvedTie();
  const tvOpen=!$('hostScreens')||$('hostScreens').open;
  const btn=[['Event title',['idle']],['Rules',['rules',g]],['After game 3',['board',3]],['After game 6',['board',6]],['Rankings',['board',9]],['Final reveal',['rev',0]]];
- const activeTV=btn.findIndex(([,mode])=>m[0]===mode[0]&&(m[0]!=='board'||m[1]===mode[1]));
- const tvMode=activeTV>=0?btn[activeTV][0]:'After game '+m[1];
- let h=`<a class="skip-link" href="#activeGame">Skip to current game</a><div class="site-utility">${Q?'':'<a class="menu-return" href="../">← MAIN MENU</a>'}<img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><header class="activity-header"><span class="activity-icon"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-hidden="true"><path fill="#d4af37" d="M1 1h16v1H1zM1 2h1v10H1zM16 2h1v10h-1zM1 12h16v1H1z"/><path fill="#6b5a22" d="M3 4h12v1H3zM3 7h12v1H3zM3 10h12v1H3z"/><g class="bead-one"><path fill="#65d9cb" d="M4 3h2v3H4z"/></g><g class="bead-two"><path fill="#86baff" d="M5 6h2v3H5z"/></g><g class="bead-three"><path fill="#ff8b78" d="M7 9h2v3H7z"/></g></svg></span><h1>SCOREBOARD</h1><span class="role-label">HOST</span></header><div class="host-status" id="hostConnection"></div><section class="host-control-note" id="hostControlNote" hidden></section><section class="host-overview" aria-label="Current game progress"><div><span>Game</span><strong>${g+1} / 9</strong></div><div><span>Results</span><strong>${filled(g)} / ${size(g)}</strong></div><div><span>Completed</span><strong aria-label="${done.filter(Boolean).length} of 9 games complete">${done.filter(Boolean).length} / 9</strong></div></section>`;
- h+=`<details class="host-settings" id="hostScreens"${tvOpen?' open':''}><summary id="tvScreensHeading">TV display <span class="tv-mode-status">${esc(tvMode)}</span></summary>
+ const activeTV=btn.findIndex(([,mode])=>m[0]===mode[0]&&(m[0]==='rules'?!activeGameplay():m[0]!=='board'||m[1]===mode[1]));
+ const tvMode=activeGameplay()?'Gameplay':activeTV>=0?btn[activeTV][0]:'After game '+m[1];
+ let h=`<a class="skip-link" href="#activeGame">Skip to current game</a><div class="site-utility">${Q?'':'<a class="menu-return" href="../">← MAIN MENU</a>'}<img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><header class="activity-header"><span class="activity-icon"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-hidden="true"><path fill="#d4af37" d="M1 1h16v1H1zM1 2h1v10H1zM16 2h1v10h-1zM1 12h16v1H1z"/><path fill="#6b5a22" d="M3 4h12v1H3zM3 7h12v1H3zM3 10h12v1H3z"/><g class="bead-one"><path fill="#65d9cb" d="M4 3h2v3H4z"/></g><g class="bead-two"><path fill="#86baff" d="M5 6h2v3H5z"/></g><g class="bead-three"><path fill="#ff8b78" d="M7 9h2v3H7z"/></g></svg></span><h1>SCOREBOARD</h1><span class="role-label">HOST</span></header><div class="host-status" id="hostConnection"></div><section class="host-control-note" id="hostControlNote" hidden></section>`;
+ const tvSettings=`<details class="host-settings" id="hostScreens"${tvOpen?' open':''}><summary id="tvScreensHeading">TV display <span class="tv-mode-status">${esc(tvMode)}</span></summary>
  <div class="tv-modes" role="group" aria-label="TV display modes">${btn.map(([label,mode],i)=>`<button id="tvMode${i}" class="${i===activeTV?'on':''}" aria-pressed="${i===activeTV}" onclick='${label==='Final reveal'?'tryReveal()':'tvm('+JSON.stringify(mode)+')'}'>${label}</button>`).join('')}</div>
  ${!ready?'<p class="hint">Final reveal checks for any missing results or ties.</p>':''}</details>`;
  if(m[0]==='rev'){
@@ -2297,9 +2385,7 @@ function host(){
     championshipComplete()?'<p class="hint">Championship complete. Select Rankings in TV display to show the full standings.</p>':
     `<div class="rw"><button id="revealBack" onclick="rv(-1)" ${m[1]===0?'disabled':''}>Back</button><button id="revealNext" class="go" onclick="rv(1)">Reveal ${ordinal(REVEAL_ORDER[m[1]])} place</button></div>`}</section>`;
  }
- const nextHostGame=done.findIndex(complete=>!complete);
  const gameStatus=i=>done[i]?'Complete':filled(i)===size(i)?'Winner decision pending':size(i)-filled(i)+' results missing';
- const nextAction=!done[g]?(filled(g)<size(g)?`Record ${size(g)-filled(g)} remaining result${size(g)-filled(g)===1?'':'s'}`:'Resolve the game tie'):nextHostGame>=0?`Open Game ${nextHostGame+1}`:ready?'Start the final reveal':'Resolve the overall tie';
  h+=`<div class="lb game-picker-label" id="gamePickerLabel">Choose game</div><div class="tabs" role="group" aria-labelledby="gamePickerLabel">${G.map((game,i)=>`<button id="gameSelect${i}" data-game="${i}" class="${i===g?'on ':''}${done[i]?'game-tab-complete':'game-tab-pending'}" aria-current="${i===g?'step':'false'}" aria-label="Game ${i+1}: ${esc(game.n)} · ${gameStatus(i)}" onclick="sg(${i})">${i+1}${done[i]?'✓':''}</button>`).join('')}</div>`;
 if(revealCheck&&!ready){
  const missing=G.map((_,i)=>i).filter(i=>!done[i]),st=stand(9),groups=[];
@@ -2312,10 +2398,10 @@ if(revealCheck&&!ready){
  h+='</div>'
 }
 
- const extras=`<p class="game-brief">${esc(x.r)}</p><div class="quick-tv-actions"><button onclick="tvm(['rules',${g}])">Show rules on TV</button><button onclick="tvm(['board',9])">Show rankings</button></div><details class="game-guide" id="judgingGuide"${judgeOpen?' open':''}><summary>How to judge</summary><p>${esc(GUIDE[g].host)}</p></details>`;
- let c=`<section class="card active-game" id="activeGame" data-game="${g}" tabindex="-1" aria-labelledby="currentGameTitle"><h2 id="currentGameTitle" tabindex="-1">${esc(x.n)}</h2>`;
- if(m[0]!=='rev')c+=`<p class="host-next">Next · ${nextAction}</p>`;
+ const extras=`<div class="quick-tv-actions"><button id="quickRules" aria-pressed="${activeTV===1}" onclick="tvm(['rules',${g}])">Show rules on TV</button><button id="quickRanks" aria-pressed="${activeTV===4}" onclick="tvm(['board',9])">Show rankings</button></div>${tvSettings}`;
+ let c=`<section class="card active-game" id="activeGame" data-game="${g}" tabindex="-1" aria-labelledby="currentGameTitle"><div class="game-title-row"><h2 id="currentGameTitle" tabindex="-1">${esc(x.n)}</h2><span id="gameResultCount">${filled(g)} / ${size(g)} recorded</span></div>`;
  c+=resultPanel(g,extras);
+ c+=`<details class="game-guide" id="judgingGuide"${judgeOpen?' open':''}><summary>Rules &amp; judging</summary><p>${esc(x.r)}</p><p>${esc(GUIDE[g].host)}</p></details>`;
  const sum=S.sc.reduce((a,r)=>a+(r[g]||0),0);
  c+=`<p class="hint points-summary">Points given: ${sum} / ${EXP[x.t]}${sum===EXP[x.t]?' · Complete':''}</p><details class="game-options" id="gameOptions"${optionsOpen?' open':''}><summary>Game options</summary><button id="clearGame" class="danger" onclick="clr(${g})">Clear this game</button></details></section>`;
  const st=stand(9),hasPoints=S.sc.some(r=>r.some(v=>v!==null)),hasRecorded=S.rs.some(r=>Array.isArray(r)&&r.some(v=>v!==null)),final=allDone()&&S.finalShown;
@@ -2330,6 +2416,7 @@ if(revealCheck&&!ready){
  $('hostConnection').append(dotNode,syncNode);relayPanelBind();updateAudioStatus();boardAccess();
  const restore=focusId?$(focusId):focusLabel?Array.from($('H').querySelectorAll('[aria-label]')).find(e=>e.getAttribute('aria-label')===focusLabel):null;
  if(restore&&!restore.disabled)try{restore.focus({preventScroll:true})}catch(e){}
+ if(previousGame===String(g)&&window.scrollY!==scrollBefore)window.scrollTo(0,scrollBefore);
 }
 function dismissRevealCheck(){revealCheck=false;host();const title=$('currentGameTitle');if(title)title.focus({preventScroll:true})}
 // ---- tv ----
@@ -2401,22 +2488,39 @@ function drawTvGameplay(c,live){
   <div class="turn-rules"><strong>${esc(GUIDE[c.g].goal)}</strong><p id="tvClockHint">${esc(PLAY_REMINDER[c.g])}</p></div>`;
  tickTvGameplay(live)
 }
+function tvTurnWaiting(c,remaining){
+ if(!c.sync)return false;
+ if(tvTurnAck!==c.id&&storedTurn('tv')===c.id)tvTurnAck=c.id;
+ if(tvTurnAck!==c.id&&c.sync.display===displayIdentity&&tvTurnProbe===c.id&&streamOpen&&!document.hidden&&remaining>=3050){
+  tvTurnAck=c.id;storedTurn('tv',c.id);
+  boardControl('turn-ready',{turn:c.id,target:boardController,display:displayIdentity})
+ }
+ if(tvTurnAck===c.id&&remaining>0&&(!streamOpen||document.hidden)&&tvInterruptedTurn!==c.id&&c.sync.display===displayIdentity){
+  tvInterruptedTurn=c.id;boardControl('turn-abort',{turn:c.id,target:boardController,display:displayIdentity});
+ }
+ return tvInterruptedTurn===c.id||tvTurnAck!==c.id||remaining>3000;
+}
 function tickTvGameplay(fresh){
  const c=activeGameplay(),clock=$('tvClock');
  if(!c||!clock){tvCountdownFrame=null;return}
- const f=gameplayFrame(c),kind=playKind(c.g),phase=$('tvClockPhase'),msg=$('msg');
+ if(tvClockAnchor?.id!==c.id)tvClockAnchor={id:c.id,wall:Date.now()-(c.sync?.offset||0),mono:performance.now()};
+ const now=tvClockAnchor.wall+performance.now()-tvClockAnchor.mono;
+ const waiting=tvTurnWaiting(c,c.startAt-now);
+ const f=waiting?{phase:'waiting',seconds:0}:gameplayFrame(c,now);
+ const kind=playKind(c.g),phase=$('tvClockPhase'),msg=$('msg');
  const previous=tvCountdownFrame,observed=previous?.id===c.id;
- const ready=f.phase==='ready',ended=f.phase==='ended',go=!ready&&!ended&&kind!=='attempt'&&Date.now()-c.startAt<1000;
+ const ready=f.phase==='ready',ended=f.phase==='ended',go=!ready&&!ended&&kind!=='attempt'&&!waiting&&now-c.startAt<1000;
  const finalSeconds=kind==='countdown'&&!ready&&!ended&&f.seconds<=10;
  const seconds=kind==='countdown'?f.seconds:Math.floor((f.elapsed||0)/1000);
  const time=Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
- const display=ready?String(f.ready):kind==='attempt'?(ended?'DONE':'IN PLAY'):
+ const display=waiting?'READY':ready?String(f.ready):ended&&kind!=='countdown'?'':kind==='attempt'?'IN PLAY':
   time+(kind==='stopwatch'?'.'+Math.floor(f.elapsed/100)%10:'');
  if(clock.textContent!==display){
   clock.textContent=display;
   if(ready||finalSeconds&&f.seconds<=5&&observed&&previous.seconds>f.seconds)window.JialatMotion?.play(clock,'count');
  }
- const title=ready?'GET READY':ended?(kind==='countdown'?"TIME’S UP!":kind==='attempt'?'ATTEMPT COMPLETE':'ROUND COMPLETE'):
+ clock.hidden=ended&&kind!=='countdown';
+ const title=waiting?'SYNCING TURN':ready?'GET READY':ended?(kind==='countdown'?"TIME’S UP!":kind==='attempt'?'ATTEMPT COMPLETE':'ROUND COMPLETE'):
   go?'GO!':finalSeconds?'FINAL COUNTDOWN':kind==='attempt'?'UNTIMED ATTEMPT':kind==='stopwatch'?'ELAPSED TIME':'TIME REMAINING';
  if(phase.textContent!==title){
   phase.textContent=title;msg.classList.remove('clock-impact');
@@ -2428,12 +2532,14 @@ function tickTvGameplay(fresh){
  msg.classList.toggle('ready',ready);msg.classList.toggle('go',go);
  msg.classList.toggle('final-seconds',finalSeconds);msg.classList.toggle('urgent',finalSeconds||ended&&kind==='countdown');
  msg.classList.toggle('ended',ended);
+ $('tvParticipants').classList.toggle('show-results',ended&&kind!=='countdown');
+ $('tvParticipants').classList.toggle('show-results',ended&&kind!=='countdown');
  const bar=$('tvClockBar');
- if(bar){
+ if(bar&&!waiting){
   bar.style.transform='scaleX('+f.fraction+')';
   if(bar.parentElement.getAttribute('aria-valuenow')!==String(f.seconds))bar.parentElement.setAttribute('aria-valuenow',String(f.seconds));
  }
- tvCountdownAudio(c,f,fresh)
+ tvCountdownAudio(c,f,fresh,now)
 }
 function tv(animate,live=false){
  const m=S.m,rev=m[0]==='rev',rank=rev&&m[1]>0?REVEAL_ORDER[m[1]-1]:null;
@@ -2465,12 +2571,13 @@ function tv(animate,live=false){
   else if(clock){drawTvGameplay(clock,live);return}
   else if(m[0]=='rules'){const x=G[m[1]],a=GUIDE[m[1]],kind={s:'SOLO',p:'PAIRS',t:'TEAMS OF FIVE'}[x.t];
   msg.dataset.gameType=x.t;
-  msg.innerHTML=`<header class="guide-intro"><div class="game-kicker"><span class="level-number">GAME ${String(m[1]+1).padStart(2,'0')} <span>/ 09</span></span><span class="tag">${kind}</span></div><h1>${esc(x.n)}</h1><p class="guideGoal">${esc(a.goal)}</p>${scene(m[1])}</header>
+  msg.innerHTML=`<header class="guide-intro"><div class="game-kicker"><span class="level-number">GAME ${String(m[1]+1).padStart(2,'0')} <span>/ 09</span></span><span class="tag">${kind}</span></div><h1>${esc(x.n)}</h1><p class="guideGoal">${esc(a.goal)}</p></header>
+  <div class="guide-demo">${scene(m[1])}</div>
   <section class="guide-instructions" aria-label="How to play">
    <ol class="guideSteps">${a.steps.map((step,i)=>`<li class="guideStep"><b>0${i+1}</b><span>${esc(step)}</span></li>`).join('')}</ol>
+   </section>
    <div class="guideFacts"><div class="guideFact"><b>PLAY</b>${esc(a.turn)}</div><div class="guideFact"><b>WIN BY</b>${esc(a.win)}</div><div class="guideFact"><b>POINTS</b>${esc(a.points)}</div></div>
-  </section>
-  ${x.u?`<section class="guide-lineup" aria-label="Player lineup"><h2 class="sm">${x.t=='p'?'PAIR LINEUP':'TEAMS'}</h2><div class="gr">${x.u.map((u,k)=>`<div class="gb">${x.t=='t'?'TEAM '+'AB'[k]+'<br>':''}${u.map(p=>nm(p-1)).join(x.t=='t'?' · ':' &amp; ')}</div>`).join('')}</div></section>`:''}`}
+  ${x.u?`<section class="guide-lineup" aria-label="Player lineup"><h2 class="sm">${x.t=='p'?'PAIR LINEUP':'TEAM LINEUP'}</h2><div class="gr">${x.u.map((u,k)=>`<div class="gb">${x.t=='t'?'<b>TEAM '+'AB'[k]+'</b>':'<b>PAIR '+(k+1)+'</b>'}${u.map(p=>nm(p-1)).join(x.t=='t'?' · ':' &amp; ')}</div>`).join('')}</div></section>`:''}`}
   else if(!msg.querySelector('.event-title'))msg.innerHTML=window.JialatEventTitle();
   if(changed&&(sealed||m[0]==='rules')){
    msg.classList.add('arcade-sweep');
@@ -2564,7 +2671,7 @@ function enterRole(role,fromEntry=true){
  if(!['host','tv',''].includes(role))return;
  if(role)$('H').querySelectorAll('.seasonal-snow').forEach(node=>node.remove())
  if(hostTab){hostTab.dispose();hostTab=null}localHostBlocked=false;remoteHostBlocked=false;boardAuthorized=false;boardTV='';boardNonce='';boardController='';boardTVGranted=false;clearTimeout(boardProbeTimer);boardProbeTimer=0;if(stream)stream.close();stream=null;streamOpen=false;clearInterval(pollTimer);pollTimer=null;clearTimeout(pt);clearTimeout(retryTimer);retryTimer=null;retryAt=0;sendFailures=0;queued=null;stopCue();
- clearTimeout(tvCueTimeout);tvLastFrame=null;tvCountdownFrame=null;liveRevealStream=false;tvScreen=tvLineup='';tvClosingRanks=false;window.JialatMotion?.clearBurst($('msg'));$('msg').replaceChildren();
+ clearTurnProbe();tvTurnProbe=null;tvTurnAck='';tvInterruptedTurn='';tvClockAnchor=null;clearTimeout(tvCueTimeout);tvLastFrame=null;tvCountdownFrame=null;liveRevealStream=false;tvScreen=tvLineup='';tvClosingRanks=false;window.JialatMotion?.clearBurst($('msg'));$('msg').replaceChildren();
  ROLE=role;if(fromEntry)history.replaceState(null,'',role?'#'+role:location.pathname+location.search);
  if(ROLE==='tv'){Q=null;if(!rows.length)mkRows();if(!tvCountdownInterval)tvCountdownInterval=setInterval(tickTvGameplay,100)}else{clearInterval(tvCountdownInterval);tvCountdownInterval=null}
  if(ROLE==='host')restoreCountdown();
@@ -2574,11 +2681,11 @@ function enterRole(role,fromEntry=true){
 }
 $('H').addEventListener('keydown',advanceResultFocus);
 $('T').ondblclick=()=>document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();
-if(window.JialatUI&&JialatUI.build==='30'&&JialatUI.relayRevision==='3'){
+if(window.JialatUI&&JialatUI.build==='31'&&JialatUI.relayRevision==='3'){
 if(!validBoard(S)){S=D();JialatUI.storageFailure()}
 enterRole(ROLE,false);
 JialatUI.ready();
-}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Reload this page from the JIALAT site to load the matching files for Build 30 · relay 3.';document.body.className='landing';}
+}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Reload this page from the JIALAT site to load the matching files for Build 31 · relay 3.';document.body.className='landing';}
 function followRoleLink(){const role=(location.hash.match(/host|tv/)||[''])[0];if(role!==ROLE)enterRole(role,false)}
 window.addEventListener('hashchange',followRoleLink);window.addEventListener('popstate',followRoleLink);
 for(const id of ['tvAudio','tvAudioTests'])$(id).addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();$(id).open=false;$(id).querySelector('summary').focus()}});

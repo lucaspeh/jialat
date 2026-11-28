@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta name="jialat-build" content="30"><meta charset="utf-8"><meta name="robots" content="noindex">
+<html lang="en"><head><meta name="jialat-build" content="31"><meta charset="utf-8"><meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a"><meta name="description" content="Draw the presentation order on the shared wheel."><title>AFTER 18 YEARS…</title>
 
@@ -918,8 +918,8 @@ a[href="../"]:active  {
 <script src="../assets/event-title.js?v=1"></script>
 </head><body data-page="presentation"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section><div class="shell" id="app"></div>
 <script src="../assets/motion.js?v=4.1"></script>
-<script src="../assets/ui.js?v=30"></script>
-<script src="../assets/reliability.js?v=30"></script>
+<script src="../assets/ui.js?v=31"></script>
+<script src="../assets/reliability.js?v=31"></script>
 <script>
 (function(){
 'use strict';
@@ -1004,7 +1004,7 @@ function randomIndex(n){let a=new Uint32Array(1),limit=Math.floor(4294967296/n)*
 function uid(){const a=new Uint8Array(8);crypto.getRandomValues(a);return Array.from(a,n=>n.toString(16).padStart(2,'0')).join('')}
 function ordinal(n){return n+(n===1?'st':n===2?'nd':n===3?'rd':'th')}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function tvLink(){const u=new URL(location.href);u.search='?v=30';u.hash=room===EVENT_ROOM?'tv':'tv='+room;return u.href}
+function tvLink(){const u=new URL(location.href);u.search='?v=31';u.hash=room===EVENT_ROOM?'tv':'tv='+room;return u.href}
 function finite(n){return typeof n==='number'&&Number.isFinite(n)}
 function valid(x){
  if(x&&x.writer!==undefined&&!(/^[a-f0-9]{16}$/).test(x.writer))return false;
@@ -1291,7 +1291,7 @@ function onMessage(envelope){
  }
  if(m.t==='ready'&&probe&&m.probe===probe.id&&(probe.target==='*'||probe.target===m.display)&&(/^[a-f0-9]{16}$/).test(m.display)&&finite(m.tvAt)){
   const p=probe;clearTimeout(p.timer);probe=null;
-  if(m.build!==WHEEL_PROTOCOL){peer=null;errorText='Update the host and TV to Build 30, then reconnect.';paint();return}
+  if(m.build!==WHEEL_PROTOCOL){peer=null;errorText='Update the host and TV to Build 31, then reconnect.';paint();return}
   if(m.authorized!==true){remoteHostBlocked=true;peer={id:m.display,live:true,authorized:false};if(valid(m.state)&&m.state.rev>S.rev){S=m.state;save()}if($('pairing'))$('pairing').open=true;errorText='Another device is hosting. Move control here only when the current draw has finished.';paint();return}
   remoteHostBlocked=false;
   if(m.live!==true){errorText='The TV needs a live connection. Reconnect or refresh the TV, then try again.';paint();return}
@@ -1384,9 +1384,9 @@ window.addEventListener('jialat-relay-status',()=>{if(pending&&relayWait()>0)err
 window.addEventListener('hashchange',route);window.addEventListener('online',resume);window.addEventListener('pageshow',e=>{if(e.persisted)resume()});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){landingDraw='';document.querySelector('.wheel-area')?.classList.remove('wheel-landing','card-landing');soundEligible=false;stopPresentationAudio()}else resume()});
 window.addEventListener('pagehide',()=>{soundEligible=false;stopPresentationAudio()});
-if(window.JialatUI&&JialatUI.build==='30'&&JialatUI.relayRevision==='3'){
+if(window.JialatUI&&JialatUI.build==='31'&&JialatUI.relayRevision==='3'){
 route();
 if(window.JialatUI)JialatUI.ready();
-}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Reload this page from the JIALAT site to load the matching files for Build 30 · relay 3.';}
+}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Reload this page from the JIALAT site to load the matching files for Build 31 · relay 3.';}
 })();
 </script></body></html>
