@@ -82,8 +82,6 @@ body.tv .event-title .bob { animation:none; }
   border-block:1px solid var(--trim);
 }
 #msg .cash-note, .row .cash-note, .row .wob { animation:none; }
-.spot-card .confetti-overlay { position:absolute; inset:0; z-index:-1; }
-.spot-card .cf { width:5px; height:9px; }
 
 [data-page="presentation"] .result.has-winner {
   position:relative;
@@ -104,34 +102,49 @@ body.tv .event-title .bob { animation:none; }
 .closing-card .eyebrow { letter-spacing:.11em; }
 .wheel-rim { stroke:#a68749; }
 @media (prefers-reduced-motion:no-preference) {
-  .event-title h1 { animation:open-title 420ms ease-out; }
-  .trophy .on-air .spot-icon { animation:trophy-entrance 540ms ease-out; }
-  .on-air .spot-name { animation:name-entrance 350ms ease-out; }
+  .event-title h1 { animation:motion-title 560ms var(--motion-ease) backwards; }
+  .on-air .spot-icon { animation:trophy-entrance 650ms var(--motion-ease) backwards; }
+  .on-air .spot-rank { animation:spotlight-rank 470ms 75ms var(--motion-ease) backwards; }
+  .on-air .spot-name { animation:name-entrance 650ms 155ms var(--motion-ease) backwards; }
+  .on-air .spot-prize { animation:spotlight-rank 550ms 310ms var(--motion-ease) backwards; }
   .wheel-landing .wheel-pointer {
     transform-origin:50% 8%;
-    animation:pointer-settle 200ms var(--landing-delay) ease-out;
+    animation:pointer-settle 820ms var(--landing-delay) var(--motion-ease);
   }
-  .wheel-landing .wheel-rim { animation:rim-light 460ms var(--landing-delay) ease-out; }
-  .card-landing .has-winner { animation:name-entrance 300ms ease-out; }
-}
-@keyframes open-title {
-  from { opacity:.55; transform:translateY(.12em); }
+  .wheel-landing .wheel-rim { animation:rim-light 960ms var(--landing-delay) ease-out; }
+  .card-landing .has-winner h2 { animation:name-entrance 540ms var(--motion-ease) backwards; }
+  .card-landing .closing-card h2 { animation-duration:760ms; }
+  .card-landing [data-selected] { animation:wheel-segment 720ms ease-out; }
 }
 @keyframes trophy-entrance {
-  0% { transform:translate(-1em, -.7em) rotate(-14deg); }
-  54% { transform:rotate(8deg); }
-  80% { transform:rotate(-3deg); }
+  0% { opacity:.5; transform:translateY(-.9em) scale(.72) rotate(-14deg); }
+  65% { opacity:1; transform:translateY(.08em) scale(1.08) rotate(4deg); }
+  100% { transform:none; }
 }
 @keyframes name-entrance {
-  from { opacity:.48; transform:translateY(.12em); }
+  0% { opacity:.52; transform:translateY(.24em) scale(.85,1.12); clip-path:inset(-12% 48% -12%); }
+  45% { opacity:1; clip-path:inset(-18% -10%); }
+  75% { transform:translateY(0) scale(1.035,.985); }
+  100% { transform:none; clip-path:inset(-18% -10%); }
+}
+@keyframes spotlight-rank {
+  0% { opacity:.55; transform:scaleX(.76); }
+  100% { opacity:1; transform:none; }
 }
 @keyframes pointer-settle {
-  0% { transform:rotate(-10deg); }
-  55% { transform:rotate(5deg); }
+  0% { transform:none; }
+  66% { transform:rotate(-12deg); }
+  78% { transform:rotate(7deg); }
+  91% { transform:rotate(-3deg); }
+  100% { transform:none; }
 }
 @keyframes rim-light {
-  0%, 28%, 100% { stroke:#a68749; }
-  66% { stroke:#fff1c6; stroke-width:16px; }
+  0%, 100% { stroke:#a68749; }
+  65%, 75% { stroke:#ffeabe; stroke-width:17px; }
+}
+@keyframes wheel-segment {
+  0%, 38% { stroke:#fff7d5; stroke-width:25px; }
+  100% { stroke:#fff4be; stroke-width:12px; }
 }
 
 @media (min-width:900px) and (max-height:600px) {
