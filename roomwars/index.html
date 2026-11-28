@@ -647,7 +647,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .import-error { color:var(--coral); font-size:calc(14 * var(--font-unit)); font-weight:400; line-height:1.6; }
 </style><link rel="stylesheet" href="../assets/layout.css?v=26">
 <link rel="stylesheet" href="../assets/motion.css?v=4.1">
-<link rel="stylesheet" href="../assets/roomwars-play.css?v=1">
+<link rel="stylesheet" href="../assets/roomwars-play.css?v=2">
 </head><body data-page="roomwars"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section>
 <i id="dot" class="dot"></i>
 <header class="site-navigation site-utility"><a id="site-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></header>
@@ -1237,7 +1237,23 @@ function run(g,pr){view="play";practice=!!pr;
  roomEntrance("brief","h1");
  document.getElementById("st").onclick=function(){if(pr)ls(practiceKey(g),"1");g=="tap"?tapG(g):g=="react"?reactG(g):stopG(g)};
  document.getElementById("bk").onclick=home}
-function arenaInput(node,label){A.dataset.motionView="arena";if(window.JialatUI)JialatUI.arena(node,label,node.onpointerdown)}
+function preventGamePan(event){
+ if(event.cancelable&&event.touches.length===1)event.preventDefault()
+}
+var watchGameArena=new MutationObserver(function(){
+ if(A.querySelector("#ar.play-arena"))return;
+ document.documentElement.classList.remove("roomwars-playing");
+ document.removeEventListener("touchmove",preventGamePan);
+ watchGameArena.disconnect()
+});
+function arenaInput(node,label){
+ A.dataset.motionView="arena";
+ document.documentElement.classList.add("roomwars-playing");
+ // Safari can still scroll a page during a single-finger drag. Leave pinch zoom available.
+ document.addEventListener("touchmove",preventGamePan,{passive:false});
+ watchGameArena.observe(A,{childList:true});
+ if(window.JialatUI)JialatUI.arena(node,label,node.onpointerdown)
+}
 function tapG(g){timedTapGame(g,G[g].n,10000,function(total){fin(g,total)})}
 function timedTapGame(game,title,duration,finish){
  var total=0,startedAt=null,over=false;

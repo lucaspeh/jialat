@@ -1,4 +1,12 @@
 /* Room Wars player cabinet. The whole framed surface remains the input target. */
+html.roomwars-playing,
+html.roomwars-playing body {
+  overscroll-behavior:none;
+}
+html.roomwars-playing :is(body, .play-arena) {
+  touch-action:pinch-zoom;
+}
+
 .play-screen {
   --game-accent:#ff967e;
   --game-edge:#a84f3f;
@@ -204,7 +212,7 @@
 }
 @media (max-height:500px) {
   [data-page="roomwars"] .play-screen .play-arena { min-height:194px; }
-  .play-readout .big { font-size:clamp(2.4rem,12vh,4.2rem); }
+  .play-screen .play-arena .play-readout .big { font-size:clamp(2.4rem,12vh,4.2rem); }
   .play-footer { min-height:0; }
   .tap-game .play-footer,.tie-game .play-footer { grid-template-columns:1fr 1fr; align-items:center; gap:5px; }
   .play-track { grid-column:1 / -1; }
