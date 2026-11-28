@@ -764,7 +764,7 @@ function namesFromInvite(raw){
  if(raw.charAt(0)==='n')return raw.slice(1).split(',').map(function(n){return decodeURIComponent(n)});
  return JSON.parse(decodeURIComponent(raw));
 }
-function link(){var u=new URL(location.href);u.hash="";u.search='?v=26-live-3';
+function link(){var u=new URL(location.href);u.hash="";u.search='?v=26-live-3-stop4';
  return u.toString()+"#"+code+(S.names?"~"+namesForInvite(S.names):"")}
 function I(x,a,b){return typeof x=="number"&&x%1===0&&x>=a&&x<=b}
 function F(x){return typeof x=="number"&&isFinite(x)}
@@ -1365,17 +1365,23 @@ function stopG(g){
  A.innerHTML=gameScreen(g,G[g].n,'<div class="big" id="c">0.00</div>',
   '<span class="play-status">Tap when you estimate 10.00 seconds</span>');
  var count=document.getElementById("c"),arena=document.getElementById("ar");
- tm=setInterval(function(){
-  var elapsed=(Date.now()-startedAt)/1000;
-  if(elapsed>=2){count.textContent="?";clearInterval(tm)}
-  else count.textContent=elapsed.toFixed(2)
- },30);
+ var hideAfter=4000;
+ function updateTimer(){
+  var elapsed=Date.now()-startedAt;
+  if(elapsed>=hideAfter){
+   count.textContent="?";
+   return
+  }
+  count.textContent=(Math.floor(elapsed/10)/100).toFixed(2);
+  tm=setTimeout(updateTimer,Math.min(30,hideAfter-elapsed))
+ }
+ tm=setTimeout(updateTimer,30);
  var locked=false;
  arena.onpointerdown=function(e){
   e.preventDefault();
   if(locked)return;
   locked=true;
-  clearInterval(tm);
+  clearTimeout(tm);
   var error=Math.abs((Date.now()-startedAt)/1000-10);
   count.textContent="LOCKED";
   tm=setTimeout(function(){fin(g,error)},400);
