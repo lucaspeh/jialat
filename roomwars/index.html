@@ -187,8 +187,7 @@ textarea {
   top:0;
   bottom:0;
   width:var(--w,0%);
-  background:var(--c,transparent);
-  transition:width .6s steps(8)
+  background:var(--c,transparent)
 }
 .rank>* {
   position:relative
@@ -472,67 +471,10 @@ details.backup p {
     fill:#fff4be
   }
 }
-.cf {
-  position:fixed;
-  top:-20px;
-  width:8px;
-  height:8px;
-  animation:fall linear infinite;
-  pointer-events:none;
-  z-index:5
-}
-@keyframes fall {
-  to {
-    transform:translateY(110vh)
-  }
-}
-@keyframes pop {
-  50% {
-    transform:scale(1.25)
-  }
-}
-@keyframes shake {
-  25% {
-    transform:translateX(-10px)
-  }
-  75% {
-    transform:translateX(10px)
-  }
-}
-@keyframes glow {
-  from {
-    box-shadow:0 0 0 0 var(--pulse,var(--l)),6px 6px 0 var(--d)
-  }
-  to {
-    box-shadow:0 0 0 16px transparent,6px 6px 0 var(--d)
-  }
-}
-@keyframes rise {
-  from {
-    transform:translateY(14px);
-    opacity:0
-  }
-  to {
-    transform:none;
-    opacity:1
-  }
-}
 @keyframes bob {
   50% {
     transform:translateY(-6px)
   }
-}
-.pop {
-  animation:pop .2s steps(2)
-}
-.shake {
-  animation:shake .4s steps(4)
-}
-.glow {
-  animation:glow .6s steps(5)
-}
-.rise {
-  animation:rise .4s steps(4)
 }
 .bob {
   animation:bob 1s steps(2) infinite
@@ -704,10 +646,12 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .import-results strong { color:var(--teal); }
 .import-error { color:var(--coral); font-size:calc(14 * var(--font-unit)); font-weight:400; line-height:1.6; }
 </style><link rel="stylesheet" href="../assets/layout.css?v=26">
+<link rel="stylesheet" href="../assets/motion.css?v=1">
 </head><body data-page="roomwars"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section>
 <i id="dot" class="dot"></i>
 <header class="site-navigation site-utility"><a id="site-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></header>
 <main id="app"></main>
+<script src="../assets/motion.js?v=1"></script>
 <script src="../assets/ui.js?v=26"></script>
 <script src="../assets/reliability.js?v=26-live-3"></script>
 <script>
@@ -992,18 +936,45 @@ function stat(){updatePageChrome();roomHostAccess();var d=document.getElementByI
  if(d)d.className="dot "+((postFailed&&out.length)||fl&&!on&&!pollOk?"bad":on||pollOk?"ok":"");if(e){if(window.JialatUI)JialatUI.status(e,label);else e.textContent=label;e.setAttribute("role","status");e.style.setProperty("--connection-color",(postFailed&&out.length)||fl&&!on&&!pollOk?"#ff8b78":on||pollOk?"#65d9cb":"#d4af37")}
  if(help){help.textContent=postFailed&&out.length?"Your updates are saved here but may not reach others yet. Wait for the displayed retry time, or use backup sharing below.":"";help.style.display=postFailed&&out.length?"block":"none"}
  if(result&&result.dataset&&result.dataset.mid){var waiting=out.some(function(m){return m.mid===result.dataset.mid});result.className="sub result-sync"+(waiting&&postFailed?" retry":"");result.textContent=waiting?(postFailed?"Saved on this phone. Reconnecting. Share a backup if the host cannot see it.":"Saved. Sending to the host… You can go back to Room Wars."):"Result sent. You can go back to Room Wars."}}
+function roomEntrance(key,selector){
+ if(A.dataset.motionView===key)return false;
+ A.dataset.motionView=key;
+ window.JialatMotion?.play(A.querySelector(selector),'enter');
+ return true
+}
+function capturePairRows(){
+ var pairs=new Map();
+ if(window.JialatMotion?.enabled())A.querySelectorAll('.rank[data-pair]').forEach(function(row){
+  pairs.set(row.dataset.pair,{top:row.getBoundingClientRect().top,points:row.querySelector('.pts').textContent});
+ });
+ return pairs
+}
+function movePairRows(pairs){
+ if(!pairs.size)return;
+ var changes=[];
+ A.querySelectorAll('.rank[data-pair]').forEach(function(row){
+  var old=pairs.get(row.dataset.pair);if(!old)return;
+  var points=row.querySelector('.pts'),position=row.getBoundingClientRect(),offset=old.top-position.top;
+  if(position.bottom<0||position.top>window.innerHeight)return;
+  changes.push({row:row,offset:offset,points:old.points!==points.textContent?points:null});
+ });
+ changes.forEach(function(item){
+  if(Math.abs(item.offset)>1)window.JialatMotion?.play(item.row,'enter',{from:{transform:'translateY('+Math.max(-64,Math.min(64,item.offset))+'px)'}});
+  window.JialatMotion?.play(item.points,'score')
+ })
+}
 function render(){updatePageChrome();clearTimeout(tm);clearInterval(tm);
  if(!code)return setup();
  if(!S.names)return setupDraft?setup():wait();
  if(me==null)return who();
  home()}
-function wait(){view="wait";A.innerHTML='<p class="live" id="stat"></p>'+brand("ROOM WARS","trophy")+'<div class="card">Waiting for the host’s names. Ask the host to share the invite link again if this takes more than a few seconds.<button id="retry" class="alt">Retry connection</button></div>';stat();document.getElementById("retry").onclick=resume}
+function wait(){view="wait";A.innerHTML='<p class="live" id="stat"></p>'+brand("ROOM WARS","trophy")+'<div class="card">Waiting for the host’s names. Ask the host to share the invite link again if this takes more than a few seconds.<button id="retry" class="alt">Retry connection</button></div>';roomEntrance(view,".activity-header");stat();document.getElementById("retry").onclick=resume}
 function setup(){view="setup";updatePageChrome();var names=S.names||setupDraft;
  var h=brand("ROOM WARS","trophy")+'<p class="sub">'+(code&&!setupDraft?'Edit the five pairs, then save.':'Enter the five pairs, then share the invite.')+'</p>';
  h+='<div class="pair-setup-list">';
  for(var c=0;c<5;c++)h+='<div class="card pair-setup"><b>Pair '+(c+1)+'</b><div class="row"><input id="p'+(c*2)+'" aria-label="Pair '+(c+1)+', first player" placeholder="Person A" maxlength="14" value="'+(names?esc(names[c*2]):"")+'"><input id="p'+(c*2+1)+'" aria-label="Pair '+(c+1)+', second player" placeholder="Person B" maxlength="14" value="'+(names?esc(names[c*2+1]):"")+'"></div></div>';
  h+='</div><div class="setup-actions"><button id="go">'+(code&&!setupDraft?'Save names':'Create game')+'</button>'+(code&&!setupDraft?'<button class="alt" id="bk">Cancel</button>':'')+'</div>';
- A.innerHTML=h;var b=document.getElementById("bk");if(b)b.onclick=render;
+ A.innerHTML=h;roomEntrance(view,".activity-header");var b=document.getElementById("bk");if(b)b.onclick=render;
  document.getElementById("go").onclick=function(){
   var nm=[];for(var i=0;i<10;i++){var v=document.getElementById("p"+i).value.trim();nm.push(friendName(v||("Player "+(i+1))))}
   if(!code||setupDraft){if(!code){var al="abcdefghjkmnpqrstuvwxyz23456789";for(var i=0;i<8;i++)code+=al[Math.floor(Math.random()*al.length)];ls("rwh-"+code,"1");location.hash=code}
@@ -1011,7 +982,7 @@ function setup(){view="setup";updatePageChrome();var names=S.names||setupDraft;
   send({t:"cfg",names:nm});render()};roomHostAccess()}
 function who(){view="who";var h=brand("ROOM WARS","trophy")+'<p class="sub name-entry-intro">Tap your name to join your pair.</p><div class="pair-setup-list player-choices" aria-label="Choose your name">';
  for(var c=0;c<5;c++)h+='<div class="card pair-setup" role="group" aria-labelledby="pair-choice-'+c+'"><b id="pair-choice-'+c+'">Pair '+(c+1)+'</b><div class="row"><button class="alt" data-i="'+(c*2)+'">'+esc(pn(c*2))+'</button><button class="alt" data-i="'+(c*2+1)+'">'+esc(pn(c*2+1))+'</button></div></div>';
- h+='</div><p class="live selection-status" id="stat"></p><p class="sub" id="syncHelp" style="display:none"></p>';A.innerHTML=h;stat();
+ h+='</div><p class="live selection-status" id="stat"></p><p class="sub" id="syncHelp" style="display:none"></p>';A.innerHTML=h;roomEntrance(view,".activity-header");stat();
  Array.prototype.forEach.call(A.querySelectorAll('.player-choices button'),function(b){b.onclick=function(){me=+b.dataset.i;ls("rwm-"+code,me);render()}})}
 function pts(){var p=[];for(var i=0;i<10;i++)p.push(0);
  for(var g in G){var ids=Object.keys(S.sc[g]);
@@ -1023,6 +994,7 @@ function tieNote(x){return x.h.length?'Tie-break: '+x.h.join(' → ')+' taps':''
 function home(){
  if(S.pick)return picking();
  if(S.reveal&&!skip&&!S.roomResult)return final();
+ var previousPairs=capturePairRows();
  var backupCard=host&&A.querySelector(".backup-import"),backupFocus=backupCard&&backupCard.contains(document.activeElement)?document.activeElement:null;
  var draft={};if(host)["mg","mp","mv","bc"].forEach(function(id){var e=document.getElementById(id);if(e)draft[id]=e.value});
  view="home";var completed=!!(S.roomResult&&S.roomResult.complete),p=pts(),cs=pairStandings(),ord=["1st","2nd","3rd","4th","5th"],played=0;
@@ -1043,7 +1015,10 @@ function home(){
   h+=ids.length?ids.map(function(i){return esc(pn(i))+" "+G[g].f(S.sc[g][i])}).join(" · "):"No scores yet";h+='</div>'}
  h+='</div>'+(completed?'</details>':'');
  if(host){var ready=readyToReveal();h+='<h2>Host controls</h2><div class="card" id="invite-card"><b>Invite link</b><input id="lk" aria-label="Room Wars invite link" readonly value="'+esc(link())+'"><button id="sh">Share invite link</button></div><div class="card" id="manual-score" tabindex="-1"><b>Enter or correct a score</b><select id="mg" aria-label="Game">'+Object.keys(G).map(function(g){return'<option value="'+g+'">'+G[g].n+'</option>'}).join("")+'</select><select id="mp" aria-label="Player">'+S.names.map(function(n,i){return'<option value="'+i+'">'+esc(n)+'</option>'}).join("")+'</select><input id="mv" aria-label="Result" type="number" step="any" inputmode="decimal" placeholder="Taps, ms, or seconds off"><p class="sub score-unit" id="score-unit"></p><button id="ma" class="alt">Save score</button></div><details class="card backup-import"><summary>Advanced backup</summary><p class="sub">Use this only if a player’s score is missing. Paste the results they shared, then check their name.</p><textarea id="bc" aria-label="Shared result codes" placeholder="Paste the player’s shared results here"></textarea><button id="bb" class="alt">Check results</button><div id="backup-preview" aria-live="polite"></div></details><div id="room-pick-controls" tabindex="-1"><button id="rv"'+(ready?'':' disabled title="Complete all three games and settle ties first"')+'>1. Show final rankings</button><button id="sp"'+(ready&&!completed?'':' disabled')+'>'+(completed?'Rooms confirmed':S.roomResult?'Resume room picking':'2. Start room picking')+'</button>'+(ties().length&&!S.tb?'<button class="alt" id="tbs">Start tie-breaker (tied pairs only)</button>':'')+'<button class="alt" id="er">Edit room names</button><button class="alt" id="en">Edit names</button><p class="sub" style="margin:20px 0 0">Play again with the same people. Clears this round’s results and room picks.</p><button class="alt" id="rs">Start a new round</button></div>'}
- A.innerHTML=h+(host?relayPanelHTML():'');if(backupCard){var nextBackup=A.querySelector('.backup-import');if(nextBackup)nextBackup.parentNode.replaceChild(backupCard,nextBackup);if(backupFocus&&backupFocus.isConnected)backupFocus.focus({preventScroll:true})}relayPanelBind();Object.keys(draft).forEach(function(id){var e=document.getElementById(id);if(e)e.value=draft[id]});stat();var roomCopy=document.getElementById("copy-rooms");if(roomCopy)roomCopy.onclick=copyRooms;var summary=document.querySelector(".room-confirmation");if(roomResultFocus&&summary){roomResultFocus=false;summary.scrollIntoView({block:"start",behavior:"auto"});summary.querySelector("h2").focus({preventScroll:true})}
+ A.innerHTML=h+(host?relayPanelHTML():'');
+ roomEntrance(view,'.activity-header,.brand');
+ movePairRows(previousPairs);
+ if(backupCard){var nextBackup=A.querySelector('.backup-import');if(nextBackup)nextBackup.parentNode.replaceChild(backupCard,nextBackup);if(backupFocus&&backupFocus.isConnected)backupFocus.focus({preventScroll:true})}relayPanelBind();Object.keys(draft).forEach(function(id){var e=document.getElementById(id);if(e)e.value=draft[id]});stat();var roomCopy=document.getElementById("copy-rooms");if(roomCopy)roomCopy.onclick=copyRooms;var summary=document.querySelector(".room-confirmation");if(roomResultFocus&&summary){roomResultFocus=false;summary.scrollIntoView({block:"start",behavior:"auto"});summary.querySelector("h2").focus({preventScroll:true});window.JialatMotion?.play(summary.querySelector("h2"),"reveal")}
  Array.prototype.forEach.call(A.querySelectorAll("button[data-g]"),function(b){b.onclick=function(){run(b.dataset.g,false)}});
  Array.prototype.forEach.call(A.querySelectorAll("button[data-pr]"),function(b){b.onclick=function(){run(b.dataset.pr,true)}});
  var q=document.getElementById("shh");if(q)q.onclick=function(){share(mine())};
@@ -1076,15 +1051,17 @@ function home(){
  document.getElementById("bb").onclick=reviewBackup;
  document.getElementById("rs").onclick=newRound}
 function newRound(confirmed){if(confirmed!==true){var options={title:'Start a new round?',message:'Clear all three game results, practice attempts, tie-breaks and room picks for everyone? Player and room names are kept.',label:'Start new round'};if(window.JialatUI)JialatUI.confirm(options,function(){newRound(true)});else if(confirm(options.message))newRound(true);return;}out=out.filter(function(m){return !roundMessage(m.t)&&m.t!=="reset"});remember();send({t:"reset"});home()}
-function final(){view="final";var cs=pairStandings(),ord=["1st","2nd","3rd","4th","5th"];
+function final(){var live=!!A.dataset.motionView;view="final";var cs=pairStandings(),ord=["1st","2nd","3rd","4th","5th"];
  var ordr=order(),w=cs[0],tie=w.tied;
  var h='<section class="room-final"><div class="final-summary"><div class="brand"><div class="bob">'+spr("trophy",5)+'</div><h1>Congratulations!</h1></div><div class="card win"><div class="sub">'+(tie?'Tied at the top':'Winning pair')+'</div><div class="big" style="font-size:var(--text-feature);line-height:1.2">'+esc(cn(w.c))+'</div><div class="sub" style="margin:8px 0 0">'+w.t+' points'+(tie?' · complete the tapping tie-breaker first':' · picks their room first')+'</div></div></div><div class="final-order"><h2>Room pick order</h2>';
  cs.forEach(function(x){h+='<div class="rank z'+zc(x.r-1)+'" style="--w:'+Math.round(x.t/Math.max(1,w.t)*100)+'%"><div class="n">'+(x.tied?'=':'')+x.r+'</div><div class="g"><b>'+esc(cn(x.c))+'</b><small>'+(x.tied?'TIED':ord[x.r-1]+' pick')+(roomOf(x.c,ordr)?' · '+esc(roomOf(x.c,ordr)):'')+'</small>'+(x.h.length?'<small>'+tieNote(x)+'</small>':'')+'</div><div class="pts">'+x.t+'</div></div>'});
  h+='</div><div class="final-actions"><div class="row"><button id="st1">Share results</button><button id="st2">Share as image</button></div><div id="cb"></div><div class="row"><button class="alt" id="sb">View all scores</button>'+(host?'<button class="alt" id="hd">Hide results for everyone</button>':'')+'</div></div></section>';
- h+='<div class="confetti-overlay" aria-hidden="true">';
- for(var i=0;i<28;i++){var r=Math.random();h+='<i class="cf" style="background:'+["#f3d77a","#d4af37","#fff","#2f9e5b","#e5484d"][i%5]+';left:'+(r*100)+'%;animation-delay:'+(Math.random()*3)+'s;animation-duration:'+(3+Math.random()*2.5)+'s"></i>'}
- h+='</div>';
  A.innerHTML=h;
+ if(roomEntrance(view,'.final-summary h1')){
+  window.JialatMotion?.play(A.querySelector('.win .big'),'reveal',{delay:75});
+  A.querySelectorAll('.final-order .rank').forEach(function(row,i){window.JialatMotion?.play(row,'enter',{delay:100+i*35})});
+  if(live)window.JialatMotion?.burst(A.querySelector('.room-final'),'room')
+ }
  document.getElementById("sb").onclick=function(){skip=true;home()};
  document.getElementById("st1").onclick=function(){share(rtext())};document.getElementById("st2").onclick=cardImg;
  var hd=document.getElementById("hd");if(hd)hd.onclick=function(){send({t:"reveal",on:false})}}
@@ -1093,17 +1070,34 @@ function left(){var k=S.pick;if(!k)return 0;return k.paused?k.rem:Math.max(0,k.r
 function fmt(ms){var t=Math.ceil(ms/1000);return Math.floor(t/60)+":"+("0"+t%60).slice(-2)}
 function pk(o){send({t:"pick",order:S.pick.order,i:o.i,rem:o.rem,paused:!!o.paused})}
 function tick(){var k=S.pick,e=document.getElementById("cd");if(!k||!e){clearInterval(pt);return}
- var l=left();if(l<=0&&!k.paused){var u=k.i+":"+k.at+":"+k.rem;if(u!=upKey){upKey=u;chime([784,988,1175])}}var display=fmt(l);if(e.textContent!==display)e.textContent=display;e.style.color=l<30000?"#e5484d":"";var hb=document.getElementById("hpb");if(hb){hb.style.width=Math.min(100,l/(DUR[k.i]*10))+"%";hb.style.background=l<30000?"#a8262c":""}
+ var l=left(),display=fmt(l),previous=e.textContent;
+ if(l<=0&&!k.paused){var u=k.i+":"+k.at+":"+k.rem;if(u!=upKey){upKey=u;chime([784,988,1175]);if(previous)window.JialatMotion?.play(e,'count')}}
+ if(previous!==display){
+  e.textContent=display;
+  if(previous&&!k.paused&&l>0&&l<=5000)window.JialatMotion?.play(e,'count')
+ }
+ e.style.color=l<30000?"#e5484d":"";
+ var hb=document.getElementById("hpb");if(hb){hb.style.width=Math.min(100,l/(DUR[k.i]*10))+"%";hb.style.background=l<30000?"#a8262c":""}
  var caption=k.paused?"⏸ Paused":(l<=0?"Time’s up!":""),cs=document.getElementById("cs");if(cs.textContent!==caption)cs.textContent=caption}
-function picking(){view="picking";var k=S.pick,c=k.order[k.i],nx=k.order[k.i+1],last=k.i==4,ord=["1st","2nd","3rd","4th","5th"];
+function picking(){
+ var previousClaims=A.dataset.motionView==="picking"?A.querySelectorAll("[data-room-claim]"):[];
+ view="picking";var k=S.pick,c=k.order[k.i],nx=k.order[k.i+1],last=k.i==4,ord=["1st","2nd","3rd","4th","5th"];
  if(k.i!==lastI){lastI=k.i;chime([880])}
  var hb=!host?'':(k.i>0?'<button class="alt" id="pb">← Previous pair</button>':'')+(last?'':'<button id="pn">Next pair →</button>')+'<div class="row" style="margin-top:8px">'+(last?'':'<button id="pp" class="alt pb">'+(k.paused?'▶ Resume':'⏸ Pause')+'</button><button id="pm" class="alt pb">+1 min</button>')+'<button class="alt pb" id="pe">'+(last?'Finish picking':'End picking')+'</button></div>';
  var myRoom=me===null?undefined:Object.keys(S.claims).find(function(r){return S.claims[r]===Math.floor(me/2)});
  var h=''+brand("ROOM PICKING","star")+'<div class="card win"><div class="sub">'+ord[k.i]+' pick · now choosing</div><div class="big" style="font-size:var(--text-feature);line-height:1.2">'+esc(cn(c))+'</div>'+(last?'<div class="sub" style="margin:10px 0 0">No timer. This pair takes the last room'+(roomOf(c,k.order)?': <b>'+esc(roomOf(c,k.order))+'</b>':'')+'.</div>':'<div class="cd" id="cd"></div><div class="hp"><i id="hpb"></i></div><div class="sub" id="cs" style="margin:0;min-height:20px"></div>')+(nx!==undefined?'<div class="sub" style="margin:10px 0 0">Up next: <b>'+esc(cn(nx))+'</b></div>':'')+'</div>'+hb+(myRoom!==undefined?roomTag(S.rooms[myRoom],cn(Math.floor(me/2))):'')+'<p class="sub" style="text-align:center;margin:12px 0 4px">Everyone can look around the whole building. Only the pair above chooses now.</p><h2>Pick order</h2>';
  k.order.forEach(function(x,i){h+='<div class="rank'+(i==k.i?' first':'')+(i<k.i?' done':'')+'"><div class="n">'+(i<k.i?'✓':i+1)+'</div><div class="g"><b>'+esc(cn(x))+'</b><small>'+ord[i]+' pick'+(i==4?' · last room':'')+'</small></div></div>'});
  h+='<h2>Rooms</h2>';
- S.rooms.forEach(function(n,r){var t=S.claims[r],b='style="width:auto;margin:0;padding:10px 14px"';h+='<div class="rank'+(t!==undefined?' done':'')+'"><div class="g"><b>'+esc(n)+'</b><small>'+(t!==undefined?'Taken by '+esc(cn(t)):'Available')+'</small></div>'+(host&&!last&&t===undefined?'<button '+b+' data-r="'+r+'">Give to this pair</button>':'')+(host&&t!==undefined?'<button class="alt" '+b+' data-f="'+r+'">Free</button>':'')+'</div>'});
+ S.rooms.forEach(function(n,r){var t=S.claims[r],b='style="width:auto;margin:0;padding:10px 14px"';h+='<div class="rank'+(t!==undefined?' done':'')+'" data-room-claim="'+(t===undefined?'':t)+'"><div class="g"><b>'+esc(n)+'</b><small>'+(t!==undefined?'Taken by '+esc(cn(t)):'Available')+'</small></div>'+(host&&!last&&t===undefined?'<button '+b+' data-r="'+r+'">Give to this pair</button>':'')+(host&&t!==undefined?'<button class="alt" '+b+' data-f="'+r+'">Free</button>':'')+'</div>'});
  A.innerHTML=h;
+ var turn=k.i+":"+c,previousTurn=A.dataset.motionTurn;
+ var entered=roomEntrance(view,'.brand');
+ if(entered||turn!==previousTurn)window.JialatMotion?.play(A.querySelector('.win .big'),'reveal');
+ A.dataset.motionTurn=turn;
+ A.querySelectorAll('[data-room-claim]').forEach(function(row,i){
+  var old=previousClaims[i];
+  if(old&&old.dataset.roomClaim!==row.dataset.roomClaim)window.JialatMotion?.play(row.querySelector('.g'),'score')
+ });
  if(host){
   var assigned=Object.keys(S.claims).some(function(r){return S.claims[r]===c});
   var action=last?'#pe':k.paused?'#pp':assigned?'#pn':'[data-r]';
@@ -1117,7 +1111,6 @@ function picking(){view="picking";var k=S.pick,c=k.order[k.i],nx=k.order[k.i+1],
   Array.prototype.forEach.call(A.querySelectorAll("button[data-r]"),function(b){b.onclick=function(){send({t:"claim",r:+b.dataset.r,c:c})}});
   Array.prototype.forEach.call(A.querySelectorAll("button[data-f]"),function(b){b.onclick=function(){send({t:"claim",r:+b.dataset.f,c:null})}})}
  clearInterval(pt);if(!last){tick();pt=setInterval(tick,250)}}
-function ani(e,c){if(!e||!e.classList)return;e.classList.remove(c);void e.offsetWidth;e.classList.add(c)}
 async function share(t){if(navigator.share)try{await navigator.share({text:t});return}catch(e){if(e.name==="AbortError")return}try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error("Clipboard unavailable");await navigator.clipboard.writeText(t);alert("Results copied. Paste them into your group chat.")}catch(e){prompt("Copy these results to share:",t)}}
 async function shareInvite(){var l=link();if(navigator.share)try{await navigator.share({title:"Room Wars",url:l});return}catch(e){if(e.name==="AbortError")return}try{if(!navigator.clipboard||!navigator.clipboard.writeText)throw Error("Clipboard unavailable");await navigator.clipboard.writeText(l);var b=document.getElementById("sh");if(b)b.textContent="Invite link copied"}catch(e){var field=document.getElementById("lk");if(field)field.select();prompt("Copy this invite link:",l)}}
 function mine(){var l="🏆 Room Wars – "+pn(me)+"\n",c="";for(var g in G)if(S.sc[g][me]!==undefined){var value=scoreValue(g,S.sc[g][me]);l+=G[g].n+": "+G[g].f(value)+"\n";c+=g+"|"+me+"|"+value+"\n"}return l+"\n"+c}
@@ -1160,7 +1153,7 @@ function roomOf(c,o){for(var r in S.claims)if(S.claims[r]==c)return S.rooms[r];i
 function rtext(){var o=order(),t="🏆 Room Wars "+(readyToReveal()?"results":"current rankings")+"\n";pairStandings().forEach(function(x){var r=roomOf(x.c,o);t+=(x.tied?'TIED ':x.r+'. ')+cn(x.c)+" – "+x.t+" pts"+(x.h.length?' · '+tieNote(x):'')+(r?" · "+r:"")+"\n"});return t}
 function rooms(){view="rooms";var h='<h1 style="text-align:center">Room names</h1><p class="sub">Type the names from the Airbnb listing, like "Bedroom 3 – ensuite". You can change them any time.</p>';
  S.rooms.forEach(function(n,i){h+='<input id="r'+i+'" aria-label="Room '+(i+1)+' name" maxlength="30" value="'+esc(n)+'">'});
- A.innerHTML=h+'<button id="rs2">Save rooms</button><button class="alt" id="rb">Cancel</button>';
+ A.innerHTML=h+'<button id="rs2">Save rooms</button><button class="alt" id="rb">Cancel</button>';roomEntrance(view,"h1");
  document.getElementById("rb").onclick=home;
  document.getElementById("rs2").onclick=function(){var nm=[];for(var i=0;i<5;i++)nm.push(document.getElementById("r"+i).value.trim()||("Room "+(i+1)));send({t:"rooms",names:nm});home()}}
 function cardImg(){var o=order(),p=pts(),cv=document.createElement("canvas");cv.width=1080;cv.height=1350;var x=cv.getContext("2d"),im=new Image(),M='"Courier New",monospace';
@@ -1191,45 +1184,49 @@ function tbG(){if(!S.tb||S.tb.pairs.indexOf(me>>1)<0||S.tbs[me]!==undefined)retu
   if(!t0){t0=Date.now();tm=setInterval(function(){var l=5-(Date.now()-t0)/1000;
    if(l<=0){clearInterval(tm);over=true;playingTie=false;view="fin";if(!S.tb||S.tb.id!==tieId)return home();send({t:"tbs",p:me,v:n,tieId:tieId},true);A.innerHTML='<h1 style="text-align:center">'+n+' taps</h1><button id="nx">Back to Room Wars</button>';document.getElementById("nx").onclick=home;focusGameResult()}
    else document.getElementById("tl").textContent=l.toFixed(1)+"s left"},50)}
-  n++;var cc=document.getElementById("c");cc.textContent=n;ani(cc,"pop")};arenaInput(document.getElementById("ar"),"Tie-breaker. Press Space or Enter to tap.")}
+  n++;var cc=document.getElementById("c");cc.textContent=n;window.JialatMotion?.play(cc,"tap")};arenaInput(document.getElementById("ar"),"Tie-breaker. Press Space or Enter to tap.")}
 function ac(){if(!snd||snd.state==="closed"){var C=window.AudioContext||window.webkitAudioContext;if(C)try{snd=new C()}catch(e){}}return snd}
 document.addEventListener("pointerdown",function(){var a=ac();if(a&&a.state!=="running")try{var p=a.resume();if(p&&p.catch)p.catch(function(){})}catch(e){}});
 function chime(f){if(!host)return;var a=ac();if(!a||a.state!="running")return;f.forEach(function(fr,i){var o=a.createOscillator(),g=a.createGain(),t=a.currentTime+i*.22;o.type="sine";o.frequency.value=fr;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.12,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.7);o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+.75)})}
-function focusGameResult(){var heading=A.querySelector("h1");if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true})}}
+function focusGameResult(){
+ roomEntrance(view,"h1");
+ window.JialatMotion?.play(A.querySelector("#result-score .big"),"reveal");
+ var heading=A.querySelector("h1");if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true})}}
 function fin(g,v){view="fin";v=scoreValue(g,v);
- var big='<h1 aria-describedby="result-game result-score" style="text-align:center">'+esc(pn(me))+'</h1><p id="result-game" class="sub" style="text-align:center;margin:-2px 0 12px">'+G[g].n+(practice?' · practice':'')+'</p><div id="result-score" class="arena result-'+g+' rise glow"><div class="big pop">'+G[g].f(v)+'</div>'+(practice?'<small>Practice only. Not scored.</small>':'')+'</div>';
+ var big='<h1 aria-describedby="result-game result-score" style="text-align:center">'+esc(pn(me))+'</h1><p id="result-game" class="sub" style="text-align:center;margin:-2px 0 12px">'+G[g].n+(practice?' · practice':'')+'</p><div id="result-score" class="arena result-'+g+'"><div class="big">'+G[g].f(v)+'</div>'+(practice?'<small>Practice only. Not scored.</small>':'')+'</div>';
  if(practice){A.innerHTML=big+'<button id="nx">Back to Room Wars</button>';document.getElementById("nx").onclick=home;focusGameResult();return}
  var mid=send({t:"score",g:g,p:me,v:v},true);
  A.innerHTML=big+'<p class="sub result-sync" id="resultSync" data-mid="'+mid+'" role="status"></p><button id="nx">Back to Room Wars</button><details class="backup"><summary>Share result if missing</summary><p>If the host cannot see this result, share this backup.</p><button class="alt" id="sh">Share backup</button></details>';
  document.getElementById("sh").onclick=function(){share(mine())};document.getElementById("nx").onclick=home;focusGameResult();stat()}
 function run(g,pr){view="play";practice=!!pr;
  A.innerHTML='<h1 style="text-align:center">'+G[g].n+'</h1>'+(pr?'<p class="sub" style="text-align:center"><b>Practice round: 1 try only, not scored.</b></p>':'')+'<p class="sub">'+G[g].d+'</p><div class="card" style="text-align:center"><div class="sub">Playing as</div><div style="font-size:var(--text-feature);font-weight:700">'+esc(pn(me))+'</div></div><button id="st">I’m ready!</button><button class="alt" id="bk">Back</button>';
+ roomEntrance("brief","h1");
  document.getElementById("st").onclick=function(){if(pr)ls(practiceKey(g),"1");g=="tap"?tapG(g):g=="react"?reactG(g):stopG(g)};
  document.getElementById("bk").onclick=home}
-function arenaInput(node,label){if(window.JialatUI)JialatUI.arena(node,label,node.onpointerdown)}
+function arenaInput(node,label){A.dataset.motionView="arena";if(window.JialatUI)JialatUI.arena(node,label,node.onpointerdown)}
 function tapG(g){
  var n=0,t0=0,over=false;
  A.innerHTML='<div class="arena tap-ar" id="ar"><div class="big" id="c">0</div><small id="tl">Tap to start!</small></div>';
  document.getElementById("ar").onpointerdown=function(e){e.preventDefault();if(over||(t0&&Date.now()-t0>=10000))return;
   if(!t0){t0=Date.now();tm=setInterval(function(){var l=10-(Date.now()-t0)/1000;
    if(l<=0){clearInterval(tm);over=true;fin(g,n)}else document.getElementById("tl").textContent=l.toFixed(1)+"s left"},50)}
-  n++;var cc=document.getElementById("c");cc.textContent=n;ani(cc,"pop")};arenaInput(document.getElementById("ar"),"Tap Rush. Press Space or Enter to tap.")}
+  n++;var cc=document.getElementById("c");cc.textContent=n;window.JialatMotion?.play(cc,"tap")};arenaInput(document.getElementById("ar"),"Tap Rush. Press Space or Enter to tap.")}
 function reactG(g){
  var ar,go=false,t0=0;
  A.innerHTML='<div class="arena react-ar" id="ar" style="background:#a8262c"><span id="m" role="status" aria-live="assertive" aria-atomic="true">Wait for green…</span></div>';
  ar=document.getElementById("ar");
  function arm(){go=false;ar.style.background="#a8262c";ar.style.setProperty("--reaction-ink","var(--color-text)");document.getElementById("m").textContent="Wait for green…";
-  tm=setTimeout(function(){ar.style.background="#2f9e5b";ar.style.setProperty("--reaction-ink","#0a0a0a");ani(ar,"glow");document.getElementById("m").textContent="TAP NOW!";requestAnimationFrame(function(){requestAnimationFrame(function(){t0=performance.now();go=true})})},2000+Math.random()*3500)}
+  tm=setTimeout(function(){ar.style.background="#2f9e5b";ar.style.setProperty("--reaction-ink","#0a0a0a");var message=document.getElementById("m");message.textContent="TAP NOW!";window.JialatMotion?.play(message,"signal");requestAnimationFrame(function(){requestAnimationFrame(function(){t0=performance.now();go=true})})},2000+Math.random()*3500)}
  ar.onpointerdown=function(e){e.preventDefault();
   if(go){go=false;fin(g,performance.now()-t0)}
-  else{clearTimeout(tm);ani(ar,"shake");document.getElementById("m").innerHTML='Too early!<small>Wait again…</small>';tm=setTimeout(arm,900)}};
+  else{clearTimeout(tm);var message=document.getElementById("m");message.innerHTML='Too early!<small>Wait again…</small>';window.JialatMotion?.play(message,"reject");tm=setTimeout(arm,900)}};
  arenaInput(ar,"Reaction game. Wait for TAP NOW, then press Space or Enter.");arm()}
 function stopG(g){
  var t0=Date.now();
  A.innerHTML='<div class="arena stop-ar" id="ar"><div class="big" id="c">0.00</div><small>Tap when you hit 10.00 seconds</small></div>';
  var c=document.getElementById("c");
  tm=setInterval(function(){var s=(Date.now()-t0)/1000;if(s>=2)c.textContent="?";else c.textContent=s.toFixed(2)},30);
- var d=false;document.getElementById("ar").onpointerdown=function(e){e.preventDefault();if(d)return;d=true;clearInterval(tm);var v=Math.abs((Date.now()-t0)/1000-10),ar=document.getElementById("ar");c.textContent="LOCKED";ani(ar,"glow");ani(c,"pop");tm=setTimeout(function(){fin(g,v)},400)};arenaInput(document.getElementById("ar"),"Stop the timer. Press Space or Enter when you estimate ten seconds.")}
+ var d=false;document.getElementById("ar").onpointerdown=function(e){e.preventDefault();if(d)return;d=true;clearInterval(tm);var v=Math.abs((Date.now()-t0)/1000-10);c.textContent="LOCKED";window.JialatMotion?.play(c,"score");tm=setTimeout(function(){fin(g,v)},400)};arenaInput(document.getElementById("ar"),"Stop the timer. Press Space or Enter when you estimate ten seconds.")}
 window.addEventListener('pagehide',function(){roomLeaving=true});window.addEventListener('pageshow',function(){roomLeaving=false});
 var rawHash=location.hash.slice(1),sep=rawHash.indexOf("~"),parts=[sep<0?rawHash:rawHash.slice(0,sep),sep<0?"":rawHash.slice(sep+1)];code=(parts[0]||"").replace(/[^a-z0-9]/gi,"").toLowerCase();
 if(code&&roomFilesMatch){host=ls("rwh-"+code)=="1";var m=ls("rwm-"+code);me=m===null?null:+m;
