@@ -1582,17 +1582,32 @@ body.tv #sync {
     padding-right:max(16px,env(safe-area-inset-right,0px))
   }
 }
-.tv-modes {
+body[data-page="scoreboard"] #hostScreens { margin:0 0 16px; }
+#hostScreens[open] { padding-bottom:2px; }
+#hostScreens > summary { overflow-wrap:anywhere; }
+#hostScreens .tv-mode-status {
+  color:var(--color-teal);
+  margin-inline-start:.5em;
+  font-size:var(--text-secondary);
+}
+body[data-page="scoreboard"] #playerNames { margin-top:18px; }
+body[data-page="scoreboard"] #hostScreens .tv-modes {
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr))
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
 }
-.tv-modes button {
-  min-width:0
+body[data-page="scoreboard"] #hostScreens .tv-modes button {
+  min-width:0;
+  white-space:normal;
+  overflow-wrap:anywhere;
 }
-@media(min-width:600px) {
-  .tv-modes {
-    grid-template-columns:repeat(3,minmax(0,1fr))
-  }
+body[data-page="scoreboard"] #hostScreens .tv-modes button[aria-pressed="true"] {
+  color:var(--color-gold-light);
+  background:#332610;
+  border-color:var(--color-gold);
+}
+@media(min-width:760px) {
+  body[data-page="scoreboard"] #hostScreens .tv-modes { grid-template-columns:repeat(3,minmax(0,1fr)); }
 }
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible {
   outline:3px solid var(--ice);
@@ -2162,9 +2177,14 @@ function host(){
  const syncNode=$('sync'),dotNode=$('dot'),focused=document.activeElement,focusId=focused&&focused.id,focusLabel=focused&&focused.getAttribute('aria-label');
  const opened=id=>!!($(id)&&$(id).open),audioOpen=opened('hostAudio'),judgeOpen=opened('judgingGuide'),namesOpen=opened('playerNames'),settingsOpen=opened('hostSetup'),optionsOpen=opened('gameOptions');
  const g=S.g,x=G[g],done=G.map((_,i)=>S.sc.every(r=>r[i]!=null)),m=S.m,ready=allDone()&&!unresolvedTie();
+ const tvOpen=!$('hostScreens')||$('hostScreens').open;
  const btn=[['Event title',['idle']],['Rules',['rules',g]],['After game 3',['board',3]],['After game 6',['board',6]],['Rankings',['board',9]],['Final reveal',['rev',0]]];
+ const activeTV=btn.findIndex(([,mode])=>m[0]===mode[0]&&(m[0]!=='board'||m[1]===mode[1]));
+ const tvMode=activeTV>=0?btn[activeTV][0]:'After game '+m[1];
  let h=`<a class="skip-link" href="#activeGame">Skip to current game</a><div class="site-utility">${Q?'':'<a class="menu-return" href="../">← MAIN MENU</a>'}<img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><header class="activity-header"><span class="activity-icon"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-hidden="true"><path fill="#d4af37" d="M1 1h16v1H1zM1 2h1v10H1zM16 2h1v10h-1zM1 12h16v1H1z"/><path fill="#6b5a22" d="M3 4h12v1H3zM3 7h12v1H3zM3 10h12v1H3z"/><g class="bead-one"><path fill="#65d9cb" d="M4 3h2v3H4z"/></g><g class="bead-two"><path fill="#86baff" d="M5 6h2v3H5z"/></g><g class="bead-three"><path fill="#ff8b78" d="M7 9h2v3H7z"/></g></svg></span><h1>SCOREBOARD</h1><span class="role-label">HOST</span></header><div class="host-status" id="hostConnection"></div><section class="host-control-note" id="hostControlNote" hidden></section><section class="host-overview" aria-label="Current game progress"><div><span>Game</span><strong>${g+1} / 9</strong></div><div><span>Results</span><strong>${filled(g)} / ${size(g)}</strong></div><div><span>Completed</span><strong aria-label="${done.filter(Boolean).length} of 9 games complete">${done.filter(Boolean).length} / 9</strong></div></section>`;
- h+=`<details id="playerNames"${namesOpen?' open':''} ontoggle="if(!this.open)host()"><summary>Player names &amp; tie-break</summary><p class="hint">Names save automatically. Use +/− only for an overall tie-break.</p>${S.nm.map((n,i)=>`<div class="nr"><input id="playerName${i}" aria-label="Player ${i+1} name" value="${esc(n)}" maxlength="14" onchange="nn(${i},this.value)"><button aria-label="Subtract a tie-break point for player ${i+1}" onclick="tbb(${i},-1)">−</button><span>${S.tb[i]||0}</span><button aria-label="Add a tie-break point for player ${i+1}" onclick="tbb(${i},1)">+</button></div>`).join('')}</details>`;
+ h+=`<details class="host-settings" id="hostScreens"${tvOpen?' open':''}><summary id="tvScreensHeading">TV display <span class="tv-mode-status">${esc(tvMode)}</span></summary>
+ <div class="tv-modes" role="group" aria-label="TV display modes">${btn.map(([label,mode],i)=>`<button id="tvMode${i}" class="${i===activeTV?'on':''}" aria-pressed="${i===activeTV}" onclick='${label==='Final reveal'?'tryReveal()':'tvm('+JSON.stringify(mode)+')'}'>${label}</button>`).join('')}</div>
+ ${!ready?'<p class="hint">Final reveal checks for any missing results or ties.</p>':''}</details>`;
  if(m[0]=='rev')h+=`<section class="reveal-controls" aria-labelledby="revealHeading"><h2 id="revealHeading">Final reveal</h2>${S.spotlight?`<div class="rw"><button id="revealClose" class="go" onclick="closeSpotlight()">${m[1]===10?'Show final rankings':'Show rankings'}</button></div>`:`<div class="rw"><button id="revealBack" onclick="rv(-1)" ${m[1]===0?'disabled':''}>Back</button><button id="revealNext" class="go" onclick="rv(1)" ${m[1]===10?'disabled':''}>${m[1]===10?'Reveal complete':'Next · '+ordinal(REVEAL_ORDER[m[1]])} (${m[1]}/10)</button></div>`}</section>`;
  h+=`<div class="lb game-picker-label" id="gamePickerLabel">Choose game</div><div class="tabs" role="group" aria-labelledby="gamePickerLabel">${G.map((game,i)=>`<button id="gameSelect${i}" data-game="${i}" class="${i===g?'on':''}" aria-current="${i===g?'step':'false'}" aria-label="Game ${i+1}: ${esc(game.n)}${done[i]?' · Complete':''}" onclick="sg(${i})">${i+1}${done[i]?'✓':''}</button>`).join('')}</div>`;
 if(revealCheck&&!ready){
@@ -2184,10 +2204,11 @@ if(revealCheck&&!ready){
  const sum=S.sc.reduce((a,r)=>a+(r[g]||0),0);
  c+=`<p class="hint points-summary">Points given: ${sum} / ${EXP[x.t]}${sum===EXP[x.t]?' · Complete':''}</p><details class="game-options" id="gameOptions"${optionsOpen?' open':''}><summary>Game options</summary><button id="clearGame" class="danger" onclick="clr(${g})">Clear this game</button></details></section>`;
  const st=stand(9),hasPoints=S.sc.some(r=>r.some(v=>v!==null)),hasRecorded=S.rs.some(r=>Array.isArray(r)&&r.some(v=>v!==null)),final=allDone()&&S.finalShown;
- let board=`<aside class="host-standings" aria-label="Standings"><table class="standings-table"><caption>${final?'Final standings':hasPoints?'Provisional standings':'Awaiting results'}</caption><thead><tr><th scope="col">Rank</th><th scope="col">Player</th><th scope="col">Points</th></tr></thead><tbody>${st.map(o=>`<tr><td>${hasPoints?o.r:'—'}</td><th scope="row">${nm(o.i)}</th><td>${hasPoints?o.t:'—'}</td></tr>`).join('')}</tbody></table>${!hasPoints?`<p class="standings-note">${hasRecorded?'Results are being recorded. Rankings appear after a game is complete.':'No results yet. Record the first game to begin the standings.'}</p>`:''}<button id="copyResults" onclick="copyRes()">Copy results</button><section class="tv-controls" id="hostScreens" aria-labelledby="tvScreensHeading"><h2 id="tvScreensHeading">TV display</h2><div class="tv-modes">${btn.map(([l,mm])=>`<button class="${m[0]===mm[0]&&(m[0]!=='board'||m[1]===mm[1])?'on':''}" onclick='${l==='Final reveal'?'tryReveal()':'tvm('+JSON.stringify(mm)+')'}'>${l}</button>`).join('')}</div>${!ready?'<p class="hint">Final reveal checks for any missing results or ties.</p>':''}</section></aside>`;
+ let board=`<aside class="host-standings" aria-label="Standings"><table class="standings-table"><caption>${final?'Final standings':hasPoints?'Provisional standings':'Awaiting results'}</caption><thead><tr><th scope="col">Rank</th><th scope="col">Player</th><th scope="col">Points</th></tr></thead><tbody>${st.map(o=>`<tr><td>${hasPoints?o.r:'—'}</td><th scope="row">${nm(o.i)}</th><td>${hasPoints?o.t:'—'}</td></tr>`).join('')}</tbody></table>${!hasPoints?`<p class="standings-note">${hasRecorded?'Results are being recorded. Rankings appear after a game is complete.':'No results yet. Record the first game to begin the standings.'}</p>`:''}<button id="copyResults" onclick="copyRes()">Copy results</button></aside>`;
  h+=`<div class="host-workspace">${c}${board}</div>`;
  const ties=allDone()?st.filter((o,k)=>k>0&&st[k-1].t===o.t&&st[k-1].b===o.b).map(o=>o.r-1):[];
  if(ties.length)h+=`<p class="hint">Tie for place ${ties.join(', ')}. Replay Snow Blower, then use the player tie-break controls.</p>`;
+ h+=`<details id="playerNames"${namesOpen?' open':''} ontoggle="if(this.isConnected&&!this.open)host()"><summary>Player names &amp; tie-break</summary><p class="hint">Names save automatically. Use +/− only for an overall tie-break.</p>${S.nm.map((n,i)=>`<div class="nr"><input id="playerName${i}" aria-label="Player ${i+1} name" value="${esc(n)}" maxlength="14" onchange="nn(${i},this.value)"><button aria-label="Subtract a tie-break point for player ${i+1}" onclick="tbb(${i},-1)">−</button><span>${S.tb[i]||0}</span><button aria-label="Add a tie-break point for player ${i+1}" onclick="tbb(${i},1)">+</button></div>`).join('')}</details>`;
  h+=`<details class="host-settings" id="hostSetup"${settingsOpen?' open':''}><summary>Sound &amp; settings</summary><details class="host-audio" id="hostAudio"${audioOpen?' open':''}><summary id="hostSoundStatus">Host sound off</summary><div class="soundbar"><button id="hostSoundToggle" onclick="toggleSound()">Turn on host sound</button><button id="hostSoundTest" onclick="testSound()" disabled>Test chime</button><p class="hint">TV countdown and reveal sounds play on the MacBook. Host sound is optional for the person timing the games.</p></div></details><details><summary>Start a new round</summary><p class="hint">Clears all results and tie-breaks. Player names are kept.</p><button id="startNewRound" class="danger" onclick="reset()">Start a new round</button></details>${relayPanelHTML()}</details>`;
  $('H').innerHTML=h;
  if(previousGame!==String(g))window.JialatMotion?.play($('currentGameTitle'),'enter');
