@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta name="jialat-build" content="29"><meta name="jialat-scoreboard-build" content="29"><meta charset="utf-8"><meta name="robots" content="noindex">
+<html lang="en"><head><meta name="jialat-build" content="30"><meta name="jialat-scoreboard-build" content="30"><meta charset="utf-8"><meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a">
 <meta name="description" content="Nine Christmas games. One overall champion. S$18 for the winner. Choose the host controls or the TV display.">
@@ -1641,7 +1641,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <link rel="stylesheet" href="../assets/motion.css?v=4.1">
 <link rel="stylesheet" href="../assets/event-title.css?v=2">
 <script src="../assets/event-title.js?v=1"></script>
-<link rel="stylesheet" href="../assets/championship.css?v=1">
+<link rel="stylesheet" href="../assets/championship.css?v=2">
 </head><body data-page="scoreboard"><section class="boot-state" id="site-boot" aria-labelledby="boot-title"><h1 id="boot-title">Opening JIALAT…</h1><p id="boot-message">The game controls are loading. If this page does not finish opening, reload or return to the main menu.</p><div class="boot-actions"><a href="">Reload page</a><a href="../">Main menu</a></div><noscript><p>JavaScript is required for the live games. Enable JavaScript to open the controls.</p></noscript></section>
 <i id="dot" class="dot"></i>
 <span id="sync" role="status" aria-live="polite"></span>
@@ -1651,8 +1651,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <main id="H"></main>
 <div id="T"><div id="msg"></div><section id="bd" aria-labelledby="th"><div class="board-head"><div><h1 id="th" tabindex="-1"></h1><p id="boardHint"></p></div><button class="tv-return" id="backToClosing" type="button" hidden>Championship summary</button></div><div id="ban" aria-live="polite"></div><div id="rows"></div><div id="lg"><span style="color:var(--l)">1ST · S$18 CASH PRIZE</span><span>2–6 SAFE</span><span>7–9 NEXT YEAR’S ORGANISERS</span><span>10TH · THE JIALAT TROPHY</span></div></section></div>
 <script src="../assets/motion.js?v=4.1"></script>
-<script src="../assets/ui.js?v=29"></script>
-<script src="../assets/reliability.js?v=29"></script>
+<script src="../assets/ui.js?v=30"></script>
+<script src="../assets/reliability.js?v=30"></script>
 <script>
 
 // Connection state is shared by the three apps on this browser. No game data is stored here.
@@ -1726,7 +1726,7 @@ const G=[
 {n:'Reindeer Droppings',t:'t',r:'Carry one ornament between your knees and drop it in the basket. Most successful drops in 90 seconds wins.',u:[[1,3,5,7,9],[2,4,6,8,10]]},
 {n:'Christmas Tree Stack',t:'t',r:'Stack cups on one teammate. Most cups still balanced after 60 seconds wins.',u:[[1,4,6,8,9],[2,3,5,7,10]]}];
 const REVEAL_ORDER=[4,5,6,7,3,8,2,9,10,1];
-const CHAMPION_PRIZE='S$18',PRIZE_TAG='OVERALL CHAMPION · '+CHAMPION_PRIZE;
+const CHAMPION_PRIZE='S$18';
 const ordinal=n=>n+(n===1?'st':n===2?'nd':n===3?'rd':'th');
 // The TV guide also serves as the host's agreed judging standard.
 const GUIDE=[
@@ -1792,7 +1792,7 @@ const SCENES=[
 ];
 function scene(i){return '<div class="gameScene scene-'+(i+1)+'" aria-hidden="true"><svg viewBox="0 0 640 176" role="presentation">'+SCENES[i]+'</svg></div>'}
 // ---- state ----
-const D=()=>({v:0,g:0,m:['idle'],timer:null,revealId:0,finalShown:false,spotlight:false,nm:Array.from({length:10},(_,i)=>'Player '+(i+1)),sc:Array.from({length:10},()=>Array(9).fill(null)),tb:Array(10).fill(0),rs:Array.from({length:9},()=>[]),ow:Array(9).fill(null)});
+const D=()=>({v:0,g:0,m:['idle'],timer:null,play:null,revealId:0,finalShown:false,spotlight:false,nm:Array.from({length:10},(_,i)=>'Player '+(i+1)),sc:Array.from({length:10},()=>Array(9).fill(null)),tb:Array(10).fill(0),rs:Array.from({length:9},()=>[]),ow:Array(9).fill(null)});
 const friendName=n=>typeof n==='string'&&/^shi\s*min$/i.test(n.trim())?'Shi Min':n;
 let S=D();try{const x=localStorage.getItem('jialat26');if(x)S=Object.assign(D(),JSON.parse(x))}catch(e){}
 if(Array.isArray(S.nm))S.nm=S.nm.map(friendName);
@@ -1817,7 +1817,7 @@ function validBoard(x){
  if(!Array.isArray(x.tb)||x.tb.length!==10||!x.tb.every(n=>Number.isSafeInteger(n)&&n>=0)||!Array.isArray(x.ow)||x.ow.length!==9||!x.ow.every(n=>n===null||Number.isInteger(n)&&n>=0&&n<10))return false;
  if(!Array.isArray(x.m)||!['idle','rules','board','rev'].includes(x.m[0])||x.m[1]!==undefined&&(!Number.isInteger(x.m[1])||x.m[1]<0||x.m[1]>10))return false;
  if(x.writer!==undefined&&!/^[a-f0-9]{16}$/.test(x.writer))return false;
- if(x.timer&&(!Number.isInteger(x.timer.g)||![7,8].includes(x.timer.g)||!Number.isFinite(x.timer.startAt)||!Number.isFinite(x.timer.endAt)||x.timer.endAt-x.timer.startAt!==(x.timer.g===7?90000:60000)||!Number.isInteger(x.timer.slot)||x.timer.slot<0||x.timer.slot>1||typeof x.timer.id!=='string'))return false;
+ if(x.timer&&!validCountdown(x.timer)||x.play&&!validPlay(x.play)||x.timer&&x.play)return false;
  return true;
 }
 function boardStateKey(x){return String(x.v)+':'+(x.writer||'')}
@@ -1840,7 +1840,7 @@ function requestBoardControl(takeover=false){
  if(ROLE!=='host'||localHostBlocked)return;boardTakeover=takeover;boardAuthorized=false;boardNonce=boardToken();clearTimeout(boardProbeTimer);
  if(!streamOpen){conn();return}
  status('','Checking TV host control…');boardControl('host',{host:hostIdentity,nonce:boardNonce,target:boardTV,takeover});
- boardProbeTimer=setTimeout(()=>{if(!boardAuthorized&&ROLE==='host')status('bad','TV not responding. Check both screens show Build 29. Your changes are saved here.')},20000);
+ boardProbeTimer=setTimeout(()=>{if(!boardAuthorized&&ROLE==='host')status('bad','TV not responding. Check both screens show Build 30. Your changes are saved here.')},20000);
 }
 function announceBoardDisplay(){
  if(!displayAnnouncementPending||!streamOpen||document.hidden)return;
@@ -1911,7 +1911,7 @@ function poll(confirmPending=false){if(pollTask)return confirmPending===true?pol
 // Later relay timestamps also work when the same TV reconnects without a new handshake.
 let liveRevealStream=false;
 function conn(){
- if(!window.JialatUI||JialatUI.build!=='29'||!ROLE||ROLE==='host'&&localHostBlocked)return;
+ if(!window.JialatUI||JialatUI.build!=='30'||!ROLE||ROLE==='host'&&localHostBlocked)return;
  if(relayWait()>0){if(stream)stream.close();streamOpen=false;clearInterval(pollTimer);pollTimer=relayLater(()=>{pollTimer=null;conn()},relayWait());status('bad',relayWaitLabel());return}
  status('','Connecting…');if(stream)stream.close();streamOpen=false;boardAuthorized=false;boardControlSince=0;boardNonce='';
  try{stream=JialatUI.relayStream(URL_+'/sse?since='+encodeURIComponent(boardCursor||'all'),relayWait,relayRetryDelay);
@@ -1937,17 +1937,21 @@ const MODE=['time','time','time','count','distance','time','time','count','count
 const LIMIT={7:90,8:60};
 const units={time:'seconds',distance:'cm',count:'successful'};
 let Q=null,audioCtx=null,soundOn=false,revealCheck=false,tvSoundOn=false,tvLastFrame=null,cueToken=0;
-let tvCountdownFrame=null;
+let tvCountdownFrame=null,cueBusyUntil=0,tvCueTimeout=null;
 let revealHighWater={id:null,step:0};
 try{revealHighWater=JSON.parse(sessionStorage.getItem('jialat26-reveal-seen'))||revealHighWater}catch(e){}
 let tvCountdownInterval=null;
-const tvFinishedTimers=new Set(),tvWarningTicks=new Set();
+const tvTurnCues=new Set();
 const voices=new Set();
 try{soundOn=localStorage.getItem('jialat26-sound')==='1'}catch(e){}
 // Frequency, duration, delay, gain, waveform, optional ending frequency.
 const SOUNDS={
- warning:[[880,.055,0,.045]],count:[[620,.09,0,.10]],go:[[880,.18,0,.16],[1175,.2,.13,.11]],finish:[[740,.11,0,.08]],
- end:[[660,.22,0,.17],[440,.35,.19,.17]],reveal:[[587,.14,0,.09],[784,.14,.15,.11],[988,.26,.3,.13]],
+ tap:[[510,.035,0,.028]],
+ title:[[523,.15,0,.07],[784,.24,.12,.08]],rules:[[440,.09,0,.065],[660,.18,.10,.075]],
+ checkpoint:[[587,.13,0,.075],[784,.21,.12,.09]],verdict:[[392,.2,0,.075],[587,.28,.16,.092]],
+ complete:[[659,.14,0,.085,'triangle'],[784,.16,.14,.086,'triangle'],[1047,.43,.30,.096,'triangle'],[523,.38,.30,.035]],
+ warning:[[880,.055,0,.045]],count:[[620,.09,0,.10]],go:[[880,.18,0,.16],[1175,.2,.13,.11]],
+ end:[[660,.22,0,.12],[440,.35,.19,.12]],
  test:[[660,.12,0,.10],[880,.18,.14,.12]],
  happy:[[659,.12,0,.10],[784,.12,.13,.10],[1047,.26,.26,.11]],
  organiser:[[659,.18,0,.09],[523,.18,.18,.09],[440,.32,.36,.10]],
@@ -1955,11 +1959,12 @@ const SOUNDS={
  cheeky:[[392,.11,0,.10,'triangle'],[523,.11,.13,.10,'triangle'],[330,.32,.28,.11,'triangle',660],[880,.18,.65,.09,'triangle']]
 };
 function audio(){try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;if(!audioCtx||audioCtx.state==='closed'){audioCtx=new C();audioCtx.onstatechange=updateAudioStatus}return audioCtx}catch(e){return null}}
-function stopCue(){cueToken++;for(const v of voices)try{v.g.gain.cancelScheduledValues(audioCtx.currentTime);v.g.gain.setTargetAtTime(.0001,audioCtx.currentTime,.005);v.o.stop(audioCtx.currentTime+.03)}catch(e){}voices.clear()}
+function stopCue(){cueToken++;cueBusyUntil=0;for(const v of voices)try{v.g.gain.cancelScheduledValues(audioCtx.currentTime);v.g.gain.setTargetAtTime(.0001,audioCtx.currentTime,.005);v.o.stop(audioCtx.currentTime+.03)}catch(e){}voices.clear()}
 async function playCue(kind,enabled){
  if(!enabled||!SOUNDS[kind])return false;
  stopCue();const token=cueToken,a=audio(),until=performance.now()+1000;if(!a)return false;
  try{if(a.state!=='running')await a.resume();if(token!==cueToken||a.state!=='running'||performance.now()>until)return false;
+  cueBusyUntil=performance.now()+1000*Math.max(...SOUNDS[kind].map(([,duration,delay])=>duration+delay+.045));
   for(const [f,d,delay,volume,wave,to] of SOUNDS[kind]){
    const o=a.createOscillator(),g=a.createGain(),t=a.currentTime+.025+delay,v={o,g};
    o.type=wave||'sine';o.frequency.setValueAtTime(f,t);if(to)o.frequency.exponentialRampToValueAtTime(to,t+d*.85);
@@ -1970,11 +1975,11 @@ async function playCue(kind,enabled){
 }
 function cue(kind){if(ROLE==='host')return playCue(kind,soundOn)}
 async function toggleSound(){
- if(soundOn&&audioCtx&&audioCtx.state==='running'){soundOn=false;stopCue()}else{soundOn=true;await cue('test')}
+ if(soundOn&&audioCtx&&audioCtx.state==='running'){soundOn=false;stopCue()}else{soundOn=true;await cue('tap')}
  try{localStorage.setItem('jialat26-sound',soundOn?'1':'0')}catch(e){}
  updateAudioStatus()
 }
-function testSound(){cue('test')}
+function testSound(){cue('tap')}
 const rankCue=rank=>rank===1?'champion':rank===10?'cheeky':rank>=7?'organiser':'happy';
 function tvMuted(value){try{if(value!==undefined)localStorage.setItem('jialat26-tv-muted',value?'1':'0');return localStorage.getItem('jialat26-tv-muted')==='1'}catch(e){return false}}
 function updateAudioStatus(){
@@ -1996,9 +2001,11 @@ function updateTvAudio(){
  if(ROLE!=='tv')return;const b=$('tvAudioToggle'),available=!!(window.AudioContext||window.webkitAudioContext),ready=tvSoundOn&&audioCtx&&audioCtx.state==='running';
  b.textContent=!available?'Sound unavailable':ready?'Mute TV sound':tvSoundOn?'Resume TV sound':'Turn on TV sound';b.disabled=!available;b.removeAttribute('aria-pressed');b.classList.toggle('sound-on',!!ready);
  const start=$('tvAudioStart'),recovering=start===document.activeElement;if(start){start.hidden=!!ready||tvMuted()||!available;start.textContent='Turn on sound';}
- $('tvAudio').hidden=!ready&&!tvMuted()&&available;
- const performing=S.m[0]==='rev'||!!activeCountdown();$('tvAudioTests').hidden=performing;
- $('tvControlSummary').textContent=!available?'Sound unavailable':ready?'Sound on':tvMuted()?'Sound off':'Turn on sound';$('tvAudio').classList.toggle('sound-ready',!!ready);if(performing)$('tvAudio').open=false
+ const panel=$('tvAudio'),performing=S.m[0]==='rev'||!!activeGameplay();
+ panel.hidden=!ready&&!tvMuted()&&available;$('tvAudioTests').hidden=performing;
+ $('tvControlSummary').textContent=!available?'Sound unavailable':ready?'Sound on':tvMuted()?'Sound off':'Turn on sound';panel.classList.toggle('sound-ready',!!ready);
+ if(performing&&!panel.hasAttribute('data-performing'))panel.open=false;
+ panel.toggleAttribute('data-performing',performing)
  if(recovering&&ready)$('tvControlSummary').focus({preventScroll:true})
 }
 async function toggleTvSound(){
@@ -2006,43 +2013,62 @@ async function toggleTvSound(){
  await enableTvSound();if(audioCtx&&audioCtx.state==='running')$('tvAudio').open=false
 }
 async function previewTvCue(kind){tvMuted(false);tvSoundOn=true;await playCue(kind,true);updateTvAudio()}
-function tvCountdownAudio(c,f){
- const old=tvCountdownFrame;
- tvCountdownFrame={id:c.id,phase:f.phase,ready:f.ready,seconds:f.seconds};
- const now=Date.now(),observed=old?.id===c.id;
- let kind='',key='';
- if(f.phase==='ready'&&observed&&f.ready<old.ready&&now-(c.startAt-f.ready*1000)<250){
-  kind='count';key=c.id+':ready:'+f.ready;
- }else if(f.phase==='running'&&observed&&old.phase==='ready'&&now-c.startAt<300){
-  kind='go';key=c.id+':go';
- }else if(f.phase==='running'&&observed&&old.phase==='running'&&old.seconds>f.seconds&&f.seconds<=5&&now-(c.endAt-f.seconds*1000)<250){
-  kind='warning';key=c.id+':warning:'+f.seconds;
- }else if(f.phase==='ended'&&!tvFinishedTimers.has(c.id)){
-  tvFinishedTimers.add(c.id);
-  if(tvFinishedTimers.size>100)tvFinishedTimers.delete(tvFinishedTimers.values().next().value);
-  if(observed&&old.phase!=='ended'&&now-c.endAt<1500){kind='end';key=c.id+':end'}
- }
- if(!kind||tvWarningTicks.has(key)||!tvSoundOn||audioCtx?.state!=='running'||document.hidden)return;
- tvWarningTicks.add(key);
- if(tvWarningTicks.size>1000)tvWarningTicks.delete(tvWarningTicks.values().next().value);
- playCue(kind,true)
+function tvCue(kind){
+ if(tvSoundOn&&audioCtx?.state==='running'&&!document.hidden)playCue(kind,true)
 }
-document.addEventListener('visibilitychange',()=>{if(ROLE==='tv'){tvCountdownFrame=null;if(document.hidden)stopCue();updateTvAudio()}});
+function tvCountdownAudio(c,f,fresh){
+ const old=tvCountdownFrame,same=old?.id===c.id,kind=playKind(c.g),now=Date.now();
+ tvCountdownFrame={id:c.id,phase:f.phase,ready:f.ready,seconds:f.seconds};
+ let cue='',suffix='';
+ if(f.phase==='ready'&&(fresh&&!same||same&&f.ready<old.ready&&now-(c.startAt-f.ready*1000)<250)){
+  cue='count';suffix='ready:'+f.ready;
+ }else if(f.phase==='running'&&(same&&old.phase==='ready'&&now-c.startAt<300||
+    kind==='attempt'&&fresh&&!same)){
+  cue='go';suffix='go';
+ }else if(kind==='countdown'&&f.phase==='running'&&same&&old.phase==='running'&&old.seconds>f.seconds&&f.seconds<=5&&now-(c.endAt-f.seconds*1000)<250){
+  cue='warning';suffix='warning:'+f.seconds;
+ }else if(f.phase==='ended'&&same&&old.phase!=='ended'&&
+   (kind==='countdown'?fresh!==false&&now-c.endAt<1500:fresh===true)){
+  cue='end';suffix='end';
+ }
+ const key=c.id+':'+suffix;
+ if(!cue||tvTurnCues.has(key))return;
+ tvTurnCues.add(key);
+ if(tvTurnCues.size>1000)tvTurnCues.delete(tvTurnCues.values().next().value);
+ tvCue(cue);
+}
+document.addEventListener('visibilitychange',()=>{
+ if(ROLE==='tv'){
+  tvCountdownFrame=null;
+  if(document.hidden){clearTimeout(tvCueTimeout);stopCue()}
+  updateTvAudio()
+ }
+});
 function tvRevealStep(live){
- const next={mode:S.m[0],step:Number(S.m[1]||0),id:S.revealId||0},old=tvLastFrame;
- tvLastFrame=next;updateTvAudio();
- if(old&&(next.mode!=='rev'||next.id!==old.id||next.step<old.step))stopCue();
+ const next={mode:S.m[0],step:Number(S.m[1]||0),id:S.revealId||0,spot:!!S.spotlight,turn:activeGameplay()?.id||''};
+ const old=tvLastFrame;tvLastFrame=next;updateTvAudio();
+ if(!old||old.mode!==next.mode||old.id!==next.id||old.step!==next.step||
+   old.spot!==next.spot||old.turn!==next.turn)clearTimeout(tvCueTimeout);
+ if(old&&(next.mode!=='rev'&&old.mode==='rev'||next.id!==old.id||next.step<old.step))stopCue();
+ const changed=old&&(next.mode!==old.mode||next.step!==old.step||next.id!==old.id);
+ if(live&&changed&&!next.turn){
+  if(next.mode==='idle')tvCue('title');
+  if(next.mode==='rules')tvCue('rules');
+  if(next.mode==='board')tvCue('checkpoint');
+  if(next.mode==='rev'&&next.step===0)tvCue('verdict');
+ }
+ if(live&&old?.spot&&old.step===10&&old.id===next.id&&championshipComplete()){
+  // Let the champion's spotlight fanfare finish if the host closes it quickly.
+  tvCueTimeout=setTimeout(()=>tvCue('complete'),Math.max(0,cueBusyUntil-performance.now()));
+ }
  if(next.mode!=='rev')return false;
  const unseen=revealHighWater.id!==next.id||next.step>revealHighWater.step;
  if(unseen){
   revealHighWater={id:next.id,step:next.step};
   try{sessionStorage.setItem('jialat26-reveal-seen',JSON.stringify(revealHighWater))}catch(e){}
  }
- // Historical snapshots and steps already seen during this reveal stay quiet.
  if(!unseen||!live||document.hidden||!old||old.mode!=='rev'||next.id!==old.id||next.step!==old.step+1||next.step<1||next.step>10)return false;
- if(tvSoundOn)requestAnimationFrame(()=>{
-  if(tvLastFrame?.id===next.id&&tvLastFrame.mode==='rev'&&tvLastFrame.step===next.step&&tvSoundOn&&!document.hidden)playCue(rankCue(REVEAL_ORDER[next.step-1]),true)
- });
+ tvCue(rankCue(REVEAL_ORDER[next.step-1]));
  return !matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 const size=g=>G[g].t=='s'?10:G[g].t=='p'?5:2;
@@ -2069,7 +2095,7 @@ function recalc(g){
 }
 function setResult(g,i,raw,fromTimer=false,confirmed=false){
  if(g<0||g>8||i<0||i>=size(g))return;
- if(Q&&Q.clock&&Q.g===g&&Q.slots.includes(i)&&Date.now()<Q.clock.endAt){alert('Wait for this countdown to finish before entering the team count.');host();return}
+ if(Q&&LIMIT[g]&&Q.g===g&&Q.slots.includes(i)&&performance.now()<Q.start+LIMIT[g]*1000){alert('Wait for this countdown to finish before entering the team count.');host();return}
  let v=null;
  if(String(raw).trim()!==''){
   v=Number(raw);
@@ -2084,7 +2110,12 @@ function setResult(g,i,raw,fromTimer=false,confirmed=false){
   return
  }
  vals(g)[i]=v;S.ow[g]=null;S.finalShown=false;if(S.m[0]=='rev')S.m=['board',9];
- if(Q&&Q.g===g&&Q.slots.includes(i)&&!fromTimer){Q=null;S.timer=null}
+ if(Q&&Q.g===g&&Q.slots.includes(i)&&!fromTimer){
+  if(playKind(g)==='attempt'&&v!==null){
+   S.play={...S.play,endedAt:S.play.startAt+Math.max(0,performance.now()-Q.start)};
+   Q=null;
+  }else clearGameplay()
+ }
  recalc(g);commit();
 }
 function chooseWinner(g,i,confirmed=false){if(!leaders(g).includes(i)||S.ow[g]===i)return;if(!confirmed&&confirmRevealInterruption('Update game winner','The correction will close the current reveal and update the standings.',()=>chooseWinner(g,i,true)))return;S.ow[g]=i;S.finalShown=false;if(S.m[0]=='rev')S.m=['board',9];recalc(g);commit()}
@@ -2100,57 +2131,89 @@ function confirmRevealInterruption(label,message,action){
 function askHost(options,action){if(window.JialatUI)JialatUI.confirm(options,action);else if(confirm(options.message))action()}
 function clr(g,confirmed=false){
  if((filled(g)||S.sc.some(r=>r[g]!==null)||Q&&Q.g===g)&&confirmed!==true){askHost({title:'Clear game '+(g+1)+'?',message:'Clear every result and score for '+G[g].n+' and cancel its timer? Other games and player names are kept.',label:'Clear this game'},()=>clr(g,true));return}
- if(Q&&Q.g===g){Q=null;S.timer=null}S.rs[g]=[];S.ow[g]=null;S.sc.forEach(r=>r[g]=null);S.finalShown=false;if(S.m[0]=='rev')S.m=['board',9];commit()
+ if(S.timer?.g===g||S.play?.g===g)clearGameplay();S.rs[g]=[];S.ow[g]=null;S.sc.forEach(r=>r[g]=null);S.finalShown=false;if(S.m[0]=='rev')S.m=['board',9];commit()
 }
-function sg(i){if(i===S.g){if(revealCheck){revealCheck=false;host()}return}if(Q&&Q.g!==i){if(!confirm('Cancel the running timer and switch games? Recorded results are kept.'))return;Q=null;S.timer=null}revealCheck=false;S.g=i;if(S.m[0]=='rules')S.m=['rules',i];commit()}
+function clearGameplay(){Q=null;S.timer=null;S.play=null}
+function sg(i){
+ if(i===S.g){if(revealCheck){revealCheck=false;host()}return}
+ if(Q&&Q.g!==i&&!confirm('Close the current turn and switch games? Recorded results are kept.'))return;
+ if(S.timer?.g!==i&&S.play?.g!==i)clearGameplay();
+ revealCheck=false;S.g=i;if(S.m[0]==='rules')S.m=['rules',i];commit()
+}
+const playKind=g=>LIMIT[g]?'countdown':MODE[g]==='time'?'stopwatch':'attempt';
 function validCountdown(c){return !!(c&&[7,8].includes(c.g)&&Number.isInteger(c.slot)&&c.slot>=0&&c.slot<2&&typeof c.id==='string'&&Number.isFinite(c.startAt)&&Number.isFinite(c.endAt)&&c.endAt-c.startAt===LIMIT[c.g]*1000)}
+function validPlay(c){
+ if(!c||!Number.isInteger(c.g)||c.g<0||c.g>6||typeof c.id!=='string'||!Number.isFinite(c.startAt)||
+   c.endedAt!==null&&(!Number.isFinite(c.endedAt)||c.endedAt<c.startAt)||!Array.isArray(c.slots))return false;
+ const max=G[c.g].t==='s'&&playKind(c.g)==='stopwatch'?2:1;
+ return c.slots.length>0&&c.slots.length<=max&&new Set(c.slots).size===c.slots.length&&
+  c.slots.every(i=>Number.isInteger(i)&&i>=0&&i<(G[c.g].u?.length||10));
+}
+function activeGameplay(){
+ const c=S.timer||S.play;
+ return c&&S.m[0]==='rules'&&S.m[1]===c.g?c:null
+}
+function playSlots(c){return c.slots||[c.slot]}
 function countdownFrame(c,now=Date.now()){
- if(!validCountdown(c))return null;
- const ready=Math.max(0,c.startAt-now),left=Math.max(0,Math.min(LIMIT[c.g]*1000,c.endAt-now));
- return {phase:ready>0?'ready':left>0?'running':'ended',ready:Math.min(3,Math.ceil(ready/1000)),left,seconds:Math.ceil(left/1000),fraction:left/(LIMIT[c.g]*1000)}
+ const left=Math.max(0,Math.min(LIMIT[c.g]*1000,c.endAt-now));
+ const ready=Math.min(3,Math.max(0,Math.ceil((c.startAt-now)/1000)));
+ return {phase:ready>0?'ready':left>0?'running':'ended',ready,left,seconds:Math.ceil(left/1000),fraction:left/(LIMIT[c.g]*1000)}
 }
-function hostClockText(){if(!Q)return '';if(Q.clock){const f=countdownFrame(Q.clock);return f.phase==='ready'?'GO IN '+f.ready:(f.left/1000).toFixed(1)+'s'}return !Q.go?'GO IN '+Math.max(1,Math.ceil((Q.start-performance.now())/1000)):((performance.now()-Q.start)/1000).toFixed(2)+'s'}
+function gameplayFrame(c,now=Date.now()){
+ if(playKind(c.g)==='countdown')return countdownFrame(c,now);
+ const ready=playKind(c.g)==='stopwatch'?Math.min(3,Math.max(0,Math.ceil((c.startAt-now)/1000))):0;
+ return {phase:c.endedAt!==null?'ended':ready?'ready':'running',ready,
+  elapsed:Math.max(0,(c.endedAt??now)-c.startAt)}
+}
+function hostFrame(){
+ const turn=Q;
+ return gameplayFrame(turn.clock,turn.clock.startAt+performance.now()-turn.start)
+}
+function hostClockText(f=hostFrame()){
+ if(playKind(Q.g)==='attempt')return 'IN PLAY';
+ if(f.phase==='ready')return 'GO IN '+f.ready;
+ return LIMIT[Q.g]?(f.left/1000).toFixed(1)+'s':(f.elapsed/1000).toFixed(2)+'s'
+}
 function restoreCountdown(){
- Q=null;
- if(ROLE!=='host'||!validCountdown(S.timer)||value(S.timer.g,S.timer.slot)!==null)return;
- const f=countdownFrame(S.timer);Q={g:S.timer.g,slots:[S.timer.slot],start:performance.now()+S.timer.startAt-Date.now(),clock:S.timer,ends:[],expired:f.phase==='ended',go:f.phase!=='ready',count:0}
+ const old=Q,c=activeGameplay();Q=null;
+ if(ROLE!=='host'||!c||c.endedAt!=null)return;
+ const slots=playSlots(c),ends=slots.map(i=>value(c.g,i));
+ if(ends.every(v=>v!==null))return;
+ const start=old?.clock.id===c.id&&old.clock.startAt===c.startAt?old.start:performance.now()+c.startAt-Date.now();
+ const f=gameplayFrame(c,c.startAt+performance.now()-start);
+ Q={g:c.g,slots,start,clock:c,ends,expired:f.phase==='ended',go:f.phase!=='ready',count:f.ready}
 }
-function startTimer(g){
- if(soundOn){const a=audio();if(a&&a.state!=='running')a.resume().catch(()=>{})}
- if(Q||MODE[g]!=='time'&&!LIMIT[g])return;
+function startTimer(g,confirmed=false){
+ if(g!==S.g||boardHostLocked()||Q)return;
+ if(!confirmed&&confirmRevealInterruption('Start turn','This closes the current reveal and puts the game on TV.',()=>startTimer(g,true)))return;
  const open=Array.from({length:size(g)},(_,i)=>i).filter(i=>value(g,i)===null);
  if(!open.length)return;
- if(soundOn)audio();
- Q={g,slots:open.slice(0,MODE[g]=='time'&&G[g].t=='s'?2:1),start:performance.now()+3000,ends:[],expired:false,go:false,count:0};
- if(LIMIT[g]){const startAt=Date.now()+3000;S.timer={id:Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7),g,slot:open[0],startAt,endAt:startAt+LIMIT[g]*1000};Q.clock=S.timer;S.m=['rules',g];commit()}else host()
+ const kind=playKind(g),delay=kind==='attempt'?0:3000,startAt=Date.now()+delay,start=performance.now()+delay;
+ const id=boardToken(),slots=open.slice(0,kind==='stopwatch'&&G[g].t==='s'?2:1);
+ clearGameplay();
+ const clock=kind==='countdown'?S.timer={id,g,slot:slots[0],startAt,endAt:startAt+LIMIT[g]*1000}:
+  S.play={id,g,slots,startAt,endedAt:null};
+ Q={g,slots,start,clock,ends:[],expired:false,go:!delay,count:0};
+ S.m=['rules',g];commit();cue('tap')
 }
 function finishTimer(j){
- if(!Q||!Q.go||MODE[Q.g]!=='time'||Q.ends[j]!=null)return;
- const g=Q.g,i=Q.slots[j],v=Math.max(.01,Math.round((performance.now()-Q.start)/10)/100);
- Q.ends[j]=v;if(Q.ends.filter(x=>x!=null).length===Q.slots.length)Q=null;
- cue('finish');
- setResult(g,i,v,true)
+ if(boardHostLocked()||!Q||!Q.go||playKind(Q.g)!=='stopwatch'||Q.ends[j]!=null||!Number.isInteger(j)||j<0||j>=Q.slots.length)return;
+ const g=Q.g,i=Q.slots[j],elapsed=performance.now()-Q.start,v=Math.max(.01,Math.round(elapsed/10)/100);
+ Q.ends[j]=v;
+ if(Q.slots.every((_,k)=>Q.ends[k]!=null)){
+  S.play={...S.play,endedAt:S.play.startAt+elapsed};
+  Q=null;
+ }
+ setResult(g,i,v,true);cue('tap')
 }
-function cancelTimer(){const shared=!!S.timer;Q=null;S.timer=null;if(shared)commit();else host()}
+function cancelTimer(){if(!Q||boardHostLocked())return;clearGameplay();commit();cue('tap')}
 function tick(){
- if(!Q)return;
- if(Q.clock){
-  const f=countdownFrame(Q.clock);
-  if(f.phase==='ready'){if(Q.count!==f.ready){Q.count=f.ready;cue('count');window.JialatMotion?.play($('clock'),'score')}const c=$('clock');if(c)c.textContent='GO IN '+f.ready;return}
-  if(!Q.go){Q.go=true;if(f.phase==='running')cue('go');host();if(f.phase==='running')window.JialatMotion?.play($('clock'),'score')}
-  const c=$('clock');if(c)c.textContent=(f.left/1000).toFixed(1)+'s';
-  if(f.phase==='ended'&&!Q.expired){Q.expired=true;if(Date.now()-Q.clock.endAt<1500)cue('end');host()}
-  return
- }
- const now=performance.now();
- if(!Q.go){
-  const remaining=Math.ceil((Q.start-now)/1000);
-  if(remaining>0){if(Q.count!==remaining){Q.count=remaining;cue('count');window.JialatMotion?.play($('clock'),'score')}const c=$('clock');if(c)c.textContent='GO IN '+remaining;return}
-  Q.go=true;Q.start=now;cue('go');host();window.JialatMotion?.play($('clock'),'score')
- }
- const elapsed=now-Q.start,left=LIMIT[Q.g]?Math.max(0,LIMIT[Q.g]*1000-elapsed):elapsed;
- const c=$('clock');if(c)c.textContent=(left/1000).toFixed(LIMIT[Q.g]?1:2)+'s';
- if(LIMIT[Q.g]&&!Q.expired&&left<=0){Q.expired=true;cue('end');host();const d=$('clock');if(d)d.textContent='0.0s'}
+ if(!Q||playKind(Q.g)==='attempt')return;
+ const f=hostFrame();
+ if(f.phase==='ready'&&Q.count!==f.ready){Q.count=f.ready;window.JialatMotion?.play($('clock'),'score')}
+ if(!Q.go&&f.phase!=='ready'){Q.go=true;host();if(f.phase==='running')window.JialatMotion?.play($('clock'),'score')}
+ if(f.phase==='ended'&&!Q.expired){Q.expired=true;host()}
+ const c=$('clock');if(c){const text=hostClockText(f);if(c.textContent!==text)c.textContent=text}
 }
 setInterval(tick,50);
 function tvm(m,confirmed=false){
@@ -2158,12 +2221,11 @@ function tvm(m,confirmed=false){
  if(!changed)return;
  if(m[0]==='rev'&&(!allDone()||unresolvedTie())){tryReveal();return}
  if(!confirmed&&confirmRevealInterruption('Switch TV screen','This ends the current reveal. Restarting it begins with all ten ranks sealed.',()=>tvm(m,true)))return;
- if(S.timer&&!(m[0]==='rules'&&m[1]===S.timer.g)){
-  if(!confirm('Close the current countdown and switch the TV screen?'))return;
-  Q=null;S.timer=null
+ if(activeGameplay()){
+  if(Q&&!Q.expired&&!confirm('Close the current turn and switch the TV screen?'))return;
+  clearGameplay();
  }
- S.m=m;commit();
- if(m[0]==='board'&&[3,6,9].includes(m[1]))cue('reveal')
+ S.m=m;commit();cue('tap')
 }
 function tryReveal(){
  if(S.m[0]==='rev'){$('revealHeading')?.focus({preventScroll:true});return}
@@ -2175,8 +2237,8 @@ function tryReveal(){
  const p=$('revealCheck');if(p)p.scrollIntoView({block:'start',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})
 }
 function awardTie(i){if(!allDone())return;const st=stand(9),o=st.find(x=>x.i===i);if(!o||!st.some(x=>x.i!==i&&x.t===o.t&&x.b===o.b))return;tbb(i,1)}
-function rv(d){if(S.m[0]!=='rev'||S.spotlight||championshipComplete())return;if(!allDone()||unresolvedTie()){S.m=['board',9];commit();tryReveal();return}const k=Math.max(0,Math.min(10,(S.m[1]||0)+d));S.m=['rev',k];S.spotlight=k>0&&(REVEAL_ORDER[k-1]===1||REVEAL_ORDER[k-1]===10);S.finalShown=k===10;commit()}
-function closeSpotlight(){if(S.m[0]!=='rev'||!S.spotlight)return;S.spotlight=false;commit()}
+function rv(d){if(S.m[0]!=='rev'||S.spotlight||championshipComplete())return;if(!allDone()||unresolvedTie()){S.m=['board',9];commit();tryReveal();return}const k=Math.max(0,Math.min(10,(S.m[1]||0)+d));S.m=['rev',k];S.spotlight=k>0&&(REVEAL_ORDER[k-1]===1||REVEAL_ORDER[k-1]===10);S.finalShown=k===10;commit();cue('tap')}
+function closeSpotlight(){if(S.m[0]!=='rev'||!S.spotlight)return;S.spotlight=false;commit();cue('tap')}
 // Keep the name fields in place during entry; closing the section refreshes game labels.
 function nn(i,v){const next=friendName(v.trim().slice(0,14)),field=$('playerName'+i);if(field)field.value=next;if(S.nm[i]===next)return;S.nm[i]=next;if($('playerNames')&&$('playerNames').open){S.v=Math.max(Date.now(),S.v+1);save();push()}else commit()}
 function tbb(i,d,confirmed=false){const next=Math.max(0,(S.tb[i]||0)+d);if(next===(S.tb[i]||0))return;if(!confirmed&&confirmRevealInterruption('Update tie-break','The correction will close the current reveal and update the standings.',()=>tbb(i,d,true)))return;S.tb[i]=next;S.finalShown=false;if(S.m[0]=='rev')S.m=['board',9];commit()}
@@ -2184,21 +2246,20 @@ function reset(confirmed=false){if(confirmed!==true){askHost({title:'Start a new
 async function copyRes(){const t='🎄 JIALAT Christmas 2026\n'+stand(9).map(o=>`${o.r}. ${rn(o.i)} - ${o.t}`).join('\n');try{if(!navigator.clipboard?.writeText)throw Error('Clipboard unavailable');await navigator.clipboard.writeText(t);const b=$('copyResults');if(b){b.textContent='Copied';setTimeout(()=>{if(b.isConnected)b.textContent='Copy results'},2000)}}catch(e){prompt('Copy these results:',t)}}
 // ---- host ----
 function resultPanel(g,extras=''){
- const mode=MODE[g],x=G[g],n=size(g),a=vals(g);
+ const mode=MODE[g],x=G[g],n=size(g),kind=playKind(g);
  const next=Array.from({length:n},(_,i)=>i).filter(i=>value(g,i)===null);
  let h='';
- if(mode=='time'||LIMIT[g]){
-  const active=Q&&Q.g===g,slots=active?Q.slots:next.slice(0,mode=='time'&&x.t=='s'?2:1);
-  h+='<div class="turn"><div class="lb">NEXT TURN</div>';
-  if(!active)h+=slots.length?'<div>'+slots.map(i=>label(g,i)).join(' <span style="color:var(--g)">vs</span> ')+'</div><div class="rw" style="margin-top:10px"><button class="go timer-primary" onclick="startTimer('+g+')">Start '+(LIMIT[g]?LIMIT[g]+'s countdown':'timer')+'</button></div>':'<div>All results recorded. Edit a result below to correct or replay it.</div>';
-  else{
-   h+='<div>'+slots.map(i=>label(g,i)).join(' <span style="color:var(--g)">vs</span> ')+'</div><div class="clock" id="clock">'+hostClockText()+'</div>';
-   if(mode=='time')h+='<div class="rw">'+slots.map((i,j)=>'<button class="timer-primary '+(Q.ends[j]!=null?'on':'go')+'" onclick="finishTimer('+j+')" '+(Q.ends[j]!=null||!Q.go?'disabled':'')+'>'+(Q.ends[j]!=null?'Saved '+shown(g,Q.ends[j])+'s':'Finish '+label(g,i))+'</button>').join('')+'</div>';
-   if(LIMIT[g])h+='<div class="'+(Q.expired?'warn':'hint')+'">'+(Q.expired?'TIME! Count the successful items and enter the result below.':!Q.go?'Get ready. The round begins on GO.':'Count the successful items when the clock reaches zero.')+'</div>';
-   h+='<div class="rw" style="margin-top:16px"><button class="timer-reset" onclick="cancelTimer()">'+(Q.expired?'Close timer':'Cancel timer')+'</button></div>';
-  }
-  h+='</div>';
+ const active=Q&&Q.g===g,slots=active?Q.slots:next.slice(0,mode=='time'&&x.t=='s'?2:1);
+ h+='<div class="turn"><div class="lb">'+(active?'CURRENT TURN':'NEXT TURN')+'</div>';
+ if(!active)h+=slots.length?'<div>'+slots.map(i=>label(g,i)).join(' <span style="color:var(--g)">vs</span> ')+'</div><div class="rw" style="margin-top:10px"><button class="go timer-primary" onclick="startTimer('+g+')">Start '+(kind==='countdown'?LIMIT[g]+'s countdown':kind==='attempt'?'attempt on TV':'timer')+'</button></div>':'<div>All results recorded. Edit a result below to correct or replay it.</div>';
+ else{
+  h+='<div>'+slots.map(i=>label(g,i)).join(' <span style="color:var(--g)">vs</span> ')+'</div><div class="clock" id="clock">'+hostClockText()+'</div>';
+  if(mode=='time')h+='<div class="rw">'+slots.map((i,j)=>'<button class="timer-primary '+(Q.ends[j]!=null?'on':'go')+'" onclick="finishTimer('+j+')" '+(Q.ends[j]!=null||!Q.go?'disabled':'')+'>'+(Q.ends[j]!=null?'Saved '+shown(g,Q.ends[j])+'s':'Finish '+label(g,i))+'</button>').join('')+'</div>';
+  if(kind==='attempt')h+='<p class="hint">Record the result below to finish this attempt. There is no time limit.</p>';
+  if(LIMIT[g])h+='<div class="'+(Q.expired?'warn':'hint')+'">'+(Q.expired?'TIME! Count the successful items and enter the result below.':!Q.go?'Get ready. The round begins on GO.':'Count the successful items when the clock reaches zero.')+'</div>';
+  h+='<div class="rw" style="margin-top:16px"><button class="timer-reset" onclick="cancelTimer()">'+(Q.expired?'Close timer':kind==='attempt'?'Cancel attempt':'Cancel timer')+'</button></div>';
  }
+ h+='</div>';
  h+=extras;
  h+='<div class="lb">RECORD '+(mode=='time'?'TIME IN SECONDS':mode=='distance'?'DISTANCE IN CM':'SUCCESSFUL COUNT')+' · '+filled(g)+' / '+n+'</div>';
  if(g===3)h+='<div class="hint">Tied candle counts share the points for those places. No replay needed.</div>';
@@ -2206,7 +2267,7 @@ function resultPanel(g,extras=''){
  if(LIMIT[g])h+='<div class="hint">Enter each team’s count after its countdown. The page picks the higher count.</div>';
  h+='<div class="results">'+Array.from({length:n},(_,i)=>{
   const p=x.t=='s'?S.sc[i][g]:x.u?S.sc[x.u[i][0]-1][g]:null;
-  return '<label class="result'+(value(g,i)===null?' result-missing':'')+'"><span class="who">'+label(g,i)+(value(g,i)===null?'<small>Missing</small>':'')+'</span><input id="result'+g+'-'+i+'" data-result-slot="'+i+'" type="number" inputmode="decimal" min="'+(mode=='time'?'0.01':'0')+'" '+(g===3?'max="8" ':'')+(Q&&Q.clock&&Q.g===g&&Q.slots.includes(i)&&!Q.expired?'disabled ':'')+'step="'+(mode=='count'?'1':mode=='time'?'0.01':'0.1')+'" value="'+shown(g,value(g,i))+'" aria-label="'+(mode=='time'?'Seconds':mode=='distance'?'Centimetres':'Count')+' for '+esc(x.t=='s'?rn(i):x.t=='t'?'Team '+'AB'[i]:'pair '+(i+1))+'" onchange="setResult('+g+','+i+',this.value)"><b>'+(p===null?'': '+'+p)+'</b></label>'
+  return '<label class="result'+(value(g,i)===null?' result-missing':'')+'"><span class="who">'+label(g,i)+(value(g,i)===null?'<small>Missing</small>':'')+'</span><input id="result'+g+'-'+i+'" data-result-slot="'+i+'" type="number" inputmode="decimal" min="'+(mode=='time'?'0.01':'0')+'" '+(g===3?'max="8" ':'')+(Q&&LIMIT[g]&&Q.g===g&&Q.slots.includes(i)&&!Q.expired?'disabled ':'')+'step="'+(mode=='count'?'1':mode=='time'?'0.01':'0.1')+'" value="'+shown(g,value(g,i))+'" aria-label="'+(mode=='time'?'Seconds':mode=='distance'?'Centimetres':'Count')+' for '+esc(x.t=='s'?rn(i):x.t=='t'?'Team '+'AB'[i]:'pair '+(i+1))+'" onchange="setResult('+g+','+i+',this.value)"><b>'+(p===null?'': '+'+p)+'</b></label>'
  }).join('')+'</div>';
  if(completed(g)&&x.t!=='s'){
   const top=leaders(g);
@@ -2263,7 +2324,7 @@ if(revealCheck&&!ready){
  const ties=allDone()?st.filter((o,k)=>k>0&&st[k-1].t===o.t&&st[k-1].b===o.b).map(o=>o.r-1):[];
  if(ties.length)h+=`<p class="hint">Tie for place ${ties.join(', ')}. Replay Snow Blower, then use the player tie-break controls.</p>`;
  h+=`<details id="playerNames"${namesOpen?' open':''} ontoggle="if(this.isConnected&&!this.open)host()"><summary>Player names &amp; tie-break</summary><p class="hint">Names save automatically. Use +/− only for an overall tie-break.</p>${S.nm.map((n,i)=>`<div class="nr"><input id="playerName${i}" aria-label="Player ${i+1} name" value="${esc(n)}" maxlength="14" onchange="nn(${i},this.value)"><button aria-label="Subtract a tie-break point for player ${i+1}" onclick="tbb(${i},-1)">−</button><span>${S.tb[i]||0}</span><button aria-label="Add a tie-break point for player ${i+1}" onclick="tbb(${i},1)">+</button></div>`).join('')}</details>`;
- h+=`<details class="host-settings" id="hostSetup"${settingsOpen?' open':''}><summary>Sound &amp; settings</summary><details class="host-audio" id="hostAudio"${audioOpen?' open':''}><summary id="hostSoundStatus">Host sound off</summary><div class="soundbar"><button id="hostSoundToggle" onclick="toggleSound()">Turn on host sound</button><button id="hostSoundTest" onclick="testSound()" disabled>Test chime</button><p class="hint">TV countdown and reveal sounds play on the MacBook. Host sound is optional for the person timing the games.</p></div></details><details><summary>Start a new round</summary><p class="hint">Clears all results and tie-breaks. Player names are kept.</p><button id="startNewRound" class="danger" onclick="reset()">Start a new round</button></details>${relayPanelHTML()}</details>`;
+ h+=`<details class="host-settings" id="hostSetup"${settingsOpen?' open':''}><summary>Sound &amp; settings</summary><details class="host-audio" id="hostAudio"${audioOpen?' open':''}><summary id="hostSoundStatus">Host sound off</summary><div class="soundbar"><button id="hostSoundToggle" onclick="toggleSound()">Turn on host sound</button><button id="hostSoundTest" onclick="testSound()" disabled>Test chime</button><p class="hint">Host sound confirms button presses. Enable TV sound for game and reveal cues.</p></div></details><details><summary>Start a new round</summary><p class="hint">Clears all results and tie-breaks. Player names are kept.</p><button id="startNewRound" class="danger" onclick="reset()">Start a new round</button></details>${relayPanelHTML()}</details>`;
  $('H').innerHTML=h;
  if(previousGame!==String(g))window.JialatMotion?.play($('currentGameTitle'),'enter');
  $('hostConnection').append(dotNode,syncNode);relayPanelBind();updateAudioStatus();boardAccess();
@@ -2298,61 +2359,91 @@ function showClosing(entrance){
  $('msg').innerHTML=`<section class="closing-championship" aria-labelledby="championshipTitle">
   <p class="closing-brand">JIALAT CHRISTMAS 2026</p>
   <h1 id="championshipTitle" tabindex="-1">CHAMPIONSHIP COMPLETE</h1>
-  <div class="closing-champion"><div aria-hidden="true">${spr('trophy',8)}</div><div><p>CHAMPION</p><h2>${name(1)}</h2><span>${CHAMPION_PRIZE} CASH PRIZE</span></div></div>
+  <div class="closing-champion"><div class="closing-icon" aria-hidden="true">${spr('trophy',18)}</div><div><p>CHAMPION</p><h2>${name(1)}</h2><span class="closing-prize">${cashPrizeIcon()} <span>Cash prize</span></span></div></div>
   <div class="closing-honours"><div><p>THE JIALAT TROPHY</p><strong>${name(10)}</strong></div><div><p>2027 ORGANISERS</p><strong>${[7,8,9].map(name).join(' · ')}</strong></div></div>
   <p class="closing-games">9 / 9 GAMES COMPLETE</p>
   <button class="tv-return" id="seeClosingRanks" type="button">View final rankings</button>
  </section>`;
  $('seeClosingRanks').onclick=()=>{tvClosingRanks=true;tv(false);$('th').focus()};
- if(entrance)window.JialatMotion?.play($('championshipTitle'),'reveal');
+ if(entrance){
+  window.JialatMotion?.play($('championshipTitle'),'reveal');
+  window.JialatMotion?.play($('msg').querySelector('.closing-champion'),'finale');
+ }
 }
 $('backToClosing').onclick=()=>{tvClosingRanks=false;tv(false);$('championshipTitle').focus()};
-function activeCountdown(){return validCountdown(S.timer)&&S.m[0]==='rules'&&S.m[1]===S.timer.g?S.timer:null}
-function drawTvCountdown(c){
- const x=G[c.g];$('msg').classList.add('timer-view');
- $('msg').innerHTML=`<div class="sm">GAME ${String(c.g+1).padStart(2,'0')} / 09 · ${LIMIT[c.g]} SECONDS · ${PRIZE_TAG}</div><h1>${esc(x.n)}</h1><div class="timer-team">TEAM ${'AB'[c.slot]}</div><div class="timer-names">${x.u[c.slot].map(p=>nm(p-1)).join(' · ')}</div><div id="tvClockPhase" role="status" aria-live="polite"></div><div id="tvClock" aria-label="Time remaining"></div><div class="tv-clock-track" role="progressbar" aria-label="Round time remaining" aria-valuemin="0" aria-valuemax="${LIMIT[c.g]}"><div id="tvClockBar"></div></div><div id="tvClockHint"></div>`;
- tickTvCountdown()
+const PLAY_REMINDER=[
+ 'Use only the party blower. Finish when all five cotton balls fall.',
+ 'Fan with the plate held in your mouth. No direct blowing.',
+ 'Hold one ribbon end each. Lower, lift and repeat three times without resetting the clock.',
+ 'Say “Merry Christmas!” once, in one breath. Count the flames that go out.',
+ 'Both partners keep their feet behind the line. Release the tree before measuring to its base.',
+ 'Unroll the entire streamer without tearing or cutting it.',
+ 'Spin to transfer the ribbon from A to B. No pulling by hand.',
+ 'Knees only. Drop, return and tag the next teammate. Count ornaments inside the basket.',
+ 'Stack cups on one teammate. Hands away when time is up. Count only cups that stay balanced.'
+];
+function tvTurnParticipants(c){
+ const x=G[c.g],slots=playSlots(c);
+ return slots.map((slot,i)=>{
+  const group=x.t==='s'?(slots.length>1?'PLAYER '+(i+1):'PLAYER'):x.t==='p'?'PAIR '+(slot+1):'TEAM '+ 'AB'[slot];
+  const names=x.t==='s'?nm(slot):x.u[slot].map(p=>nm(p-1)).join(x.t==='p'?' &amp; ':' · ');
+  const result=value(c.g,slot),saved=result===null?'':shown(c.g,result)+(playKind(c.g)==='stopwatch'?' s':MODE[c.g]==='distance'?' cm':'');
+  return `<li><span>${group}</span><strong>${names}</strong>${saved?'<b class="turn-saved">'+esc(saved)+'</b>':''}</li>`;
+ }).join('');
 }
-function tickTvCountdown(){
- const c=activeCountdown(),clock=$('tvClock');if(!c||!clock){tvCountdownFrame=null;return}const f=countdownFrame(c),phase=$('tvClockPhase'),hint=$('tvClockHint'),bar=$('tvClockBar');
- const previous=tvCountdownFrame,observed=previous?.id===c.id,now=Date.now(),msg=$('msg');
- const phaseClass=f.phase==='ready'?'ready':f.phase==='ended'?'ended':now-c.startAt<1000?'go':'';
- const display=f.phase==='ready'?String(f.ready):Math.floor(f.seconds/60)+':'+String(f.seconds%60).padStart(2,'0');
+function drawTvGameplay(c,live){
+ const kind=playKind(c.g);
+ $('msg').dataset.playKind=kind;
+ $('msg').innerHTML=`<header class="turn-heading"><p class="sm">GAME ${String(c.g+1).padStart(2,'0')} / 09</p><h1>${esc(G[c.g].n)}</h1></header>
+  <ul id="tvParticipants" class="turn-participants" aria-label="Current participants">${tvTurnParticipants(c)}</ul>
+  <div class="turn-display"><div id="tvClockPhase" role="status" aria-live="polite"></div><div id="tvClock"></div>
+  ${kind==='countdown'?`<div class="tv-clock-track" role="progressbar" aria-label="Round time remaining" aria-valuemin="0" aria-valuemax="${LIMIT[c.g]}"><div id="tvClockBar"></div></div>`:''}</div>
+  <div class="turn-rules"><strong>${esc(GUIDE[c.g].goal)}</strong><p id="tvClockHint">${esc(PLAY_REMINDER[c.g])}</p></div>`;
+ tickTvGameplay(live)
+}
+function tickTvGameplay(fresh){
+ const c=activeGameplay(),clock=$('tvClock');
+ if(!c||!clock){tvCountdownFrame=null;return}
+ const f=gameplayFrame(c),kind=playKind(c.g),phase=$('tvClockPhase'),msg=$('msg');
+ const previous=tvCountdownFrame,observed=previous?.id===c.id;
+ const ready=f.phase==='ready',ended=f.phase==='ended',go=!ready&&!ended&&kind!=='attempt'&&Date.now()-c.startAt<1000;
+ const finalSeconds=kind==='countdown'&&!ready&&!ended&&f.seconds<=10;
+ const seconds=kind==='countdown'?f.seconds:Math.floor((f.elapsed||0)/1000);
+ const time=Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
+ const display=ready?String(f.ready):kind==='attempt'?(ended?'DONE':'IN PLAY'):
+  time+(kind==='stopwatch'?'.'+Math.floor(f.elapsed/100)%10:'');
  if(clock.textContent!==display){
   clock.textContent=display;
-  const warningAge=now-(c.endAt-f.seconds*1000);
-  const warning=observed&&previous.phase==='running'&&previous.seconds>f.seconds&&f.seconds>=1&&f.seconds<=5&&warningAge>=0&&warningAge<250;
-  if(f.phase==='ready'||warning)window.JialatMotion?.play(clock,'count');
+  if(ready||finalSeconds&&f.seconds<=5&&observed&&previous.seconds>f.seconds)window.JialatMotion?.play(clock,'count');
  }
- const clockLabel=f.phase==='ready'?'Starting in '+f.ready+' seconds':f.seconds+' seconds remaining';
- if(clock.getAttribute('aria-label')!==clockLabel)clock.setAttribute('aria-label',clockLabel);
- const title=f.phase==='ready'?'GET READY':f.phase==='ended'?"TIME’S UP!":phaseClass==='go'?'GO!':f.seconds<=10?'FINAL COUNTDOWN':'TIME REMAINING';
+ const title=ready?'GET READY':ended?(kind==='countdown'?"TIME’S UP!":kind==='attempt'?'ATTEMPT COMPLETE':'ROUND COMPLETE'):
+  go?'GO!':finalSeconds?'FINAL COUNTDOWN':kind==='attempt'?'UNTIMED ATTEMPT':kind==='stopwatch'?'ELAPSED TIME':'TIME REMAINING';
  if(phase.textContent!==title){
-  phase.textContent=title;
-  msg.classList.remove('clock-impact');
-  if(observed&&(phaseClass==='go'&&previous.phase==='ready'||phaseClass==='ended'&&previous.phase!=='ended'&&now-c.endAt<1500)){
+  phase.textContent=title;msg.classList.remove('clock-impact');
+  if(observed&&(go&&previous.phase==='ready'||ended&&previous.phase!=='ended'&&fresh!==false)){
    msg.classList.add('clock-impact');
    window.JialatMotion?.play(phase,'reveal');
   }
  }
- msg.classList.toggle('ready',phaseClass==='ready');
- msg.classList.toggle('go',phaseClass==='go');
- msg.classList.toggle('final-seconds',f.phase==='running'&&f.seconds<=10);
- const instruction=f.phase==='ready'?'Wait for GO.':f.phase==='ended'?(c.g===7?'Count only ornaments inside the basket.':'Hands away. Count only cups still balanced without help.'):(c.g===7?'Knees only. Drop, return and tag the next teammate.':'Keep stacking. Hands away when time is up.');if(hint.textContent!==instruction)hint.textContent=instruction;
- bar.style.transform='scaleX('+f.fraction+')';
- if(bar.parentElement.getAttribute('aria-valuenow')!==String(f.seconds))bar.parentElement.setAttribute('aria-valuenow',String(f.seconds));
- $('msg').classList.toggle('urgent',f.phase==='ended'||f.phase==='running'&&f.seconds<=10);$('msg').classList.toggle('ended',f.phase==='ended');
- tvCountdownAudio(c,f)
+ msg.classList.toggle('ready',ready);msg.classList.toggle('go',go);
+ msg.classList.toggle('final-seconds',finalSeconds);msg.classList.toggle('urgent',finalSeconds||ended&&kind==='countdown');
+ msg.classList.toggle('ended',ended);
+ const bar=$('tvClockBar');
+ if(bar){
+  bar.style.transform='scaleX('+f.fraction+')';
+  if(bar.parentElement.getAttribute('aria-valuenow')!==String(f.seconds))bar.parentElement.setAttribute('aria-valuenow',String(f.seconds));
+ }
+ tvCountdownAudio(c,f,fresh)
 }
-function tv(animate){
+function tv(animate,live=false){
  const m=S.m,rev=m[0]==='rev',rank=rev&&m[1]>0?REVEAL_ORDER[m[1]-1]:null;
  const complete=championshipComplete(),spot=rev&&S.spotlight&&(rank===1||rank===10),sealed=m[0]==='board'&&m[1]>=9&&allDone()&&!S.finalShown;
  if(!complete)tvClosingRanks=false;
  const closing=complete&&!tvClosingRanks;
- const board=!sealed&&!spot&&!closing&&(m[0]==='board'||rev),clock=activeCountdown(),msg=$('msg');
+ const board=!sealed&&!spot&&!closing&&(m[0]==='board'||rev),clock=activeGameplay(),msg=$('msg');
  const screen=closing?'closing:'+S.revealId:spot?'spot:'+S.revealId+':'+rank:sealed?'sealed':clock?'timer:'+clock.id:rev?'reveal:'+S.revealId:m.join(':');
  const previousScreen=tvScreen,changed=screen!==previousScreen;
- const lineup=closing||m[0]==='rules'?JSON.stringify(S.nm):'';
+ const lineup=clock?JSON.stringify([S.nm,playSlots(clock).map(i=>value(clock.g,i))]):closing||m[0]==='rules'?JSON.stringify(S.nm):'';
  $('backToClosing').hidden=!complete||!tvClosingRanks;
  $('bd').classList.toggle('reveal-board',rev&&!complete);
  $('bd').style.display=board?'flex':'none';
@@ -2363,12 +2454,15 @@ function tv(animate){
  }
  if(!board){
   if(spot){showSpotlight(rank,animate);tvScreen=screen;return}
-  if(!changed&&lineup===tvLineup)return;
+  if(!changed&&lineup===tvLineup){
+   if(clock)tickTvGameplay(live);
+   return;
+  }
   tvScreen=screen;
   tvLineup=lineup;
-  if(closing){showClosing(changed&&previousScreen==='spot:'+S.revealId+':1')}
-  else if(sealed){$('msg').innerHTML=`<div class="bob">${spr('screen',8)}</div><h1>ALL NINE GAMES COMPLETE</h1><div class="tag">THE FINAL REVEAL IS COMING</div><div class="prize-label">${PRIZE_TAG}</div>`}
-  else if(clock){drawTvCountdown(clock)}
+  if(closing){showClosing(live&&changed&&previousScreen==='spot:'+S.revealId+':1')}
+  else if(sealed){$('msg').innerHTML=`<div class="bob">${spr('screen',8)}</div><h1>ALL NINE GAMES COMPLETE</h1><div class="tag">THE FINAL REVEAL IS COMING</div>`}
+  else if(clock){drawTvGameplay(clock,live);return}
   else if(m[0]=='rules'){const x=G[m[1]],a=GUIDE[m[1]],kind={s:'SOLO',p:'PAIRS',t:'TEAMS OF FIVE'}[x.t];
   msg.dataset.gameType=x.t;
   msg.innerHTML=`<header class="guide-intro"><div class="game-kicker"><span class="level-number">GAME ${String(m[1]+1).padStart(2,'0')} <span>/ 09</span></span><span class="tag">${kind}</span></div><h1>${esc(x.n)}</h1><p class="guideGoal">${esc(a.goal)}</p>${scene(m[1])}</header>
@@ -2381,7 +2475,7 @@ function tv(animate){
   if(changed&&(sealed||m[0]==='rules')){
    msg.classList.add('arcade-sweep');
    window.JialatMotion?.play(msg.querySelector('h1'),sealed?'finale':'reveal');
-   window.JialatMotion?.play(msg.querySelector('.level-number,.prize-label'),'enter',{delay:90});
+   window.JialatMotion?.play(msg.querySelector('.level-number'),'enter',{delay:90});
   }
   return
  }
@@ -2459,7 +2553,7 @@ function advanceResultFocus(event){
  if(next)next.focus();
 }
 // ---- boot ----
-function render(live=false){document.body.className=ROLE||'landing';if(ROLE=='host')host();else if(ROLE=='tv'){tv(tvRevealStep(live))}else $('H').innerHTML=`<div class="seasonal-snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="chooser-topbar site-utility"><a class="back-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="chooser"><div class="title-icons seasonal-art"><div class="title-middle"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-label="Animated pixel abacus" role="img">
+function render(live=false){document.body.className=ROLE||'landing';if(ROLE=='host')host();else if(ROLE=='tv'){tv(tvRevealStep(live),live)}else $('H').innerHTML=`<div class="seasonal-snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="chooser-topbar site-utility"><a class="back-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></div><div class="chooser"><div class="title-icons seasonal-art"><div class="title-middle"><svg class="pixel-abacus" viewBox="0 0 18 14" aria-label="Animated pixel abacus" role="img">
 <path fill="#d4af37" d="M1 1h16v1H1zM1 2h1v10H1zM16 2h1v10h-1zM1 12h16v1H1z"/>
 <path fill="#6b5a22" d="M3 4h12v1H3zM3 7h12v1H3zM3 10h12v1H3z"/>
 <g class="bead-one"><path fill="#65d9cb" d="M4 3h2v3H4z"/></g>
@@ -2470,9 +2564,9 @@ function enterRole(role,fromEntry=true){
  if(!['host','tv',''].includes(role))return;
  if(role)$('H').querySelectorAll('.seasonal-snow').forEach(node=>node.remove())
  if(hostTab){hostTab.dispose();hostTab=null}localHostBlocked=false;remoteHostBlocked=false;boardAuthorized=false;boardTV='';boardNonce='';boardController='';boardTVGranted=false;clearTimeout(boardProbeTimer);boardProbeTimer=0;if(stream)stream.close();stream=null;streamOpen=false;clearInterval(pollTimer);pollTimer=null;clearTimeout(pt);clearTimeout(retryTimer);retryTimer=null;retryAt=0;sendFailures=0;queued=null;stopCue();
- tvLastFrame=null;tvCountdownFrame=null;liveRevealStream=false;tvScreen=tvLineup='';tvClosingRanks=false;window.JialatMotion?.clearBurst($('msg'));$('msg').replaceChildren();
+ clearTimeout(tvCueTimeout);tvLastFrame=null;tvCountdownFrame=null;liveRevealStream=false;tvScreen=tvLineup='';tvClosingRanks=false;window.JialatMotion?.clearBurst($('msg'));$('msg').replaceChildren();
  ROLE=role;if(fromEntry)history.replaceState(null,'',role?'#'+role:location.pathname+location.search);
- if(ROLE==='tv'){Q=null;if(!rows.length)mkRows();if(!tvCountdownInterval)tvCountdownInterval=setInterval(tickTvCountdown,100)}else{clearInterval(tvCountdownInterval);tvCountdownInterval=null}
+ if(ROLE==='tv'){Q=null;if(!rows.length)mkRows();if(!tvCountdownInterval)tvCountdownInterval=setInterval(tickTvGameplay,100)}else{clearInterval(tvCountdownInterval);tvCountdownInterval=null}
  if(ROLE==='host')restoreCountdown();
  render();if(window.JialatUI)JialatUI.bind(document);if(ROLE==='host'&&window.JialatUI&&JialatUI.hostGuard){localHostBlocked=true;hostTab=JialatUI.hostGuard('scoreboard',active=>{localHostBlocked=!active;if(active)conn();else{if(stream)stream.close();streamOpen=false;boardAuthorized=false}host()});const tab=hostTab;tab.acquire().then(()=>{if(tab===hostTab)host()})}else if(ROLE)conn();
  if(ROLE==='tv')prepareTvSound(fromEntry);
@@ -2480,11 +2574,11 @@ function enterRole(role,fromEntry=true){
 }
 $('H').addEventListener('keydown',advanceResultFocus);
 $('T').ondblclick=()=>document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();
-if(window.JialatUI&&JialatUI.build==='29'&&JialatUI.relayRevision==='3'){
+if(window.JialatUI&&JialatUI.build==='30'&&JialatUI.relayRevision==='3'){
 if(!validBoard(S)){S=D();JialatUI.storageFailure()}
 enterRole(ROLE,false);
 JialatUI.ready();
-}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Reload this page from the JIALAT site to load the matching files for Build 29 · relay 3.';document.body.className='landing';}
+}else{const title=$('boot-title'),message=$('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Reload this page from the JIALAT site to load the matching files for Build 30 · relay 3.';document.body.className='landing';}
 function followRoleLink(){const role=(location.hash.match(/host|tv/)||[''])[0];if(role!==ROLE)enterRole(role,false)}
 window.addEventListener('hashchange',followRoleLink);window.addEventListener('popstate',followRoleLink);
 for(const id of ['tvAudio','tvAudioTests'])$(id).addEventListener('keydown',e=>{if(e.key==='Escape'){e.stopPropagation();$(id).open=false;$(id).querySelector('summary').focus()}});

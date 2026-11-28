@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta name="jialat-build" content="29"><meta charset="utf-8">
+<html lang="en"><head><meta name="jialat-build" content="30"><meta charset="utf-8">
 <meta name="robots" content="noindex">
-<meta name="jialat-room-wars-build" content="29">
+<meta name="jialat-room-wars-build" content="30">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a0a0a">
 <meta name="description" content="Three mini-games. Five pairs. One room-picking order. Hosts set up the game; players join with the shared invite.">
@@ -658,8 +658,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 <header class="site-navigation site-utility"><a id="site-menu" href="../">← MAIN MENU</a><img class="page-wordmark" src="../assets/jialat-wordmark.png?v=brand-1" alt="JIALAT" width="800" height="208" decoding="async"></header>
 <main id="app"></main>
 <script src="../assets/motion.js?v=4.1"></script>
-<script src="../assets/ui.js?v=29"></script>
-<script src="../assets/reliability.js?v=29"></script>
+<script src="../assets/ui.js?v=30"></script>
+<script src="../assets/reliability.js?v=30"></script>
 <script src="../assets/roomwars-journey.js?v=2"></script>
 <script>
 
@@ -767,7 +767,7 @@ function namesFromInvite(raw){
  if(raw.charAt(0)==='n')return raw.slice(1).split(',').map(function(n){return decodeURIComponent(n)});
  return JSON.parse(decodeURIComponent(raw));
 }
-function link(){var u=new URL(location.href);u.hash="";u.search='?v=29';
+function link(){var u=new URL(location.href);u.hash="";u.search='?v=30';
  return u.toString()+"#"+code+(S.names?"~"+namesForInvite(S.names):"")}
 function I(x,a,b){return typeof x=="number"&&x%1===0&&x>=a&&x<=b}
 function F(x){return typeof x=="number"&&isFinite(x)}
@@ -970,7 +970,7 @@ function apply(m){
 var rt=null,RV=["home","wait","who","final","picking","complete"];
 function rq(){if(rt)return;rt=setTimeout(function(){rt=null;if(view=="home"&&host&&document.activeElement&&["mg","mp","mv","bc"].indexOf(document.activeElement.id)>=0)return;if(RV.indexOf(view)>=0)render()},80)}
 var out=[],posting=false,postRetry=null,postRetryAt=0,postFailures=0,pollTimer=null,polling=false,pollTask=null,pollOk=false,cursor="",seen={},seenOrder=[],postFailed=false,postError="";
-var roomHostTab=null,wantedRoomHost=false,roomFilesMatch=!!(window.JialatUI&&JialatUI.build==='29'&&JialatUI.relayRevision==='3'&&typeof stageIndicator==='function');
+var roomHostTab=null,wantedRoomHost=false,roomFilesMatch=!!(window.JialatUI&&JialatUI.build==='30'&&JialatUI.relayRevision==='3'&&typeof stageIndicator==='function');
 var setupDraft=null,roomHostDenied=false,roomHostProblem='',roomLeaving=false,heldOut=[],queuePaused=false;
 function reloadRoom(event){event.preventDefault();location.reload()}
 function roomHostActive(){return !!(host&&roomHostTab&&roomHostTab.active)}
@@ -1672,5 +1672,5 @@ if(code&&roomFilesMatch){host=ls("rwh-"+code)=="1";var m=ls("rwm-"+code);me=m===
  if(host){acquireRoomHost()}else{restorePending();connect();post()}}
 ['click','pointerdown','keydown'].forEach(function(type){A.addEventListener(type,function(event){if(roomHostBlocked()&&event.target.closest('button,input,select,textarea,[role="button"]')){event.preventDefault();event.stopImmediatePropagation()}},true)});
 var bootReload=document.querySelector('#site-boot .boot-actions a');if(bootReload)bootReload.onclick=reloadRoom;
-if(roomFilesMatch){render();JialatUI.ready()}else{var title=document.getElementById('boot-title'),message=document.getElementById('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Reload this page from the JIALAT site to load the matching files for Build 29 · relay 3.';}
+if(roomFilesMatch){render();JialatUI.ready()}else{var title=document.getElementById('boot-title'),message=document.getElementById('boot-message');if(title)title.textContent='Some files need updating';if(message)message.textContent='Reload this page from the JIALAT site to load the matching files for Build 30 · relay 3.';}
 </script></body></html>
